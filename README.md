@@ -8,7 +8,7 @@ Validated in a research spike on ~2,900 ladder replays (23 players) and ~1,000 c
 
 - Single-game verification: EER 0.21%, 99.7% true-positive rate at a 1-in-1,000 false-positive threshold.
 - 3-game evidence: EER 0.05%, TPR 1.000 at 1-in-1,000 — even against same-race impostors.
-- Found real smurf pairs in the wild (`MBU_Shine ≡ wG_Shine`, `58BoJi4485 ≡ IllIllIlllIIIII`) and identified a pro playing casual team games cross-corpus.
+- Found real smurf pairs in the wild (`MBU_Shine ≡ wG_Shine`, `58BoJi4485 ≡ IllIllIlllIIIII`) and re-identified a ladder player across two unrelated replay collections (z=+7.6 where the null's 99th percentile is +4.1).
 
 ## Planned shape
 
