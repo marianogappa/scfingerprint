@@ -2,73 +2,73 @@
  {
   "probe": "01_zvt_zergling_rush.rep/FantaSyWannabe",
   "fingerprint": "01_zvt_zergling_rush.rep/Skins_",
-  "z": 69.82522008841457,
-  "cosine": 0.9408023928197892
+  "z": 7.196824159959673,
+  "cosine": 0.9687733211194935
  },
  {
   "probe": "01_zvt_zergling_rush.rep/FantaSyWannabe",
   "fingerprint": "03_zvp_progamer_soma.rep/LC_Tyson",
-  "z": 73.39679681997359,
-  "cosine": 0.9890694209191423
+  "z": 7.297091732102272,
+  "cosine": 0.9828325345845802
  },
  {
   "probe": "01_zvt_zergling_rush.rep/FantaSyWannabe",
   "fingerprint": "03_zvp_progamer_soma.rep/lllIlIlIIIl11",
-  "z": 59.43371117848445,
-  "cosine": 0.8003693879459619
+  "z": 7.092751622354874,
+  "cosine": 0.9541805869904747
  },
  {
   "probe": "01_zvt_zergling_rush.rep/Skins_",
   "fingerprint": "01_zvt_zergling_rush.rep/FantaSyWannabe",
-  "z": 109.09921561903602,
-  "cosine": 0.9408023928197892
+  "z": 7.144592664883935,
+  "cosine": 0.9687733211194935
  },
  {
   "probe": "01_zvt_zergling_rush.rep/Skins_",
   "fingerprint": "03_zvp_progamer_soma.rep/LC_Tyson",
-  "z": 110.30421575011414,
-  "cosine": 0.9511947980097516
+  "z": 7.185251785771585,
+  "cosine": 0.9744912631691925
  },
  {
   "probe": "01_zvt_zergling_rush.rep/Skins_",
   "fingerprint": "03_zvp_progamer_soma.rep/lllIlIlIIIl11",
-  "z": 109.03204496144177,
-  "cosine": 0.9402230860856304
+  "z": 7.185749506875516,
+  "cosine": 0.9745612582986262
  },
  {
   "probe": "03_zvp_progamer_soma.rep/LC_Tyson",
   "fingerprint": "01_zvt_zergling_rush.rep/FantaSyWannabe",
-  "z": 51.93464520956663,
-  "cosine": 0.9890694209191423
+  "z": 7.313672773984604,
+  "cosine": 0.9828325345845802
  },
  {
   "probe": "03_zvp_progamer_soma.rep/LC_Tyson",
   "fingerprint": "01_zvt_zergling_rush.rep/Skins_",
-  "z": 49.95392122700392,
-  "cosine": 0.9511947980097516
+  "z": 7.254044942869575,
+  "cosine": 0.9744912631691925
  },
  {
   "probe": "03_zvp_progamer_soma.rep/LC_Tyson",
   "fingerprint": "03_zvp_progamer_soma.rep/lllIlIlIIIl11",
-  "z": 44.1031406028509,
-  "cosine": 0.8393184781306654
+  "z": 7.374783214832817,
+  "cosine": 0.9913812066374947
  },
  {
   "probe": "03_zvp_progamer_soma.rep/lllIlIlIIIl11",
   "fingerprint": "01_zvt_zergling_rush.rep/FantaSyWannabe",
-  "z": 28.85671702421645,
-  "cosine": 0.8003693879459619
+  "z": 7.139488113665412,
+  "cosine": 0.9541805869904747
  },
  {
   "probe": "03_zvp_progamer_soma.rep/lllIlIlIIIl11",
   "fingerprint": "01_zvt_zergling_rush.rep/Skins_",
-  "z": 33.89674619746903,
-  "cosine": 0.9402230860856304
+  "z": 7.286069330794291,
+  "cosine": 0.9745612582986262
  },
  {
   "probe": "03_zvp_progamer_soma.rep/lllIlIlIIIl11",
   "fingerprint": "03_zvp_progamer_soma.rep/LC_Tyson",
-  "z": 30.260359211829588,
-  "cosine": 0.8393184781306654
+  "z": 7.4070412292307335,
+  "cosine": 0.9913812066374947
  }
 ]

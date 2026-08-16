@@ -39,15 +39,17 @@ matches, err := scfingerprint.Match(replay)
 
 ## CLI quickstart
 
-Planned commands ([#7](../../issues/7)):
-
 ```bash
-scfingerprint match game.rep            # who is each player in this replay?
-scfingerprint same a.rep b.rep          # are these the same player?
-scfingerprint enroll --player X *.rep   # build a fingerprint from known games
-scfingerprint extract game.rep          # dump raw feature vectors
-scfingerprint dataset verify            # check the built-in dataset's integrity
+scfingerprint match game.rep                          # who is each player? vs built-in dataset
+scfingerprint match --name FlaSh --dir replays/       # multi-game evidence for one identity
+scfingerprint same --a dirA/ --b dirB/                # are these two players the same human?
+scfingerprint enroll --label "C9_FlaSh" --dir reps/   # build a fingerprint file (gated)
+scfingerprint extract game.rep                        # dump raw feature vectors (JSON)
+scfingerprint dataset verify                          # hygiene checks over the built-in dataset
 ```
+
+Human-readable tables by default, `--json` for machines. Exit codes: 0 = match
+found / success, 1 = no match / findings, 2 = error.
 
 ## Built-in dataset
 
