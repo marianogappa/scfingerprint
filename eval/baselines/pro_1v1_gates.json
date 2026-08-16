@@ -1,0 +1,10 @@
+{
+    "n1_all": {
+        "eer_max": 0.0026,
+        "tpr_at_fpr_1e3_min": 0.992
+    },
+    "n3_same_race": {
+        "eer_max": 0.0007,
+        "tpr_at_fpr_1e3_min": 0.995
+    }
+}
