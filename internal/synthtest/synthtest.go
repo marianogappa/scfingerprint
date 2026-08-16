@@ -65,6 +65,12 @@ func GameVector(p, g, d int) []float64 {
 	return vec
 }
 
+// GameID returns a stable replay identifier for a synthetic game, suitable
+// for replay manifests.
+func GameID(player, game int) string {
+	return fmt.Sprintf("synth-p%d-g%d.rep", player, game)
+}
+
 // Scorer trains a small model on the given corpus and wraps it in a Scorer.
 func Scorer(t testing.TB, samples []training.Sample) *scoring.Scorer {
 	t.Helper()
