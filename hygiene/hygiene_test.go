@@ -144,7 +144,7 @@ func TestScanDuplicates(t *testing.T) {
 	if len(dups) != 1 {
 		t.Fatalf("want exactly the alias pair flagged, got %v", dups)
 	}
-	if !(dups[0].LabelA == "alias1" && dups[0].LabelB == "alias2") {
+	if dups[0].LabelA != "alias1" || dups[0].LabelB != "alias2" {
 		t.Fatalf("wrong pair flagged: %+v", dups[0])
 	}
 }
