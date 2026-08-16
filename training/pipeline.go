@@ -50,7 +50,7 @@ func Fit(samples []Sample, cfg Config) (*model.Artifact, error) {
 	}
 
 	// Chronological split.
-	train, heldOut := chronologicalSplit(samples, cfg.TrainFrac)
+	train, heldOut := ChronologicalSplit(samples, cfg.TrainFrac)
 	if len(train) == 0 || len(heldOut) == 0 {
 		return nil, fmt.Errorf("training: split produced empty train (%d) or held-out (%d)", len(train), len(heldOut))
 	}
@@ -129,10 +129,10 @@ func filterMinGames(samples []Sample, minGames int) []Sample {
 	return out
 }
 
-// chronologicalSplit splits samples per-player by time: the first trainFrac
+// ChronologicalSplit splits samples per-player by time: the first trainFrac
 // of each player's sorted games go to train, the rest to held-out.
 // Samples must already be sorted by (Player, StartTime).
-func chronologicalSplit(samples []Sample, trainFrac float64) (train, heldOut []Sample) {
+func ChronologicalSplit(samples []Sample, trainFrac float64) (train, heldOut []Sample) {
 	byPlayer := map[string][]Sample{}
 	for _, s := range samples {
 		byPlayer[s.Player] = append(byPlayer[s.Player], s)
