@@ -3,8 +3,9 @@
 scfingerprint identifies StarCraft: Brood War players by **how** they play,
 not what they're named. This document explains how it works, what the numbers
 mean, what it has demonstrably done, and — just as importantly — what it
-cannot do. The audience is a skeptical community; if anything here reads as
-an over-claim, [file an issue](../../../issues).
+cannot do. Trust in a tool like this is earned through transparency, so we
+prefer under-claiming to over-claiming; if anything here reads as an
+over-claim, [file an issue](../../../issues).
 
 ## How it works
 
