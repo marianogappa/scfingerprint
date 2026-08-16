@@ -10,7 +10,7 @@ Validated in a research spike on ~2,900 ladder replays (23 players) and ~1,000 c
 - 3-game evidence: EER 0.05%, TPR 1.000 at 1-in-1,000 — even against same-race impostors.
 - Found real smurf pairs in the wild (`MBU_Shine ≡ wG_Shine`, `58BoJi4485 ≡ IllIllIlllIIIII`) and re-identified a ladder player across two unrelated replay collections (z=+7.6 where the null's 99th percentile is +4.1).
 
-See the [methodology and honest-limitations documentation](../../issues/11) for how the fingerprints work, what they can and cannot claim, and how the numbers above were measured.
+See the [methodology and honest-limitations documentation](docs/METHODOLOGY.md) for how the fingerprints work, what they can and cannot claim, and how the numbers above were measured.
 
 ## Install
 
@@ -57,7 +57,7 @@ Versioned player fingerprints (with provenance and confidence tiers) shipped in-
 
 ## Status
 
-Pre-implementation — the module, CI, and release automation exist; the fingerprinting packages land next. Design and roadmap live in the [issues](../../issues).
+The full pipeline is implemented: feature extraction, offline training, calibrated scoring, fingerprints, catalog hygiene, evaluation harness with CI regression gates, library API, and CLI. The embedded model artifact and built-in dataset are currently synthetic placeholders — real-corpus training and enrollment are the next step. Roadmap lives in the [issues](../../issues).
 
 ## License
 
