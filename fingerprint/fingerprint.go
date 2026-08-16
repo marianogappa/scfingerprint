@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 
 	"github.com/marianogappa/scfingerprint/features"
 	"github.com/marianogappa/scfingerprint/scoring"
@@ -95,8 +96,9 @@ func New(meta Meta) *Fingerprint {
 }
 
 // Add folds one game's raw feature vector into the fingerprint. race may be
-// empty when unknown. No raw vectors are retained. Any cached projection is
-// invalidated.
+// empty when unknown; full names and single-letter codes are both accepted
+// and normalized to codes ("Zerg" → "z"). No raw vectors are retained. Any
+// cached projection is invalidated.
 func (fp *Fingerprint) Add(vector []float64, race string) error {
 	if len(vector) != fp.dims {
 		return fmt.Errorf("fingerprint: vector has %d dims, version %d expects %d", len(vector), fp.version, fp.dims)
@@ -104,6 +106,7 @@ func (fp *Fingerprint) Add(vector []float64, race string) error {
 	fp.n++
 	updateMean(fp.mean, vector, fp.n)
 
+	race = normalizeRace(race)
 	if race != "" {
 		fp.raceCounts[race]++
 		rm, ok := fp.raceMeans[race]
@@ -171,7 +174,18 @@ func (fp *Fingerprint) Mean() []float64 {
 	return out
 }
 
-// RaceCounts returns a copy of the per-race game counts.
+// normalizeRace maps a race name or code to its single-letter storage code:
+// "Zerg"/"z" → "z", "Terran"/"t" → "t", "Protoss"/"p" → "p", "Random" → "r".
+// Full names bloat every serialized blob for zero information.
+func normalizeRace(race string) string {
+	if race == "" {
+		return ""
+	}
+	return strings.ToLower(race[:1])
+}
+
+// RaceCounts returns a copy of the per-race game counts, keyed by
+// single-letter race codes ("z", "t", "p", "r").
 func (fp *Fingerprint) RaceCounts() map[string]int {
 	out := make(map[string]int, len(fp.raceCounts))
 	for r, c := range fp.raceCounts {
@@ -181,15 +195,15 @@ func (fp *Fingerprint) RaceCounts() map[string]int {
 }
 
 // RaceMean returns a copy of the per-race sub-mean and its game count, or
-// ok=false if the race has no games.
+// ok=false if the race has no games. Accepts full names or codes.
 func (fp *Fingerprint) RaceMean(race string) (mean []float64, n int, ok bool) {
-	rm, exists := fp.raceMeans[race]
+	rm, exists := fp.raceMeans[normalizeRace(race)]
 	if !exists {
 		return nil, 0, false
 	}
 	out := make([]float64, len(rm))
 	copy(out, rm)
-	return out, fp.raceCounts[race], true
+	return out, fp.raceCounts[normalizeRace(race)], true
 }
 
 // Projected returns the fingerprint's embedding in the scorer's whitened

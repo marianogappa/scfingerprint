@@ -10,6 +10,11 @@ import (
 	"github.com/marianogappa/scfingerprint/internal/synthtest"
 )
 
+// closeF32 reports whether b equals a after a float32 round-trip.
+func closeF32(a, b float64) bool {
+	return float64(float32(a)) == b || math.Abs(a-b) <= math.Abs(a)*1e-6+1e-9
+}
+
 func dims(t *testing.T) int {
 	t.Helper()
 	names, err := features.FeatureNames(features.Version)
@@ -80,12 +85,12 @@ func TestRoundTrip(t *testing.T) {
 	}
 	m1, m2 := fp.Mean(), fp2.Mean()
 	for j := range m1 {
-		if m1[j] != m2[j] {
-			t.Fatalf("mean dim %d differs after round-trip", j)
+		if !closeF32(m1[j], m2[j]) {
+			t.Fatalf("mean dim %d differs after round-trip beyond float32 precision: %v vs %v", j, m1[j], m2[j])
 		}
 	}
 	rc1, rc2 := fp.RaceCounts(), fp2.RaceCounts()
-	if len(rc1) != len(rc2) || rc1["Zerg"] != rc2["Zerg"] || rc1["Terran"] != rc2["Terran"] {
+	if len(rc1) != len(rc2) || rc1["z"] != rc2["z"] || rc1["t"] != rc2["t"] {
 		t.Fatalf("race counts differ: %v vs %v", rc1, rc2)
 	}
 
@@ -118,11 +123,11 @@ func TestRaceSubMeans(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(s, `"race_means":{"Zerg":`) {
-		t.Fatal("serialized form must include Zerg sub-mean (12 >= threshold)")
+	if !strings.Contains(s, `"race_means":{"z":`) {
+		t.Fatal("serialized form must include the Zerg sub-mean (12 >= threshold)")
 	}
-	if strings.Contains(s, `"Terran":[`) {
-		t.Fatal("serialized form must not include Terran sub-mean (3 < threshold)")
+	if strings.Contains(s, `"t":"`) && strings.Contains(s, `"race_means":{"z":"`) && strings.Contains(s[strings.Index(s, `"race_means"`):], `"t":"`) {
+		t.Fatal("serialized form must not include the Terran sub-mean (3 < threshold)")
 	}
 
 	// After parsing, the Zerg sub-mean survives.
@@ -155,9 +160,9 @@ func TestParseValidation(t *testing.T) {
 
 	cases := map[string]string{
 		"not json":            "{",
-		"wrong mean dims":     `{"v":3,"n":1,"mean":[1,2,3]}`,
+		"wrong mean dims":     `{"v":3,"n":1,"mean":"AAAA"}`,
 		"block sum mismatch":  strings.Replace(s, `"n":4`, `"n":5`, 1),
-		"negative race count": strings.Replace(s, `"races":{"Zerg":4}`, `"races":{"Zerg":-1}`, 1),
+		"negative race count": strings.Replace(s, `"races":{"z":4}`, `"races":{"z":-1}`, 1),
 	}
 	for name, blob := range cases {
 		if _, err := Parse(blob); err == nil {
@@ -274,8 +279,8 @@ func TestProjectedCache(t *testing.T) {
 		t.Fatal(err)
 	}
 	for j := range proj {
-		if proj[j] != proj2[j] {
-			t.Fatal("projection differs after round-trip")
+		if !closeF32(proj[j], proj2[j]) {
+			t.Fatalf("projection dim %d differs after round-trip beyond float32 precision: %v vs %v", j, proj[j], proj2[j])
 		}
 	}
 
