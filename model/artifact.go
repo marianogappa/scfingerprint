@@ -70,6 +70,12 @@ type CalibrationEntry struct {
 	ImpostorStd  float64 `json:"impostor_std"`
 }
 
+// Tag returns a stable identifier for this trained model, used to tag cached
+// projections so a model bump invalidates them.
+func (a *Artifact) Tag() string {
+	return fmt.Sprintf("v%d/%s/%s", a.SchemaVersion, a.Provenance.TrainDate, a.Provenance.GitSHA)
+}
+
 // Provenance records training metadata for reproducibility.
 type Provenance struct {
 	Corpora    []string `json:"corpora"`
