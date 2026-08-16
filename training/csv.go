@@ -33,7 +33,7 @@ func ReadCSV(path string) ([]Sample, error) {
 	if err != nil {
 		return nil, fmt.Errorf("training: opening %s: %w", path, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	r := csv.NewReader(f)
 	header, err := r.Read()

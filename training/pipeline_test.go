@@ -130,7 +130,7 @@ func TestPipelineGolden(t *testing.T) {
 	goldenPath := filepath.Join("testdata", "golden_artifact.json")
 
 	if *update {
-		os.MkdirAll("testdata", 0o755)
+		_ = os.MkdirAll("testdata", 0o755)
 		if err := os.WriteFile(goldenPath, data, 0o644); err != nil {
 			t.Fatal(err)
 		}
