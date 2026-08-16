@@ -65,6 +65,10 @@ func NewFromEmbedded() (*Scorer, error) {
 // FeatureVersion returns the feature schema version this scorer expects.
 func (s *Scorer) FeatureVersion() int { return s.artifact.FeatureVersion }
 
+// ModelTag identifies the underlying trained model, for tagging cached
+// projections.
+func (s *Scorer) ModelTag() string { return s.artifact.Tag() }
+
 // K returns the dimensionality of the whitened space.
 func (s *Scorer) K() int { return s.artifact.K }
 
