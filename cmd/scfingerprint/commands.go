@@ -150,9 +150,9 @@ func cmdMatch(args []string) int {
 				continue
 			}
 			w := tabwriter.NewWriter(os.Stdout, 2, 4, 2, ' ', 0)
-			fmt.Fprintln(w, "  LABEL\tZ\tCOSINE\tEVIDENCE\tFPR<=1e-2\tFPR<=1e-3\tFPR<=1e-4")
+			_, _ = fmt.Fprintln(w, "  LABEL\tZ\tCOSINE\tEVIDENCE\tFPR<=1e-2\tFPR<=1e-3\tFPR<=1e-4")
 			for _, m := range r.Matches {
-				fmt.Fprintf(w, "  %s\t%.2f\t%.3f\t%d\t%s\t%s\t%s\n",
+				_, _ = fmt.Fprintf(w, "  %s\t%.2f\t%.3f\t%d\t%s\t%s\t%s\n",
 					m.Label, m.Z, m.Cosine, m.EvidenceN,
 					opsCell(m.OperatingPoints, "fpr_1e2"), opsCell(m.OperatingPoints, "fpr_1e3"), opsCell(m.OperatingPoints, "fpr_1e4"))
 			}
