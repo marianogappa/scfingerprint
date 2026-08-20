@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"math"
+	"os"
 	"testing"
 )
 
@@ -132,6 +133,55 @@ func minimalValidArtifact(d, k int) *Artifact {
 			NumGames:   10,
 			NumPlayers: 2,
 		},
+	}
+}
+
+func TestIsSynthetic(t *testing.T) {
+	a := minimalValidArtifact(3, 2)
+	a.Provenance.Corpora = []string{"synthetic"}
+	a.Provenance.GitSHA = "embedded-synthetic"
+	if !a.IsSynthetic() {
+		t.Fatal("expected IsSynthetic()=true for synthetic corpus and git_sha")
+	}
+
+	a.Provenance.Corpora = []string{"real-corpus"}
+	a.Provenance.GitSHA = "abc123"
+	if a.IsSynthetic() {
+		t.Fatal("expected IsSynthetic()=false for non-synthetic artifact")
+	}
+
+	a.Provenance.GitSHA = "embedded-synthetic"
+	if !a.IsSynthetic() {
+		t.Fatal("expected IsSynthetic()=true for embedded-synthetic git_sha alone")
+	}
+
+	a.Provenance.GitSHA = "abc123"
+	a.Provenance.Corpora = []string{"ladder", "synthetic"}
+	if !a.IsSynthetic() {
+		t.Fatal("expected IsSynthetic()=true when corpora includes synthetic")
+	}
+}
+
+func TestEmbeddedArtifactIsNotSynthetic(t *testing.T) {
+	if os.Getenv("SCFINGERPRINT_RELEASE_GATE") == "" {
+		t.Skip("skipped outside release-gate CI (set SCFINGERPRINT_RELEASE_GATE=1 to run)")
+	}
+	a, err := LoadEmbedded()
+	if err != nil {
+		t.Fatalf("LoadEmbedded: %v", err)
+	}
+	if a.IsSynthetic() {
+		t.Fatal("embedded artifact is synthetic — release build blocked; train on real data before tagging")
+	}
+}
+
+func TestEmbeddedArtifactIsSyntheticNow(t *testing.T) {
+	a, err := LoadEmbedded()
+	if err != nil {
+		t.Fatalf("LoadEmbedded: %v", err)
+	}
+	if !a.IsSynthetic() {
+		t.Fatal("embedded artifact should be synthetic in the current build")
 	}
 }
 

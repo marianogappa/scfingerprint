@@ -62,6 +62,10 @@ func NewFromEmbedded() (*Scorer, error) {
 	return New(a)
 }
 
+// IsSynthetic reports whether the underlying model artifact was trained on
+// synthetic data. Scores from a synthetic model lack real-world meaning.
+func (s *Scorer) IsSynthetic() bool { return s.artifact.IsSynthetic() }
+
 // FeatureVersion returns the feature schema version this scorer expects.
 func (s *Scorer) FeatureVersion() int { return s.artifact.FeatureVersion }
 

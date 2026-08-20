@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"slices"
 )
 
 //go:embed artifact.json
@@ -74,6 +75,16 @@ type CalibrationEntry struct {
 // projections so a model bump invalidates them.
 func (a *Artifact) Tag() string {
 	return fmt.Sprintf("v%d/%s/%s", a.SchemaVersion, a.Provenance.TrainDate, a.Provenance.GitSHA)
+}
+
+// IsSynthetic reports whether this artifact was trained on synthetic data
+// rather than real replay corpora. Synthetic artifacts are useful for
+// development and testing but their scores carry no real-world meaning.
+func (a *Artifact) IsSynthetic() bool {
+	if a.Provenance.GitSHA == "embedded-synthetic" {
+		return true
+	}
+	return slices.Contains(a.Provenance.Corpora, "synthetic")
 }
 
 // Provenance records training metadata for reproducibility.
