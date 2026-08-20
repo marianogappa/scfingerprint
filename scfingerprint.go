@@ -48,19 +48,21 @@ type PlayerGame struct {
 
 // MatchResult is one candidate identity returned by Match or MatchMany.
 type MatchResult struct {
-	Label           string          // the fingerprint's label
-	Z               float64         // calibrated z-score, comparable across evidence counts
-	Cosine          float64         // raw cosine similarity
-	EvidenceN       int             // number of games in the probe
-	OperatingPoints map[string]bool // named thresholds cleared
+	Label            string          // the fingerprint's label
+	Z                float64         // calibrated z-score, comparable across evidence counts
+	Cosine           float64         // raw cosine similarity
+	EvidenceN        int             // number of games in the probe
+	OperatingPoints  map[string]bool // named thresholds cleared
+	ModelIsSynthetic bool            // true when the backing model was trained on synthetic data
 }
 
 // Verdict is the result of a pairwise Same comparison.
 type Verdict struct {
-	Z               float64         // calibrated z-score
-	Cosine          float64         // raw cosine
-	EvidenceN       int             // total games across both sides
-	OperatingPoints map[string]bool // named thresholds cleared
+	Z                float64         // calibrated z-score
+	Cosine           float64         // raw cosine
+	EvidenceN        int             // total games across both sides
+	OperatingPoints  map[string]bool // named thresholds cleared
+	ModelIsSynthetic bool            // true when the backing model was trained on synthetic data
 }
 
 // Option configures the top-level API functions.

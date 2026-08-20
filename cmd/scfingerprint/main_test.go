@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -72,6 +74,51 @@ func TestRunSame(t *testing.T) {
 	// Ambiguous side (two eligible players, no --name) must error.
 	if code := run([]string{"same", "--a", fixtureRep, "--b", fixtureRep2, "--name-b", "LC_Tyson"}); code != exitError {
 		t.Fatalf("same with ambiguous side: exit %d, want %d", code, exitError)
+	}
+}
+
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	old := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe: %v", err)
+	}
+	os.Stderr = w
+	fn()
+	if err := w.Close(); err != nil {
+		t.Fatalf("close pipe writer: %v", err)
+	}
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("read captured stderr: %v", err)
+	}
+	os.Stderr = old
+	return buf.String()
+}
+
+func TestSyntheticWarningOnMatch(t *testing.T) {
+	stderr := captureStderr(t, func() {
+		run([]string{"match", fixtureRep, "--min-z", "1e18"})
+	})
+	if !strings.Contains(stderr, "SYNTHETIC") {
+		t.Fatalf("expected synthetic warning on stderr, got: %s", stderr)
+	}
+}
+
+func TestSyntheticWarningOnSame(t *testing.T) {
+	stderr := captureStderr(t, func() {
+		run([]string{"same", "--a", fixtureRep, "--b", fixtureRep2, "--name-a", "Skins_", "--name-b", "LC_Tyson"})
+	})
+	if !strings.Contains(stderr, "SYNTHETIC") {
+		t.Fatalf("expected synthetic warning on stderr, got: %s", stderr)
+	}
+}
+
+func TestStrictRejectsOnSyntheticModel(t *testing.T) {
+	code := run([]string{"match", fixtureRep, "--strict"})
+	if code != exitError {
+		t.Fatalf("match --strict with synthetic model: exit %d, want %d", code, exitError)
 	}
 }
 

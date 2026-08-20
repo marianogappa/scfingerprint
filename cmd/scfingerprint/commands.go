@@ -13,7 +13,27 @@ import (
 	"github.com/marianogappa/scfingerprint/features"
 	"github.com/marianogappa/scfingerprint/fingerprint"
 	"github.com/marianogappa/scfingerprint/hygiene"
+	"github.com/marianogappa/scfingerprint/scoring"
 )
+
+const syntheticBanner = `
+╔══════════════════════════════════════════════════════════════════╗
+║  WARNING: model trained on SYNTHETIC data — scores are not      ║
+║  meaningful. See docs/METHODOLOGY.md for details.               ║
+╚══════════════════════════════════════════════════════════════════╝
+`
+
+func warnIfSynthetic(scorer *scoring.Scorer, strict bool) int {
+	if !scorer.IsSynthetic() {
+		return -1
+	}
+	fmt.Fprint(os.Stderr, syntheticBanner)
+	if strict {
+		fmt.Fprintln(os.Stderr, "error: --strict is set and the model is synthetic; refusing to continue")
+		return exitError
+	}
+	return -1
+}
 
 // parseAll parses flags interleaved with positional arguments (Go's flag
 // package stops at the first positional), returning the positionals.
@@ -61,6 +81,7 @@ func cmdMatch(args []string) int {
 	minZ := fs.Float64("min-z", 2.0, "minimum calibrated z-score to report")
 	minConfidence := fs.String("min-confidence", dataset.ConfidenceHigh, "minimum dataset confidence tier (confirmed/high/candidate)")
 	asJSON := fs.Bool("json", false, "machine-readable output")
+	strict := fs.Bool("strict", false, "exit with error if the model is synthetic")
 	positional, err := parseAll(fs, args)
 	if err != nil {
 		return exitError
@@ -69,6 +90,9 @@ func cmdMatch(args []string) int {
 	db, err := dataset.NewDefaultDataset(nil, *minConfidence)
 	if err != nil {
 		return fail(err)
+	}
+	if code := warnIfSynthetic(db.Scorer(), *strict); code >= 0 {
+		return code
 	}
 	if db.Len() == 0 {
 		return fail(fmt.Errorf("built-in dataset is empty at confidence tier %q", *minConfidence))
@@ -174,11 +198,20 @@ func cmdSame(args []string) int {
 	nameA := fs.String("name-a", "", "select side A's player by name")
 	nameB := fs.String("name-b", "", "select side B's player by name")
 	asJSON := fs.Bool("json", false, "machine-readable output")
+	strict := fs.Bool("strict", false, "exit with error if the model is synthetic")
 	if err := fs.Parse(args); err != nil {
 		return exitError
 	}
 	if *a == "" || *b == "" {
 		return fail(fmt.Errorf("both --a and --b are required"))
+	}
+
+	scorer, err := scoring.NewFromEmbedded()
+	if err != nil {
+		return fail(err)
+	}
+	if code := warnIfSynthetic(scorer, *strict); code >= 0 {
+		return code
 	}
 
 	sideGames := func(path, name string) ([]scfingerprint.PlayerGame, error) {
@@ -241,12 +274,21 @@ func cmdEnroll(args []string) int {
 	name := fs.String("name", "", "select the player by name (defaults to --label)")
 	out := fs.String("o", "", "output file (default: <label>.fingerprint.json)")
 	skipGate := fs.Bool("skip-gate", false, "skip the self-consistency gate (not recommended)")
+	strict := fs.Bool("strict", false, "exit with error if the model is synthetic")
 	positional, err := parseAll(fs, args)
 	if err != nil {
 		return exitError
 	}
 	if *label == "" {
 		return fail(fmt.Errorf("--label is required"))
+	}
+
+	enrollScorer, err := scoring.NewFromEmbedded()
+	if err != nil {
+		return fail(err)
+	}
+	if code := warnIfSynthetic(enrollScorer, *strict); code >= 0 {
+		return code
 	}
 
 	paths, err := collectReplays(*dir, positional)

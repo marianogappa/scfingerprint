@@ -44,6 +44,8 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 		return nil, err
 	}
 
+	synthetic := db.scorer.IsSynthetic()
+
 	var results []MatchResult
 	for i, fp := range db.fps {
 		target := db.projs[i]
@@ -55,11 +57,12 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 			continue
 		}
 		results = append(results, MatchResult{
-			Label:           fp.Meta.Label,
-			Z:               sc.Z,
-			Cosine:          sc.Cosine,
-			EvidenceN:       sc.EvidenceN,
-			OperatingPoints: sc.OperatingPoints,
+			Label:            fp.Meta.Label,
+			Z:                sc.Z,
+			Cosine:           sc.Cosine,
+			EvidenceN:        sc.EvidenceN,
+			OperatingPoints:  sc.OperatingPoints,
+			ModelIsSynthetic: synthetic,
 		})
 	}
 	sort.SliceStable(results, func(i, j int) bool { return results[i].Z > results[j].Z })
@@ -98,10 +101,11 @@ func Same(a, b []PlayerGame, opts ...Option) (Verdict, error) {
 		return Verdict{}, err
 	}
 	return Verdict{
-		Z:               sc.Z,
-		Cosine:          sc.Cosine,
-		EvidenceN:       len(a) + len(b),
-		OperatingPoints: sc.OperatingPoints,
+		Z:                sc.Z,
+		Cosine:           sc.Cosine,
+		EvidenceN:        len(a) + len(b),
+		OperatingPoints:  sc.OperatingPoints,
+		ModelIsSynthetic: scorer.IsSynthetic(),
 	}, nil
 }
 

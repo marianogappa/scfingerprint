@@ -81,6 +81,29 @@ named operating points** — never a bare yes/no.
     **1:1 verification** — one hypothesis, much easier. Single-game evidence
     is often adequate for suspicion; a handful of games settles it.
 
+## Model provenance: shipped vs validated
+
+The EER and TPR numbers cited above were measured on a model trained on a
+**real pro 1v1 ladder corpus** during the research spike. The model artifact
+currently **shipped in the binary** (`model/artifact.json`) was trained on
+**synthetic data** — it exercises the full pipeline but its scores carry no
+real-world meaning.
+
+Every model artifact records its provenance (corpora, train date, git SHA).
+The library and CLI surface this:
+
+- `Artifact.IsSynthetic()` / `Scorer.IsSynthetic()` — programmatic check.
+- `MatchResult.ModelIsSynthetic` / `Verdict.ModelIsSynthetic` — set on every
+  result so downstream tools (e.g. screpdb) can suppress or label synthetic-
+  backed suggestions.
+- The CLI prints a prominent banner on stderr whenever the embedded model is
+  synthetic, and `--strict` makes it exit with an error.
+- CI blocks release tags when the embedded artifact is synthetic
+  (`TestEmbeddedArtifactIsNotSynthetic`).
+
+The gap will close when the real model is committed. Until then, treat all
+CLI output as structurally valid but numerically meaningless.
+
 ## Validated results
 
 From the research spike (~2,900 1v1 ladder replays across 23 identities, plus
