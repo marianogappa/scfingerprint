@@ -167,6 +167,23 @@ claim about a person, remember:
   verification framing, and give the accused the numbers you'd want shown if
   it were you.
 
+## Corpus
+
+The labeled replay corpus is committed under [`corpus/`](../corpus/) — 231
+players, 7,935 replays, ~640 MB. Replay files are stored via **Git LFS**;
+a regular clone fetches only pointer files. Run `git lfs pull` to download
+the actual replay data.
+
+Attribution manifests (`replays.jsonl`, `identities.jsonl`,
+`pros_merged.json`) are committed as regular git objects — they are what make
+the replays labeled rather than anonymous. `corpus-manifest.json` records a
+SHA-256 hash of every replay file for integrity verification.
+
+The corpus is filtered from a ~23,951-replay harvest (CWAL.gg, 2025–2026) to
+players with ≥20 games, capped at 50 most-recent per player. See
+[corpus/README.md](../corpus/README.md) for provenance and verification
+instructions.
+
 ## Reproducibility
 
 Everything above is re-derivable: replays are the source of truth, feature
