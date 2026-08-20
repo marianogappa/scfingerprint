@@ -77,20 +77,28 @@ func TestRunSame(t *testing.T) {
 	}
 }
 
-func captureStderr(fn func()) string {
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
 	old := os.Stderr
-	r, w, _ := os.Pipe()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe: %v", err)
+	}
 	os.Stderr = w
 	fn()
-	w.Close()
+	if err := w.Close(); err != nil {
+		t.Fatalf("close pipe writer: %v", err)
+	}
 	var buf bytes.Buffer
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("read captured stderr: %v", err)
+	}
 	os.Stderr = old
 	return buf.String()
 }
 
 func TestSyntheticWarningOnMatch(t *testing.T) {
-	stderr := captureStderr(func() {
+	stderr := captureStderr(t, func() {
 		run([]string{"match", fixtureRep, "--min-z", "1e18"})
 	})
 	if !strings.Contains(stderr, "SYNTHETIC") {
@@ -99,7 +107,7 @@ func TestSyntheticWarningOnMatch(t *testing.T) {
 }
 
 func TestSyntheticWarningOnSame(t *testing.T) {
-	stderr := captureStderr(func() {
+	stderr := captureStderr(t, func() {
 		run([]string{"same", "--a", fixtureRep, "--b", fixtureRep2, "--name-a", "Skins_", "--name-b", "LC_Tyson"})
 	})
 	if !strings.Contains(stderr, "SYNTHETIC") {

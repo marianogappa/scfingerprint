@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
 
 jobs:
   test:
@@ -51,6 +53,7 @@ jobs:
         run: go test ./eval/ -run TestRegressionGates -v
 
   release-gate:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
