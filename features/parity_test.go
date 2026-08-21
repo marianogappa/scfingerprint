@@ -200,7 +200,7 @@ func parseSpikeCSV(path string) (map[string]map[string][]float64, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	r := csv.NewReader(f)
 	records, err := r.ReadAll()
