@@ -1,0 +1,52 @@
+=== RUN   TestParityWithSpike
+=== RUN   TestParityWithSpike/golden_replays
+found 2 replays
+wrote 4 rows, 0 errors
+    parity_test.go:39: 
+        === Parity Report ===
+    parity_test.go:39: Compared 1440 dimension-values across 2 replays (4 players)
+    parity_test.go:39: 
+    parity_test.go:39: Max absolute deviation per feature group:
+    parity_test.go:39:   apm_tempo                 4.67e-06  (feature=eapm, replay=03_zvp_progamer_soma.rep, player=lllIlIlIIIl11)
+    parity_test.go:39:   assign_to_select          4.30e-06  (feature=a2s_h5, replay=03_zvp_progamer_soma.rep, player=lllIlIlIIIl11)
+    parity_test.go:39:   bigram                    5.00e-06  (feature=bigram_0_1, replay=03_zvp_progamer_soma.rep, player=LC_Tyson)
+    parity_test.go:39:   burst                     4.54e-06  (feature=burst_run_mean, replay=01_zvt_zergling_rush.rep, player=Skins_)
+    parity_test.go:39:   distance_hist             4.92e-06  (feature=dist_h2, replay=01_zvt_zergling_rush.rep, player=Skins_)
+    parity_test.go:39:   hotkey_assign             4.63e-06  (feature=hk_assign_g4, replay=03_zvp_progamer_soma.rep, player=lllIlIlIIIl11)
+    parity_test.go:39:   hotkey_select             4.93e-06  (feature=hk_select_g7, replay=01_zvt_zergling_rush.rep, player=FantaSyWannabe)
+    parity_test.go:39:   hotkey_stats              4.79e-06  (feature=hk_double_tap_rate, replay=01_zvt_zergling_rush.rep, player=Skins_)
+    parity_test.go:39:   ici                       5.00e-06  (feature=ici_mean, replay=03_zvp_progamer_soma.rep, player=LC_Tyson)
+    parity_test.go:39:   other                     4.97e-06  (feature=frac_rightclick, replay=01_zvt_zergling_rush.rep, player=FantaSyWannabe)
+    parity_test.go:39:   pings_chats               2.92e-06  (feature=chats_per_min, replay=03_zvp_progamer_soma.rep, player=lllIlIlIIIl11)
+    parity_test.go:39:   queue                     4.72e-06  (feature=queued_frac, replay=03_zvp_progamer_soma.rep, player=lllIlIlIIIl11)
+    parity_test.go:39:   select_size               3.51e-06  (feature=sel_size_mean, replay=03_zvp_progamer_soma.rep, player=LC_Tyson)
+    parity_test.go:39: 
+    parity_test.go:39: All deviations are within 6e-06 (spike CSV fmt.Sprintf("%.5f") truncation).
+=== RUN   TestParityWithSpike/corpus_sample
+found 50 replays
+wrote 86 rows, 0 errors
+    parity_test.go:70: 
+        === Parity Report ===
+    parity_test.go:70: Compared 30960 dimension-values across 50 replays (86 players)
+    parity_test.go:70: 
+    parity_test.go:70: Max absolute deviation per feature group:
+    parity_test.go:70:   apm_tempo                 5.00e-06  (feature=redundancy, replay=MM-00621AA6-9329-11F1-866E-FA167B5461B6.rep, player=TemuMayd)
+    parity_test.go:70:   assign_to_select          4.94e-06  (feature=a2s_h2, replay=MM-00E6A694-9348-11F1-866E-FA167B5461B6.rep, player=guoyikasading)
+    parity_test.go:70:   bigram                    5.00e-06  (feature=bigram_8_0, replay=MM-00458110-90E1-11F1-866E-FA167B5461B6.rep, player=TemuBest)
+    parity_test.go:70:   burst                     4.98e-06  (feature=burst_run_mean, replay=MM-0064E306-9001-11F1-866E-FA167B5461B6.rep, player=Feisty_Sky)
+    parity_test.go:70:   distance_hist             4.99e-06  (feature=dist_h0, replay=MM-01B3C8CE-8FE0-11F1-866E-FA167B5461B6.rep, player=TemuSoma)
+    parity_test.go:70:   hotkey_assign             5.00e-06  (feature=hk_assign_g1, replay=MM-000E28E4-91BF-11F1-866E-FA167B5461B6.rep, player=IlIIllIIIIlIlIl)
+    parity_test.go:70:   hotkey_select             4.97e-06  (feature=hk_select_g2, replay=MM-0056045E-9235-11F1-866E-FA167B5461B6.rep, player=IllIIIIIIlIlIlI)
+    parity_test.go:70:   hotkey_stats              5.00e-06  (feature=hk_per_min, replay=MM-003970B4-9375-11F1-866E-FA167B5461B6.rep, player=BEAST_DD)
+    parity_test.go:70:   ici                       5.00e-06  (feature=ici_hist_11, replay=MM-00ACF522-909E-11F1-866E-FA167B5461B6.rep, player=ldtzl)
+    parity_test.go:70:   other                     5.00e-06  (feature=frac_targeted_order, replay=MM-00C59E62-8FB6-11F1-866E-FA167B5461B6.rep, player=wico`guzzi)
+    parity_test.go:70:   pings_chats               4.78e-06  (feature=chats_per_min, replay=MM-000E28E4-91BF-11F1-866E-FA167B5461B6.rep, player=Alexanteri)
+    parity_test.go:70:   queue                     4.99e-06  (feature=queued_frac, replay=MM-001BC758-942E-11F1-866E-FA167B5461B6.rep, player=llllljdllj)
+    parity_test.go:70:   select_size               5.00e-06  (feature=sel_size_mean, replay=MM-00164550-9265-11F1-866E-FA167B5461B6.rep, player=By_freyja)
+    parity_test.go:70: 
+    parity_test.go:70: All deviations are within 6e-06 (spike CSV fmt.Sprintf("%.5f") truncation).
+--- PASS: TestParityWithSpike (0.62s)
+    --- PASS: TestParityWithSpike/golden_replays (0.13s)
+    --- PASS: TestParityWithSpike/corpus_sample (0.48s)
+PASS
+ok  	github.com/marianogappa/scfingerprint/features	1.296s
