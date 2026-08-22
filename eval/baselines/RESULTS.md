@@ -351,6 +351,37 @@ smurf) out of 229 candidates, and 93–100% of their individual current games
 clear the lead threshold against the old enrollment. Confidence remains
 lead-grade: use k≥3 aggregation and manual confirmation, never auto-merge.
 
+## Patching ASL coverage gaps with old-era replays
+
+Of the 37 distinct participants in the two most recent ASL seasons
+(Liquipedia, seasons 19–20), 21 are already in the catalog with 22–49
+harvest games. Of the 16 gaps, six have old-era replays in the tl.net DB:
+
+| gap pro | old-era games labeled | hygiene | verdict |
+|---|---|---|---|
+| Bisu | 19 (2004–2014) | self-consistency **0.907** clean | enrollable |
+| Stork | 15 (2005–2012) | self-consistency **0.949** clean | enrollable |
+| Killer | 3 | too thin | needs more sources |
+| Soulkey / Shuttle / Action | ≤1 labeled | too thin | needs more sources |
+
+Bisu and Stork co-occurred in games (played each other) — correctly
+disproved as aliases — and neither collides with any existing catalog entry
+(max cross-score: stork→jyj z=3.84, below every gate). Combined with the
+production-direction result above, enrolling them as **era-tagged,
+candidate-tier** entries fills two headline ASL holes at lead confidence.
+
+Augmentation policy that follows from all measurements:
+
+- **Catalog (enrollments): yes** — old-era enrollments of missing pros, kept
+  as separate candidate-tier entries tagged with their era. Never merged
+  into a modern enrollment without ValidateMerge.
+- **Training corpus (the whitening transform): no** — 1.16-format games have
+  structurally-zero features and different timing conventions; mixing eras
+  blurs within-class covariance (the domain-shift lesson, measured twice).
+- **Existing 2026 enrollments: leave untouched** — they already achieve
+  98.9% top-1 on contemporary games; dragging centroids toward decade-old
+  play would trade that for nothing.
+
 ## Supporting within-subject study (amateur, 2017→2026)
 
 A race- and mode-controlled longitudinal check on the amateur corpus's
