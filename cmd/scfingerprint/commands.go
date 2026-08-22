@@ -52,8 +52,25 @@ func parseAll(fs *flag.FlagSet, args []string) ([]string, error) {
 	}
 }
 
-// interpretation returns the plain-language confidence line for a result.
-func interpretation(evidenceN int, ops map[string]bool) string {
+// interpretation returns the plain-language confidence line for a match result.
+// It uses the search-level (Šidák-corrected) operating points when available,
+// since Match performs a 1:N sweep and per-comparison FPRs overstate confidence.
+func interpretation(evidenceN int, searchOps map[string]bool, catalogSize int) string {
+	switch {
+	case !searchOps["fpr_1e2"]:
+		return fmt.Sprintf("weak signal: below the search-level 1-in-100 operating point (%d game(s), catalog N=%d)", evidenceN, catalogSize)
+	case evidenceN >= 3 && searchOps["fpr_1e3"]:
+		return fmt.Sprintf("accusation-grade: %d games of evidence at the search-level 1-in-1,000 operating point (catalog N=%d)", evidenceN, catalogSize)
+	case searchOps["fpr_1e3"]:
+		return fmt.Sprintf("strong lead, not confirmation: %d game(s) of evidence (catalog N=%d)", evidenceN, catalogSize)
+	default:
+		return fmt.Sprintf("lead: clears search-level 1-in-100 but not 1-in-1,000 (%d game(s), catalog N=%d)", evidenceN, catalogSize)
+	}
+}
+
+// interpretationPairwise returns the plain-language confidence line for a
+// pairwise (1:1) Same comparison where no search correction is needed.
+func interpretationPairwise(evidenceN int, ops map[string]bool) string {
 	switch {
 	case !ops["fpr_1e2"]:
 		return fmt.Sprintf("weak signal: below the 1-in-100 operating point (%d game(s) of evidence)", evidenceN)
@@ -174,15 +191,15 @@ func cmdMatch(args []string) int {
 				continue
 			}
 			w := tabwriter.NewWriter(os.Stdout, 2, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "  LABEL\tZ\tCOSINE\tEVIDENCE\tFPR<=1e-2\tFPR<=1e-3\tFPR<=1e-4")
+			_, _ = fmt.Fprintln(w, "  LABEL\tZ\tCOSINE\tEVIDENCE\tSEARCH 1e-2\tSEARCH 1e-3\tSEARCH 1e-4")
 			for _, m := range r.Matches {
 				_, _ = fmt.Fprintf(w, "  %s\t%.2f\t%.3f\t%d\t%s\t%s\t%s\n",
 					m.Label, m.Z, m.Cosine, m.EvidenceN,
-					opsCell(m.OperatingPoints, "fpr_1e2"), opsCell(m.OperatingPoints, "fpr_1e3"), opsCell(m.OperatingPoints, "fpr_1e4"))
+					opsCell(m.SearchFPR, "fpr_1e2"), opsCell(m.SearchFPR, "fpr_1e3"), opsCell(m.SearchFPR, "fpr_1e4"))
 			}
 			_ = w.Flush()
 			top := r.Matches[0]
-			fmt.Printf("  → %s\n", interpretation(top.EvidenceN, top.OperatingPoints))
+			fmt.Printf("  → %s\n", interpretation(top.EvidenceN, top.SearchFPR, top.CatalogSize))
 		}
 	}
 	if anyMatch {
@@ -259,7 +276,7 @@ func cmdSame(args []string) int {
 		fmt.Println(string(out))
 	} else {
 		fmt.Printf("Z: %.2f  Cosine: %.3f  Evidence: %d games (%d + %d)\n", v.Z, v.Cosine, v.EvidenceN, len(gamesA), len(gamesB))
-		fmt.Printf("→ %s\n", interpretation(v.EvidenceN, v.OperatingPoints))
+		fmt.Printf("→ %s\n", interpretationPairwise(v.EvidenceN, v.OperatingPoints))
 	}
 	if v.OperatingPoints["fpr_1e3"] {
 		return exitOK

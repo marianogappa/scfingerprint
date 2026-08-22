@@ -52,7 +52,9 @@ type MatchResult struct {
 	Z                float64         // calibrated z-score, comparable across evidence counts
 	Cosine           float64         // raw cosine similarity
 	EvidenceN        int             // number of games in the probe
-	OperatingPoints  map[string]bool // named thresholds cleared
+	OperatingPoints  map[string]bool // named per-comparison thresholds cleared
+	SearchFPR        map[string]bool // Šidák-corrected thresholds at the search (1:N) level
+	CatalogSize      int             // N used for the search-level correction
 	ModelIsSynthetic bool            // true when the backing model was trained on synthetic data
 }
 
