@@ -37,15 +37,17 @@ func DefaultOptions() Options {
 }
 
 // Metrics is one scenario's verification and identification results.
+// TPR fields are nil when the impostor pool is too small to express
+// the requested FPR (fewer than 1/fpr impostors).
 type Metrics struct {
-	ClosedSetAccuracy float64 `json:"closed_set_accuracy"`
-	AUC               float64 `json:"auc"`
-	EER               float64 `json:"eer"`
-	TPRAtFPR1e2       float64 `json:"tpr_at_fpr_1e2"`
-	TPRAtFPR1e3       float64 `json:"tpr_at_fpr_1e3"`
-	TPRAtFPR1e4       float64 `json:"tpr_at_fpr_1e4"`
-	NumGenuine        int     `json:"num_genuine"`
-	NumImpostor       int     `json:"num_impostor"`
+	ClosedSetAccuracy float64  `json:"closed_set_accuracy"`
+	AUC               float64  `json:"auc"`
+	EER               float64  `json:"eer"`
+	TPRAtFPR1e2       *float64 `json:"tpr_at_fpr_1e2"`
+	TPRAtFPR1e3       *float64 `json:"tpr_at_fpr_1e3"`
+	TPRAtFPR1e4       *float64 `json:"tpr_at_fpr_1e4"`
+	NumGenuine        int      `json:"num_genuine"`
+	NumImpostor       int      `json:"num_impostor"`
 }
 
 // Report holds metrics for every evaluated scenario, keyed by scenario name:

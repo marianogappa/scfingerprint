@@ -49,8 +49,10 @@ func TestRegressionGates(t *testing.T) {
 		if m.EER > g.eerMax {
 			t.Errorf("GATE: %s EER %.5f > max %.5f", scenario, m.EER, g.eerMax)
 		}
-		if m.TPRAtFPR1e3 < g.tprMin {
-			t.Errorf("GATE: %s TPR@1e-3 %.4f < min %.4f", scenario, m.TPRAtFPR1e3, g.tprMin)
+		if m.TPRAtFPR1e3 == nil {
+			t.Errorf("GATE: %s TPR@1e-3 unmeasurable (impostor pool too small)", scenario)
+		} else if *m.TPRAtFPR1e3 < g.tprMin {
+			t.Errorf("GATE: %s TPR@1e-3 %.4f < min %.4f", scenario, *m.TPRAtFPR1e3, g.tprMin)
 		}
 		if m.ClosedSetAccuracy < g.accMin {
 			t.Errorf("GATE: %s accuracy %.4f < min %.4f", scenario, m.ClosedSetAccuracy, g.accMin)

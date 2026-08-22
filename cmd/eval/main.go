@@ -118,9 +118,13 @@ func main() {
 			fmt.Fprintf(os.Stderr, "GATE FAIL: %s EER %.5f > max %.5f\n", scenario, m.EER, *g.EERMax)
 			failed = true
 		}
-		if g.TPRAtFPR1e3Min != nil && m.TPRAtFPR1e3 < *g.TPRAtFPR1e3Min {
-			fmt.Fprintf(os.Stderr, "GATE FAIL: %s TPR@1e-3 %.4f < min %.4f\n", scenario, m.TPRAtFPR1e3, *g.TPRAtFPR1e3Min)
-			failed = true
+		if g.TPRAtFPR1e3Min != nil {
+			if m.TPRAtFPR1e3 == nil {
+				fmt.Fprintf(os.Stderr, "GATE SKIP: %s TPR@1e-3 unmeasurable (impostor pool %d too small)\n", scenario, m.NumImpostor)
+			} else if *m.TPRAtFPR1e3 < *g.TPRAtFPR1e3Min {
+				fmt.Fprintf(os.Stderr, "GATE FAIL: %s TPR@1e-3 %.4f < min %.4f\n", scenario, *m.TPRAtFPR1e3, *g.TPRAtFPR1e3Min)
+				failed = true
+			}
 		}
 		if g.AccuracyMin != nil && m.ClosedSetAccuracy < *g.AccuracyMin {
 			fmt.Fprintf(os.Stderr, "GATE FAIL: %s closed-set accuracy %.4f < min %.4f\n", scenario, m.ClosedSetAccuracy, *g.AccuracyMin)
