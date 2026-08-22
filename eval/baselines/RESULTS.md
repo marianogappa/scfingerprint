@@ -324,6 +324,33 @@ extract-corpus -dir <reps> -out old.csv
 era-probe -csv old.csv -groups "jaedong=<labels>;fantasy=<labels>;..."
 ```
 
+## The production direction: old-era enrollment → 2026 probes
+
+The use case runs the other way too: build the fingerprint FROM the old
+replays, scan today's ladder. Old-era enrollments (dataset path, raw mean →
+Projected) scored against all 229 harvest accounts (aggregated n-aware
+probes):
+
+| pro | old games (era) | true 2026 account rank /229 | z | runner-up gap | single 2026 games above lead (z≥2) |
+|---|---|---|---|---|---|
+| artosis | 16 (2002–2011) | **1** | 4.40 | +1.08 | 28/30 |
+| fantasy | 18 (2007–2012) | **1** | 2.97 | +0.81 | 43/45 |
+| effort | 12 (2008–2012) | **1** | 3.03 | +0.91 | 25/29 |
+| light | 10 (2006–2017) | **1** | 3.24 | +1.58 | 22/22 |
+| jaedong | 22 (2006–2012) | 2 | 3.18 | — | 24/26 |
+
+**Jaedong's "rank 2" is a discovery, not a miss**: the account that outranks
+his registered one (z=3.63) is aurora 1424114028 — the ladder-rank-4 barcode
+account that the alias-discovery pipeline independently flagged as a Jaedong
+smurf from his 2026 enrollment (z=5.84, issue #15). Two enrollment eras,
+15–20 years apart, converge on the same unlabeled account.
+
+So: replays from 2002–2012 produce fingerprints that are usable against
+games played today — the true player surfaces at rank 1 (or behind their own
+smurf) out of 229 candidates, and 93–100% of their individual current games
+clear the lead threshold against the old enrollment. Confidence remains
+lead-grade: use k≥3 aggregation and manual confirmation, never auto-merge.
+
 ## Supporting within-subject study (amateur, 2017→2026)
 
 A race- and mode-controlled longitudinal check on the amateur corpus's
