@@ -181,7 +181,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer f.Close()
+		defer func() { _ = f.Close() }()
 		w = csv.NewWriter(f)
 	} else {
 		w = csv.NewWriter(os.Stdout)
