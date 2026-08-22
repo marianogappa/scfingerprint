@@ -175,13 +175,13 @@ func TestEmbeddedArtifactIsNotSynthetic(t *testing.T) {
 	}
 }
 
-func TestEmbeddedArtifactIsSyntheticNow(t *testing.T) {
+func TestEmbeddedArtifactIsNotSyntheticNow(t *testing.T) {
 	a, err := LoadEmbedded()
 	if err != nil {
 		t.Fatalf("LoadEmbedded: %v", err)
 	}
-	if !a.IsSynthetic() {
-		t.Fatal("embedded artifact should be synthetic in the current build")
+	if a.IsSynthetic() {
+		t.Fatal("embedded artifact should NOT be synthetic — it was trained on real corpus data")
 	}
 }
 

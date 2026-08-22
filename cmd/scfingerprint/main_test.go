@@ -97,28 +97,28 @@ func captureStderr(t *testing.T, fn func()) string {
 	return buf.String()
 }
 
-func TestSyntheticWarningOnMatch(t *testing.T) {
+func TestNoSyntheticWarningOnMatch(t *testing.T) {
 	stderr := captureStderr(t, func() {
 		run([]string{"match", fixtureRep, "--min-z", "1e18"})
 	})
-	if !strings.Contains(stderr, "SYNTHETIC") {
-		t.Fatalf("expected synthetic warning on stderr, got: %s", stderr)
+	if strings.Contains(stderr, "SYNTHETIC") {
+		t.Fatal("model is real — synthetic warning should not appear")
 	}
 }
 
-func TestSyntheticWarningOnSame(t *testing.T) {
+func TestNoSyntheticWarningOnSame(t *testing.T) {
 	stderr := captureStderr(t, func() {
 		run([]string{"same", "--a", fixtureRep, "--b", fixtureRep2, "--name-a", "Skins_", "--name-b", "LC_Tyson"})
 	})
-	if !strings.Contains(stderr, "SYNTHETIC") {
-		t.Fatalf("expected synthetic warning on stderr, got: %s", stderr)
+	if strings.Contains(stderr, "SYNTHETIC") {
+		t.Fatal("model is real — synthetic warning should not appear")
 	}
 }
 
-func TestStrictRejectsOnSyntheticModel(t *testing.T) {
-	code := run([]string{"match", fixtureRep, "--strict"})
-	if code != exitError {
-		t.Fatalf("match --strict with synthetic model: exit %d, want %d", code, exitError)
+func TestStrictAcceptsRealModel(t *testing.T) {
+	code := run([]string{"match", fixtureRep, "--strict", "--min-z", "1e18"})
+	if code == exitError {
+		t.Fatal("match --strict should not reject a real (non-synthetic) model")
 	}
 }
 
