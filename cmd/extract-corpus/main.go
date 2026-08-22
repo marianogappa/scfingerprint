@@ -1,6 +1,14 @@
-// Command extract-corpus reads the corpus metadata (replays.jsonl) and replay
-// files, extracts feature vectors, and writes a labeled feature CSV suitable
-// for cmd/train and cmd/eval.
+// Command extract-corpus extracts feature vectors from a replay corpus and
+// writes a labeled feature CSV suitable for cmd/train and cmd/eval.
+//
+// Two labelling modes:
+//
+//   - metadata mode (default): reads corpus metadata (replays.jsonl) and
+//     labels each row with the replay's aurora account ID.
+//   - directory mode (-dir): walks a directory tree of .rep files and labels
+//     each row with the in-replay player name. Within a single curated corpus
+//     the same name is the same human, which is the labelling the research
+//     spike's reference corpora rely on.
 package main
 
 import (
@@ -18,6 +26,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/icza/screp/repparser"
 	"github.com/marianogappa/scfingerprint/features"
 )
 
@@ -45,11 +54,26 @@ type csvRow struct {
 }
 
 func main() {
+	dir := flag.String("dir", "", "directory-mode: walk this tree of .rep files and label rows by in-replay player name")
+	minGameMin := flag.Float64("min-game-min", 0, "directory-mode: skip games shorter than this many minutes")
+	only1v1 := flag.Bool("only-1v1", false, "directory-mode: keep only games with exactly 2 eligible human players")
 	metadata := flag.String("metadata", "corpus/replays.jsonl", "path to replays.jsonl")
 	replaysDir := flag.String("replays-dir", "corpus", "base directory containing replays/ subdirectory")
 	out := flag.String("out", "", "output CSV path (default: stdout)")
 	workers := flag.Int("workers", runtime.NumCPU(), "parallel extraction workers")
 	flag.Parse()
+
+	featNamesTop, err := features.FeatureNames(features.Version)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if *dir != "" {
+		rows := extractDir(*dir, *workers, *minGameMin, *only1v1)
+		writeCSV(*out, rows, featNamesTop)
+		log.Printf("done")
+		return
+	}
 
 	rows, err := readMetadata(*metadata)
 	if err != nil {
@@ -63,10 +87,7 @@ func main() {
 	}
 	log.Printf("%d unique replay files", len(byFile))
 
-	featNames, err := features.FeatureNames(features.Version)
-	if err != nil {
-		log.Fatal(err)
-	}
+	featNames := featNamesTop
 
 	type job struct {
 		file string
@@ -175,9 +196,15 @@ func main() {
 
 	log.Printf("extracted %d rows (%d no-match, %d extract-errors)", len(results), noMatch, errCnt)
 
+	writeCSV(*out, results, featNames)
+	log.Printf("done")
+}
+
+// writeCSV writes the metadata header plus one row per player-game.
+func writeCSV(out string, results []csvRow, featNames []string) {
 	var w *csv.Writer
-	if *out != "" {
-		f, err := os.Create(*out)
+	if out != "" {
+		f, err := os.Create(out)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -207,7 +234,6 @@ func main() {
 	if err := w.Error(); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("done")
 }
 
 func readMetadata(path string) ([]replayRow, error) {
@@ -227,4 +253,125 @@ func readMetadata(path string) ([]replayRow, error) {
 		rows = append(rows, r)
 	}
 	return rows, nil
+}
+
+// extractDir walks a directory tree of .rep files and extracts one row per
+// eligible human player, labelled by in-replay player name. Rows are sorted
+// by (player, start_time) so downstream chronological splits are stable.
+func extractDir(root string, workers int, minGameMin float64, only1v1 bool) []csvRow {
+	var paths []string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(strings.ToLower(path), ".rep") {
+			paths = append(paths, path)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("walking %s: %v", root, err)
+	}
+	sort.Strings(paths)
+	log.Printf("found %d replay files under %s", len(paths), root)
+
+	var (
+		mu      sync.Mutex
+		results []csvRow
+		errCnt  int
+		skipped int
+		sem     = make(chan struct{}, workers)
+		wg      sync.WaitGroup
+	)
+
+	for idx, path := range paths {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(idx int, path string) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			r, parseErr := repparser.ParseFileConfig(path, repparser.Config{Commands: true})
+			if parseErr != nil {
+				mu.Lock()
+				errCnt++
+				if errCnt <= 10 {
+					log.Printf("WARN: parse %s: %v", path, parseErr)
+				}
+				mu.Unlock()
+				return
+			}
+			pfs, extractErr := features.Extract(r)
+			if extractErr != nil {
+				mu.Lock()
+				errCnt++
+				mu.Unlock()
+				return
+			}
+			durationMin := r.Header.Duration().Minutes()
+			if durationMin < minGameMin || (only1v1 && len(pfs) != 2) {
+				mu.Lock()
+				skipped++
+				mu.Unlock()
+				return
+			}
+
+			rel, relErr := filepath.Rel(root, path)
+			if relErr != nil {
+				rel = path
+			}
+			startTime := r.Header.StartTime.UTC().Format("2006-01-02T15:04:05")
+			matchup := r.Header.Matchup()
+
+			local := make([]csvRow, 0, len(pfs))
+			for _, pf := range pfs {
+				local = append(local, csvRow{
+					file:        rel,
+					player:      pf.Name,
+					race:        raceLetter(pf.Race),
+					matchup:     matchup,
+					mapName:     r.Header.Map,
+					startTime:   startTime,
+					durationMin: durationMin,
+					numHumans:   len(pfs),
+					vector:      pf.Vector,
+				})
+			}
+
+			mu.Lock()
+			results = append(results, local...)
+			mu.Unlock()
+
+			if (idx+1)%500 == 0 {
+				log.Printf("progress: %d/%d files", idx+1, len(paths))
+			}
+		}(idx, path)
+	}
+	wg.Wait()
+
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].player != results[j].player {
+			return results[i].player < results[j].player
+		}
+		if results[i].startTime != results[j].startTime {
+			return results[i].startTime < results[j].startTime
+		}
+		return results[i].file < results[j].file
+	})
+
+	log.Printf("extracted %d rows from %d files (%d skipped, %d errors)", len(results), len(paths), skipped, errCnt)
+	return results
+}
+
+// raceLetter normalises screp's race names to the single-letter codes the
+// metadata-mode CSVs use, so both modes produce comparable race columns.
+func raceLetter(race string) string {
+	if race == "" {
+		return ""
+	}
+	switch race[0] {
+	case 'Z', 'T', 'P':
+		return race[:1]
+	}
+	return race
 }
