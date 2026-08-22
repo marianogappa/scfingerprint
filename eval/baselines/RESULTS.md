@@ -214,3 +214,50 @@ casual, multi-mode, decade-spanning domain that is much harder than ladder
 1v1 — and the corpus mutates as its owner plays. A regression gate needs a
 frozen benchmark; freezing a snapshot of this folder is tracked as future
 work. Until then the pro 1v1 and cwal-harvest gates carry regression duty.
+
+# Open-set alias discovery — 2026-08-22 (issue #15)
+
+`cmd/alias-discovery` scans every corpus account (aggregated n-aware probe of
+all its games) 1:N against the 68-enrollment catalog, classifies each account
+by its relationship to the pro registry, and applies co-occurrence disproof
+to every candidate pair. Run over cwal-harvest (229 accounts, min 3 games):
+
+| class | count | outcome |
+|---|---|---|
+| enrolled (leakage sanity) | 68 | all 68 match themselves, z 6.8–18.9 |
+| known-other (pro not catalogued) | 7 | **0 false alarms** clearing fpr_1e3 — clean open-set rejection |
+| known-alias (2nd account of a catalogued pro) | 2 | both "wrong" — and both are registry errors, see below |
+| unlabeled | 152 | 7 clear fpr_1e3 → discovery candidates |
+
+## The two "failed" known-alias probes are registry errors, not misses
+
+- **Byul (786567149)** fingerprints as **shinee** (z=4.76, clears 1e-3).
+  The research spike independently flagged the registry's "Byul" entries as
+  covering multiple humans, one fingerprinting as Shinee — reproduced here
+  from scratch. Hygiene had already refused merging Byul's two accounts
+  (cross-sim 0.610).
+- **Sai (21027124)** matches nothing confidently (top z=2.11). Hygiene had
+  refused merging Sai's accounts at cross-sim 0.015 — the registry's "Sai"
+  is two different humans, and the catalog holds the other one.
+
+## Discovery candidates (unlabeled accounts clearing fpr_1e3)
+
+None are disproved by co-occurrence. battleTag/rank from identities.jsonl:
+
+| aurora | matches | z | 2nd z | corroboration |
+|---|---|---|---|---|
+| 1506882456 | timeisgold | 6.70 | 1.81 | barcode handle, clean margin — strong |
+| 1424114028 | jaedong | 5.84 | 2.75 | barcode-ish, ladder rank 4 — strong |
+| 702617558 | midas | 5.35 | 3.97 | named handle, rank 398 — review |
+| 17456700 | sharp | 5.19 | 2.63 | barcode + named handle, rank 295 — review |
+| 717050343 | bliss | 5.16 | 5.13 | ambiguous margin — weak |
+| 823491599 | ample | 5.06 | 2.29 | barcode handles, rank 36 — strong |
+| 707085483 | nada | 4.72 | 3.03 | named handles, rank 264 — review |
+
+Per-comparison expectation at fpr_1e3 across 68 comparisons × 152 accounts is
+~10 chance clears, so the *count* alone is not evidence — the z magnitudes
+and margins are. Candidates above z≈5 with a 2+ margin over the runner-up are
+far outside the impostor tail; the ambiguous-margin row is likely chance.
+
+Suggest-only per the integration contract: these are leads for manual triage,
+never auto-merged.
