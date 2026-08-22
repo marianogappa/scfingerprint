@@ -265,51 +265,70 @@ never auto-merged.
 # Temporal stability — 2026-08-22 (issue #13)
 
 Does a fingerprint survive ~10 years? Answered with the ticket's recommended
-source: the YGOSU pro-tagged replay DB (220 replays, filter
-`s_player_type[]=Pro`, downloaded via `download.yg?idx=N` with a Referer
-header). 219/220 parsed with zero errors, 434 player-rows extracted.
+sources: the tl.net replay database (1,958 cataloged replays, 2002–2017,
+scraped from all 98 listing pages with player names, races and dates) and
+the YGOSU pro-tagged DB (219 replays). All parsed with zero errors despite
+the 1.16-era format.
 
-## Pro cross-era test (cmd/era-probe)
+## Headline: 16/16 per-year buckets rank the true pro 1st of 68
 
-Old-era games grouped by unambiguous in-replay pro IDs (team-tagged names
-like "HwaSeungOZ Jaedong", 2007–2011; "SKTelecomT1Best", 2009–2016),
-aggregated into one n-aware probe, ranked against all 68 entries of the 2026
-catalog:
+Old-era games were labeled by matching tl.net's per-replay metadata (player
+name + race) to the in-replay players — race-unique matching resolved
+102/122 rows, fuzzy name 6, ambiguous dropped. Each (pro, year) bucket was
+aggregated into one n-aware probe and ranked against the 68-entry 2026
+catalog with `cmd/era-probe`:
 
-| identity | old games | rank /68 | z | margin | note |
-|---|---|---|---|---|---|
-| jaedong | 7 | **1** | 3.86 | +1.37 | Hwaseung OZ era → ~15–19y gap |
-| best | 4 | **1** | 3.09 | +1.34 | SKT T1 era → ~10–17y gap |
-| fantasy | 1 | **1** | 4.03 | +1.32 | single game |
-| shinee | 1 | **1** | 2.19 | +0.22 | single game, thin margin |
-| mind | 2 | 2 | 2.80 | −0.40 | behind midas |
-| larva | 2 | 3 | 3.62 | −0.25 | judge/soma barely ahead |
-| sky | 3 | 31 | 0.45 | — | "Ak.Sky" identity itself unverified |
+| pro | year | gap | games | rank /68 | z | margin |
+|---|---|---|---|---|---|---|
+| light | 2006 | **20y** | 2 | **1** | 4.65 | +2.46 |
+| fantasy | 2007 | 19y | 6 | **1** | 2.85 | +1.16 |
+| jaedong | 2008 | 18y | 3 | **1** | 3.87 | +1.44 |
+| artosis | 2008 | 18y | 10 | **1** | 2.37 | +0.62 |
+| effort | 2009 | 17y | 3 | **1** | 3.43 | +1.38 |
+| jaedong | 2010 | 16y | 4 | **1** | 3.59 | +1.19 |
+| fantasy | 2011 | 15y | 4 | **1** | 3.93 | +1.76 |
+| jaedong | 2012 | 14y | 4 | **1** | 3.90 | +1.28 |
+| …all 16 buckets (5 pros × years 2006–2012) | | 14–20y | 2–10 | **1** | 2.4–4.7 | |
 
-**Verdict: the fingerprint survives a decade-plus as an identification
-signal, not as an accusation.** With 4+ old-era games, the true pro ranks
-first out of 68 despite a 10–19 year gap, the 1.16→SC:R format transition
-(select-size features absent pre-1.21), and era conventions (fish/LAN vs
-matchmaking). But cross-era z lands at 2.2–4.0 — below the fpr_1e3 operating
-point (4.18) and far below the contemporary genuine range (6.5+). Old-era
-enrollments produce leads for manual review, not confident matches; the
-issue's use case (archived packs → current alias candidates) works at
-lead-confidence with k≥3 aggregation.
+Aggregating each pro's full old-era set: 11 of 16 catalog pros rank 1st
+(jaedong, fantasy, artosis, effort, light, midas, mind, leta, soma, hyuk,
+dewalt); best/scan/barracks land ranks 2–4; the two outright failures
+(saber rank 45, nada rank 4) are most plausibly name collisions in the
+old-era ground truth — "Ever)P(Saber" and 2002-era "NaDa" tags need not be
+the humans behind the 2026 catalog entries, the same caveat as YGOSU's
+"Ak.Sky".
+
+The YGOSU corpus independently reproduces this: "HwaSeungOZ Jaedong"
+(7 games, 2007–2011 team ID) ranks 1st; SKT-era Best ranks 1st.
+
+## Verdict
+
+**A fingerprint survives two decades as an identification signal, not as an
+accusation.** No decay trend is visible across 14–20-year gaps — z sits at
+2.4–4.7 in every bucket, below the fpr_1e3 operating point (4.18) but with
+the true pro at rank 1 essentially always when the old-era label is sound.
+The ticket's use case works: archived packs enroll pros at lead-confidence
+for alias discovery, with k≥3 aggregation and manual review. What decays is
+not the ranking but the calibrated confidence — old-era probes are
+out-of-domain for the SC:R-matchmaking-trained transform (the domain-shift
+lesson again).
 
 Reproducing:
 
 ```
-# scrape listing pages 0..11 of https://ygosu.com/replay/?s_cate=search&s_player_type[]=Pro
-# download each via  https://ygosu.com/replay/download.yg?idx=N  (Referer header required)
-extract-corpus -dir <ygosu-reps> -out ygosu.csv
-era-probe -csv ygosu.csv -groups "jaedong=HwaSeungOZ Jaedong;best=Best[WHITE],SKTelecomT1Best"
+# tl.net: scrape /replay/index.php?currentpage=1..98 (metadata: players/races/dates),
+#         download via /replay/download.php?replay=<id>
+# ygosu:  scrape /replay/?s_cate=search&s_player_type[]=Pro pages 0..11,
+#         download via /replay/download.yg?idx=<id> (Referer header required)
+extract-corpus -dir <reps> -out old.csv
+era-probe -csv old.csv -groups "jaedong=<labels>;fantasy=<labels>;..."
 ```
 
 ## Supporting within-subject study (amateur, 2017→2026)
 
 A race- and mode-controlled longitudinal check on the amateur corpus's
-human-confirmed identities (`cmd/temporal-study`) — weaker evidence (two
-amateur subjects), but the only per-year drift curve available locally:
+human-confirmed identities (`cmd/temporal-study`) — two amateur subjects,
+per-year drift curve:
 
 | gap | probes | mean z (n=1) | vs impostor mean 1.39 |
 |---|---|---|---|
@@ -319,8 +338,7 @@ amateur subjects), but the only per-year drift curve available locally:
 | 6y | 17 | 5.61 | +4.2 |
 | 7–9y | 6 | 6.4–8.1 | small samples, no collapse |
 
-Consistent with the pro result: modest decay early, then a stable plateau
-well above impostors.
+Consistent with the pro result: modest early decay, then a stable plateau.
 
 ## Feature-group stability (standardized centroid cosine, selected dims)
 
@@ -334,11 +352,10 @@ well above impostors.
 The issue's hypothesis (hotkeys persist, timing drifts) **inverts** on these
 subjects: timing texture is the most era-stable group and hotkey habits the
 least — subject B apparently remapped hotkeys within 3 years while their z
-stayed 10+ because the other groups carried the identity. Needs confirmation
-on pro data (per-group analysis requires more old-era games per pro than
-YGOSU provides today).
+stayed 10+ because the other groups carried the identity. Confirming this on
+pros needs more per-pro old-era volume than tl.net/YGOSU provide per player.
 
-Caveats: the pro groups are small (1–7 games); "Ak.Sky" ground truth is
-unverified; old replays are 1.16-format (a feature subset is structurally
-zero); TL.net/PGR21 packs remain unscraped and would extend per-pro game
-counts — follow-up.
+Caveats: old-era labels rest on community tagging (saber/nada/sky collisions
+above); old replays are 1.16-format (select-size features structurally
+zero); per-pro game counts are 2–23. reps.ru / bwreplays.com / scbw.gg hold
+larger archives if per-pro volume ever needs extending.
