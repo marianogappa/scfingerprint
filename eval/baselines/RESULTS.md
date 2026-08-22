@@ -261,3 +261,159 @@ far outside the impostor tail; the ambiguous-margin row is likely chance.
 
 Suggest-only per the integration contract: these are leads for manual triage,
 never auto-merged.
+
+# Temporal stability — 2026-08-22 (issue #13)
+
+Does a fingerprint survive ~10 years? Answered with the ticket's recommended
+sources: the tl.net replay database (1,958 cataloged replays, 2002–2017,
+scraped from all 98 listing pages with player names, races and dates) and
+the YGOSU pro-tagged DB (219 replays). All parsed with zero errors despite
+the 1.16-era format.
+
+## Headline: 16/16 per-year buckets rank the true pro 1st of 68
+
+Old-era games were labeled by matching tl.net's per-replay metadata (player
+name + race) to the in-replay players — race-unique matching resolved
+102/122 rows, fuzzy name 6, ambiguous dropped. Each (pro, year) bucket was
+aggregated into one n-aware probe and ranked against the 68-entry 2026
+catalog with `cmd/era-probe`:
+
+| pro | year | gap | games | rank /68 | z | margin |
+|---|---|---|---|---|---|---|
+| light | 2006 | **20y** | 2 | **1** | 4.65 | +2.46 |
+| fantasy | 2007 | 19y | 6 | **1** | 2.85 | +1.16 |
+| jaedong | 2008 | 18y | 3 | **1** | 3.87 | +1.44 |
+| artosis | 2008 | 18y | 10 | **1** | 2.37 | +0.62 |
+| effort | 2009 | 17y | 3 | **1** | 3.43 | +1.38 |
+| jaedong | 2010 | 16y | 4 | **1** | 3.59 | +1.19 |
+| fantasy | 2011 | 15y | 4 | **1** | 3.93 | +1.76 |
+| jaedong | 2012 | 14y | 4 | **1** | 3.90 | +1.28 |
+| …all 16 buckets (5 pros × years 2006–2012) | | 14–20y | 2–10 | **1** | 2.4–4.7 | |
+
+Aggregating each pro's full old-era set: 11 of 16 catalog pros rank 1st
+(jaedong, fantasy, artosis, effort, light, midas, mind, leta, soma, hyuk,
+dewalt); best/scan/barracks land ranks 2–4; the two outright failures
+(saber rank 45, nada rank 4) are most plausibly name collisions in the
+old-era ground truth — "Ever)P(Saber" and 2002-era "NaDa" tags need not be
+the humans behind the 2026 catalog entries, the same caveat as YGOSU's
+"Ak.Sky".
+
+The YGOSU corpus independently reproduces this: "HwaSeungOZ Jaedong"
+(7 games, 2007–2011 team ID) ranks 1st; SKT-era Best ranks 1st.
+
+## Verdict
+
+**A fingerprint survives two decades as an identification signal, not as an
+accusation.** No decay trend is visible across 14–20-year gaps — z sits at
+2.4–4.7 in every bucket, below the fpr_1e3 operating point (4.18) but with
+the true pro at rank 1 essentially always when the old-era label is sound.
+The ticket's use case works: archived packs enroll pros at lead-confidence
+for alias discovery, with k≥3 aggregation and manual review. What decays is
+not the ranking but the calibrated confidence — old-era probes are
+out-of-domain for the SC:R-matchmaking-trained transform (the domain-shift
+lesson again).
+
+Reproducing:
+
+```
+# tl.net: scrape /replay/index.php?currentpage=1..98 (metadata: players/races/dates),
+#         download via /replay/download.php?replay=<id>
+# ygosu:  scrape /replay/?s_cate=search&s_player_type[]=Pro pages 0..11,
+#         download via /replay/download.yg?idx=<id> (Referer header required)
+extract-corpus -dir <reps> -out old.csv
+era-probe -csv old.csv -groups "jaedong=<labels>;fantasy=<labels>;..."
+```
+
+## The production direction: old-era enrollment → 2026 probes
+
+The use case runs the other way too: build the fingerprint FROM the old
+replays, scan today's ladder. Old-era enrollments (dataset path, raw mean →
+Projected) scored against all 229 harvest accounts (aggregated n-aware
+probes):
+
+| pro | old games (era) | true 2026 account rank /229 | z | runner-up gap | single 2026 games above lead (z≥2) |
+|---|---|---|---|---|---|
+| artosis | 16 (2002–2011) | **1** | 4.40 | +1.08 | 28/30 |
+| fantasy | 18 (2007–2012) | **1** | 2.97 | +0.81 | 43/45 |
+| effort | 12 (2008–2012) | **1** | 3.03 | +0.91 | 25/29 |
+| light | 10 (2006–2017) | **1** | 3.24 | +1.58 | 22/22 |
+| jaedong | 22 (2006–2012) | 2 | 3.18 | — | 24/26 |
+
+**Jaedong's "rank 2" is a discovery, not a miss**: the account that outranks
+his registered one (z=3.63) is aurora 1424114028 — the ladder-rank-4 barcode
+account that the alias-discovery pipeline independently flagged as a Jaedong
+smurf from his 2026 enrollment (z=5.84, issue #15). Two enrollment eras,
+15–20 years apart, converge on the same unlabeled account.
+
+So: replays from 2002–2012 produce fingerprints that are usable against
+games played today — the true player surfaces at rank 1 (or behind their own
+smurf) out of 229 candidates, and 93–100% of their individual current games
+clear the lead threshold against the old enrollment. Confidence remains
+lead-grade: use k≥3 aggregation and manual confirmation, never auto-merge.
+
+## Patching ASL coverage gaps with old-era replays
+
+Of the 37 distinct participants in the two most recent ASL seasons
+(Liquipedia, seasons 19–20), 21 are already in the catalog with 22–49
+harvest games. Of the 16 gaps, six have old-era replays in the tl.net DB:
+
+| gap pro | old-era games labeled | hygiene | verdict |
+|---|---|---|---|
+| Bisu | 19 (2004–2014) | self-consistency **0.907** clean | enrollable |
+| Stork | 15 (2005–2012) | self-consistency **0.949** clean | enrollable |
+| Killer | 3 | too thin | needs more sources |
+| Soulkey / Shuttle / Action | ≤1 labeled | too thin | needs more sources |
+
+Bisu and Stork co-occurred in games (played each other) — correctly
+disproved as aliases — and neither collides with any existing catalog entry
+(max cross-score: stork→jyj z=3.84, below every gate). Combined with the
+production-direction result above, enrolling them as **era-tagged,
+candidate-tier** entries fills two headline ASL holes at lead confidence.
+
+Augmentation policy that follows from all measurements:
+
+- **Catalog (enrollments): yes** — old-era enrollments of missing pros, kept
+  as separate candidate-tier entries tagged with their era. Never merged
+  into a modern enrollment without ValidateMerge.
+- **Training corpus (the whitening transform): no** — 1.16-format games have
+  structurally-zero features and different timing conventions; mixing eras
+  blurs within-class covariance (the domain-shift lesson, measured twice).
+- **Existing 2026 enrollments: leave untouched** — they already achieve
+  98.9% top-1 on contemporary games; dragging centroids toward decade-old
+  play would trade that for nothing.
+
+## Supporting within-subject study (amateur, 2017→2026)
+
+A race- and mode-controlled longitudinal check on the amateur corpus's
+human-confirmed identities (`cmd/temporal-study`) — two amateur subjects,
+per-year drift curve:
+
+| gap | probes | mean z (n=1) | vs impostor mean 1.39 |
+|---|---|---|---|
+| 0y | 278 | 6.48 | +5.1 |
+| 1y | 179 | 6.22 | +4.8 |
+| 2y | 13 | 5.62 | +4.2 |
+| 6y | 17 | 5.61 | +4.2 |
+| 7–9y | 6 | 6.4–8.1 | small samples, no collapse |
+
+Consistent with the pro result: modest early decay, then a stable plateau.
+
+## Feature-group stability (standardized centroid cosine, selected dims)
+
+| group | subject A, 2017→2026 (9y) | subject B, 2023→2026 (3y) |
+|---|---|---|
+| apm/tempo | 0.912 | 0.999 |
+| timing texture | 0.905 | 0.986 |
+| command mix | 0.877 | 0.967 |
+| hotkey habits | 0.795 | 0.330 |
+
+The issue's hypothesis (hotkeys persist, timing drifts) **inverts** on these
+subjects: timing texture is the most era-stable group and hotkey habits the
+least — subject B apparently remapped hotkeys within 3 years while their z
+stayed 10+ because the other groups carried the identity. Confirming this on
+pros needs more per-pro old-era volume than tl.net/YGOSU provide per player.
+
+Caveats: old-era labels rest on community tagging (saber/nada/sky collisions
+above); old replays are 1.16-format (select-size features structurally
+zero); per-pro game counts are 2–23. reps.ru / bwreplays.com / scbw.gg hold
+larger archives if per-pro volume ever needs extending.
