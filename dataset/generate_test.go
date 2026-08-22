@@ -12,11 +12,11 @@ import (
 	"github.com/marianogappa/scfingerprint/internal/synthtest"
 )
 
-var regenerate = flag.Bool("regenerate-dataset", false, "regenerate the synthetic seed dataset files under players/")
+var regenerate = flag.Bool("regenerate-dataset", false, "regenerate synthetic seed dataset files under players/ (for testing only; production dataset is built by cmd/seed-dataset)")
 
-// TestRegenerateDataset writes the synthetic seed identity files. Run with
-// -regenerate-dataset to update the committed files after a feature-version
-// bump or a change to the synthetic corpus generator.
+// TestRegenerateDataset writes synthetic seed identity files for isolated
+// testing. The production dataset is built by cmd/seed-dataset from the real
+// corpus. Run with -regenerate-dataset to overwrite the committed files.
 func TestRegenerateDataset(t *testing.T) {
 	if !*regenerate {
 		t.Skip("pass -regenerate-dataset to regenerate")
@@ -36,7 +36,7 @@ func TestRegenerateDataset(t *testing.T) {
 	}
 
 	seeds := []seed{
-		{"flash", 200, 60, "t", ConfidenceConfirmed, []Alias{{Name: "C9_FlaSh", Primary: true}, {Name: "FlaSh", ZScore: 12.3}}, "synthetic seed — replace with real cwal enrollment"},
+		{"flash", 200, 60, "t", ConfidenceConfirmed, []Alias{{Name: "C9_FlaSh", Primary: true}, {Name: "FlaSh", ZScore: 12.3}}, "synthetic seed"},
 		{"jaedong", 201, 55, "z", ConfidenceConfirmed, []Alias{{Name: "Jaedong", Primary: true}}, "synthetic seed"},
 		{"bisu", 202, 50, "p", ConfidenceConfirmed, []Alias{{Name: "Bisu", Primary: true}}, "synthetic seed"},
 		{"stork", 203, 45, "p", ConfidenceHigh, []Alias{{Name: "Stork", Primary: true}}, "synthetic seed"},
