@@ -264,53 +264,81 @@ never auto-merged.
 
 # Temporal stability — 2026-08-22 (issue #13)
 
-Does a fingerprint survive ~10 years? Measured with `cmd/temporal-study` on
-the amateur corpus's human-confirmed identities (the only local data with
-multi-year coverage): enroll on the earliest year's games, race- and
-mode-controlled so time is the only variable, probe every later year.
+Does a fingerprint survive ~10 years? Answered with the ticket's recommended
+source: the YGOSU pro-tagged replay DB (220 replays, filter
+`s_player_type[]=Pro`, downloaded via `download.yg?idx=N` with a Referer
+header). 219/220 parsed with zero errors, 434 player-rows extracted.
 
-## Drift curve — "me" (6 merged accounts, Zerg 1v1, enrolled on 20 games from 2017)
+## Pro cross-era test (cmd/era-probe)
 
-| year | gap | probes | mean z (n=1) | mean z (n=3) | mean cosine |
+Old-era games grouped by unambiguous in-replay pro IDs (team-tagged names
+like "HwaSeungOZ Jaedong", 2007–2011; "SKTelecomT1Best", 2009–2016),
+aggregated into one n-aware probe, ranked against all 68 entries of the 2026
+catalog:
+
+| identity | old games | rank /68 | z | margin | note |
 |---|---|---|---|---|---|
-| 2017 | 0 | 278 | 6.48 | 6.64 | 0.830 |
-| 2018 | 1 | 179 | 6.22 | 6.45 | 0.735 |
-| 2019 | 2 | 13 | 5.62 | 6.03 | 0.662 |
-| 2023 | 6 | 17 | 5.61 | 6.06 | 0.579 |
-| 2024–26 | 7–9 | 6 | 6.4–8.1 | — | 0.6–0.77 |
+| jaedong | 7 | **1** | 3.86 | +1.37 | Hwaseung OZ era → ~15–19y gap |
+| best | 4 | **1** | 3.09 | +1.34 | SKT T1 era → ~10–17y gap |
+| fantasy | 1 | **1** | 4.03 | +1.32 | single game |
+| shinee | 1 | **1** | 2.19 | +0.22 | single game, thin margin |
+| mind | 2 | 2 | 2.80 | −0.40 | behind midas |
+| larva | 2 | 3 | 3.62 | −0.25 | judge/soma barely ahead |
+| sky | 3 | 31 | 0.45 | — | "Ak.Sky" identity itself unverified |
 
-Impostor reference (500 same-race 1v1 single games): mean z = 1.39.
+**Verdict: the fingerprint survives a decade-plus as an identification
+signal, not as an accusation.** With 4+ old-era games, the true pro ranks
+first out of 68 despite a 10–19 year gap, the 1.16→SC:R format transition
+(select-size features absent pre-1.21), and era conventions (fish/LAN vs
+matchmaking). But cross-era z lands at 2.2–4.0 — below the fpr_1e3 operating
+point (4.18) and far below the contemporary genuine range (6.5+). Old-era
+enrollments produce leads for manual review, not confident matches; the
+issue's use case (archived packs → current alias candidates) works at
+lead-confidence with k≥3 aggregation.
 
-**Verdict: the fingerprint survives.** Single-game z decays ~1 unit over six
-years (6.5 → 5.6) and stays ~4 z-units above the impostor mean throughout;
-the gap-7–9 cells are single-digit samples but show no collapse. Cosine
-declines faster than z (0.83 → 0.58), i.e. raw similarity drifts but the
-identity stays separable after zt-norm.
+Reproducing:
 
-FallenAngel (Protoss team games, 2023 enrollment): z stable at 10–11 across
-3 years with no trend. Caveat: team-game probes are out-of-domain for the
-ladder-1v1 calibration cohort, which inflates z for genuine and impostor
-alike (impostor mean 5.99) — relative separation holds, absolute operating
-points do not transfer across domains.
+```
+# scrape listing pages 0..11 of https://ygosu.com/replay/?s_cate=search&s_player_type[]=Pro
+# download each via  https://ygosu.com/replay/download.yg?idx=N  (Referer header required)
+extract-corpus -dir <ygosu-reps> -out ygosu.csv
+era-probe -csv ygosu.csv -groups "jaedong=HwaSeungOZ Jaedong;best=Best[WHITE],SKTelecomT1Best"
+```
 
-## Feature-group stability (standardized centroid cosine, selected dims only)
+## Supporting within-subject study (amateur, 2017→2026)
 
-| group | me, 2017→2026 (9y) | FallenAngel, 2023→2026 (3y) |
+A race- and mode-controlled longitudinal check on the amateur corpus's
+human-confirmed identities (`cmd/temporal-study`) — weaker evidence (two
+amateur subjects), but the only per-year drift curve available locally:
+
+| gap | probes | mean z (n=1) | vs impostor mean 1.39 |
+|---|---|---|---|
+| 0y | 278 | 6.48 | +5.1 |
+| 1y | 179 | 6.22 | +4.8 |
+| 2y | 13 | 5.62 | +4.2 |
+| 6y | 17 | 5.61 | +4.2 |
+| 7–9y | 6 | 6.4–8.1 | small samples, no collapse |
+
+Consistent with the pro result: modest decay early, then a stable plateau
+well above impostors.
+
+## Feature-group stability (standardized centroid cosine, selected dims)
+
+| group | subject A, 2017→2026 (9y) | subject B, 2023→2026 (3y) |
 |---|---|---|
 | apm/tempo | 0.912 | 0.999 |
-| timing texture (ICI, bursts, latencies) | 0.905 | 0.986 |
-| command mix (fractions, bigrams) | 0.877 | 0.967 |
-| hotkey habits (distributions, transitions) | 0.795 | 0.330 |
+| timing texture | 0.905 | 0.986 |
+| command mix | 0.877 | 0.967 |
+| hotkey habits | 0.795 | 0.330 |
 
-**The issue's hypothesis is inverted for these subjects**: timing texture is
-the *most* era-stable signal and hotkey habits the *least*. FallenAngel's
-hotkey block moved dramatically (0.330) within 3 years — consistent with a
-deliberate hotkey-layout change — while his timing texture barely moved and
-his z stayed 10+; the other groups carry the identity through a hotkey
-remap. Muscle-memory rhythm appears harder to change than key bindings.
+The issue's hypothesis (hotkeys persist, timing drifts) **inverts** on these
+subjects: timing texture is the most era-stable group and hotkey habits the
+least — subject B apparently remapped hotkeys within 3 years while their z
+stayed 10+ because the other groups carried the identity. Needs confirmation
+on pro data (per-group analysis requires more old-era games per pro than
+YGOSU provides today).
 
-Caveats: two subjects, amateurs not pros; the 2017 enrollment spans the
-1.16→SC:R format transition (select-size dims don't exist pre-1.21, which
-depresses the gap-0 cosine); tiny-dim groups (selection/space, 2 dims) are
-noise. The old-era pro study (YGOSU 2004–2017 enrollments vs current ladder)
-still needs those corpora scraped — tracked as follow-up.
+Caveats: the pro groups are small (1–7 games); "Ak.Sky" ground truth is
+unverified; old replays are 1.16-format (a feature subset is structurally
+zero); TL.net/PGR21 packs remain unscraped and would extend per-pro game
+counts — follow-up.
