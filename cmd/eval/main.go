@@ -37,6 +37,8 @@ func main() {
 	gatesPath := flag.String("gates", "", "path to regression gates JSON; failing a gate exits 1")
 	enrollFrac := flag.Float64("enroll-frac", 0.5, "chronological fraction of games used for enrollment")
 	minGames := flag.Int("min-games", 4, "minimum games per player")
+	minLabelSC := flag.Float64("min-label-self-consistency", 0, "exclude labels below this race-aware self-consistency (0 = audit only)")
+	splitByRace := flag.Bool("split-by-race", false, "evaluate each (label, race) stratum as its own identity")
 	flag.Parse()
 
 	if *csvPaths == "" {
@@ -79,6 +81,8 @@ func main() {
 	opts := eval.DefaultOptions()
 	opts.EnrollFrac = *enrollFrac
 	opts.MinGamesPerPlayer = *minGames
+	opts.MinLabelSelfConsistency = *minLabelSC
+	opts.SplitByRace = *splitByRace
 	if *exclusionsPath != "" {
 		opts.Exclusions, err = eval.LoadExclusions(*exclusionsPath)
 		if err != nil {
@@ -89,6 +93,17 @@ func main() {
 	report, err := eval.Evaluate(samples, scorer, opts)
 	if err != nil {
 		fatal(err)
+	}
+
+	for _, l := range report.ExcludedLabels {
+		fmt.Fprintf(os.Stderr, "EXCLUDED: label %q fails race-aware self-consistency %.2f\n", l, *minLabelSC)
+	}
+	if *minLabelSC == 0 {
+		for _, a := range report.LabelAudit {
+			if a.RaceAware < 0.85 {
+				fmt.Fprintf(os.Stderr, "WARNING: label %q race-aware self-consistency %.3f — ground truth may be contaminated (multi-human label or heavy drift); consider -min-label-self-consistency\n", a.Label, a.RaceAware)
+			}
+		}
 	}
 
 	out, _ := json.MarshalIndent(report, "", " ")
