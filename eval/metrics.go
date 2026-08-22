@@ -49,11 +49,17 @@ func eer(genuine, impostor []float64) float64 {
 }
 
 // tprAtFPR computes the true positive rate at the threshold where the
-// impostor distribution's false positive rate is at most fpr.
-func tprAtFPR(genuine, impostor []float64, fpr float64) float64 {
+// impostor distribution's false positive rate is at most fpr. Returns nil
+// when the impostor pool is too small to express the requested FPR
+// (fewer than 1/fpr impostors), since the metric is structurally unmeasurable.
+func tprAtFPR(genuine, impostor []float64, fpr float64) *float64 {
 	imp := append([]float64(nil), impostor...)
 	sort.Float64s(imp)
 	ni := len(imp)
+
+	if float64(ni) < 1/fpr {
+		return nil
+	}
 
 	// Highest threshold t such that frac(imp >= t) <= fpr: allow at most
 	// floor(fpr*ni) impostors at or above t.
@@ -70,7 +76,8 @@ func tprAtFPR(genuine, impostor []float64, fpr float64) float64 {
 		// equivalent (no genuine can be accepted at a threshold above max).
 		next := sort.Search(ni, func(i int) bool { return imp[i] > t })
 		if next >= ni {
-			return 0
+			v := 0.0
+			return &v
 		}
 		t = imp[next]
 	}
@@ -81,5 +88,6 @@ func tprAtFPR(genuine, impostor []float64, fpr float64) float64 {
 			accepted++
 		}
 	}
-	return float64(accepted) / float64(len(genuine))
+	v := float64(accepted) / float64(len(genuine))
+	return &v
 }
