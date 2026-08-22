@@ -113,3 +113,41 @@ rather than "not measurable" — the zeros in the same-race scenarios above are
 that artifact, not a result. Only the `cwal-harvest` run (888,858 impostor
 pairs) and the pro `n1_all` run (23,081) have pools large enough to state a
 1e-4 number.
+
+# 1:N top-1 against the shipped catalog — 2026-08-22 (issue #45)
+
+An earlier spot check through the public API reported 10.9% top-1 against the
+shipped 68-identity catalog, a 10x disagreement with the harness's 0.944
+closed-set accuracy. Rebuilding the check keyed on **aurora ID** instead of
+the registry's `proName` labels resolves the gap entirely: the low figure was
+contaminated ground truth (hypothesis 1), not a broken catalog.
+
+Measured with `cmd/catalog-check`: each catalogued account's games split
+chronologically, first half rebuilt into a leakage-free enrollment via the
+dataset path (raw mean → `Projected`), second half probed 1:N. Ground truth
+is the probe's aurora ID.
+
+| catalog | probe n | probes | top-1 correct | wrong top-1 clears 1e-3 | no lead (z<2) |
+|---|---|---|---|---|---|
+| rebuilt (leakage-free) | 1 | 1,230 | **98.9%** | 0.1% | 0.0% |
+| shipped (upper bound)  | 1 | 1,230 | 99.2% | 0.0% | 0.0% |
+| rebuilt (leakage-free) | 3 | 387 | **99.7%** | 0.0% | 0.0% |
+| shipped (upper bound)  | 3 | 387 | 99.7% | 0.0% | 0.0% |
+
+The "shipped" rows probe the committed catalog, whose enrollments contain the
+probe games (each probe is ~1 of ~45 games in the enrollment mean); they are
+an upper bound and agree with the leakage-free number to within half a point.
+
+Hypothesis 3 (divergent fingerprint construction) is settled permanently by
+`TestFingerprintPathParity` in `scoring/`: `Fingerprint(Transform(x_i)...)`
+and `Transform(mean(x_i))` agree to 1e-9 — the transform is affine, so the
+mean commutes through it. Both construction paths produce identical
+embeddings.
+
+Reproducing:
+
+```
+extract-corpus -metadata corpus/replays.jsonl -replays-dir corpus -out features.csv
+catalog-check -csv features.csv        # n=1
+catalog-check -csv features.csv -n 3   # 3-game probes
+```
