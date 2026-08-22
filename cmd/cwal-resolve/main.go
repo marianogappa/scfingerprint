@@ -1,12 +1,11 @@
 // Command cwal-resolve lists the nickname → aurora_id mapping from the
 // built-in CWAL.gg Player Tracker snapshot and optionally resolves each
-// account to its current toons via the cwal.gg Supabase API.
+// account to its current toons via the cwal.gg API.
 //
 // Usage:
 //
-//	cwal-resolve list                          # dump the nickname → aurora_id table
-//	cwal-resolve resolve --api-key <key>       # resolve all accounts to current toons
-//	cwal-resolve resolve --api-key <key> --nick FlaSh
+//	cwal-resolve list                     # dump the nickname → aurora_id table
+//	cwal-resolve resolve [--nick FlaSh]   # resolve all accounts to current toons
 package main
 
 import (
@@ -43,7 +42,7 @@ func usage() {
 
 Commands:
   list                              dump the nickname → aurora_id table (JSON)
-  resolve --api-key <key> [--nick X] resolve aurora_ids to current toons via cwal.gg API
+  resolve [--nick X]                resolve aurora_ids to current toons via cwal.gg API
 `)
 }
 
@@ -58,15 +57,10 @@ func cmdList() {
 
 func cmdResolve(args []string) {
 	fs := flag.NewFlagSet("resolve", flag.ExitOnError)
-	apiKey := fs.String("api-key", "", "cwal.gg Supabase anon API key (required)")
 	nick := fs.String("nick", "", "resolve only this nickname")
 	delay := fs.Duration("delay", 200*time.Millisecond, "delay between API requests")
 	out := fs.String("o", "", "output file (default: stdout)")
 	_ = fs.Parse(args)
-
-	if *apiKey == "" {
-		fatal(fmt.Errorf("--api-key is required (the cwal.gg Supabase anon key)"))
-	}
 
 	entries, err := cwal.LoadDefaultList()
 	if err != nil {
@@ -81,7 +75,7 @@ func cmdResolve(args []string) {
 		entries = []cwal.Entry{*e}
 	}
 
-	resolver := cwal.NewResolver(*apiKey)
+	resolver := cwal.NewResolver()
 	resolved, err := resolver.ResolveAll(entries, *delay)
 	if err != nil {
 		fatal(err)

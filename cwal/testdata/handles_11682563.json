@@ -1,0 +1,34 @@
+{
+ "handles": [
+  {
+   "toon": "jsa_larva",
+   "gateway": 30,
+   "auroraId": 11682563,
+   "battleTag": "홍구",
+   "proName": "Larva",
+   "race": "Z",
+   "rating": 2515,
+   "lastUpdated": 1787335946
+  },
+  {
+   "toon": "lllilililllilll",
+   "gateway": 11,
+   "auroraId": 11682563,
+   "battleTag": "홍구",
+   "proName": "Larva",
+   "race": "Z",
+   "rating": 2292,
+   "lastUpdated": 1787230779
+  },
+  {
+   "toon": "iilllllillllill",
+   "gateway": 20,
+   "auroraId": 11682563,
+   "battleTag": "홍구",
+   "proName": "Larva",
+   "race": "Z",
+   "rating": 2123,
+   "lastUpdated": 1786322015
+  }
+ ]
+}
