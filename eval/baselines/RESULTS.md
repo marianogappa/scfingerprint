@@ -261,3 +261,56 @@ far outside the impostor tail; the ambiguous-margin row is likely chance.
 
 Suggest-only per the integration contract: these are leads for manual triage,
 never auto-merged.
+
+# Temporal stability — 2026-08-22 (issue #13)
+
+Does a fingerprint survive ~10 years? Measured with `cmd/temporal-study` on
+the amateur corpus's human-confirmed identities (the only local data with
+multi-year coverage): enroll on the earliest year's games, race- and
+mode-controlled so time is the only variable, probe every later year.
+
+## Drift curve — "me" (6 merged accounts, Zerg 1v1, enrolled on 20 games from 2017)
+
+| year | gap | probes | mean z (n=1) | mean z (n=3) | mean cosine |
+|---|---|---|---|---|---|
+| 2017 | 0 | 278 | 6.48 | 6.64 | 0.830 |
+| 2018 | 1 | 179 | 6.22 | 6.45 | 0.735 |
+| 2019 | 2 | 13 | 5.62 | 6.03 | 0.662 |
+| 2023 | 6 | 17 | 5.61 | 6.06 | 0.579 |
+| 2024–26 | 7–9 | 6 | 6.4–8.1 | — | 0.6–0.77 |
+
+Impostor reference (500 same-race 1v1 single games): mean z = 1.39.
+
+**Verdict: the fingerprint survives.** Single-game z decays ~1 unit over six
+years (6.5 → 5.6) and stays ~4 z-units above the impostor mean throughout;
+the gap-7–9 cells are single-digit samples but show no collapse. Cosine
+declines faster than z (0.83 → 0.58), i.e. raw similarity drifts but the
+identity stays separable after zt-norm.
+
+FallenAngel (Protoss team games, 2023 enrollment): z stable at 10–11 across
+3 years with no trend. Caveat: team-game probes are out-of-domain for the
+ladder-1v1 calibration cohort, which inflates z for genuine and impostor
+alike (impostor mean 5.99) — relative separation holds, absolute operating
+points do not transfer across domains.
+
+## Feature-group stability (standardized centroid cosine, selected dims only)
+
+| group | me, 2017→2026 (9y) | FallenAngel, 2023→2026 (3y) |
+|---|---|---|
+| apm/tempo | 0.912 | 0.999 |
+| timing texture (ICI, bursts, latencies) | 0.905 | 0.986 |
+| command mix (fractions, bigrams) | 0.877 | 0.967 |
+| hotkey habits (distributions, transitions) | 0.795 | 0.330 |
+
+**The issue's hypothesis is inverted for these subjects**: timing texture is
+the *most* era-stable signal and hotkey habits the *least*. FallenAngel's
+hotkey block moved dramatically (0.330) within 3 years — consistent with a
+deliberate hotkey-layout change — while his timing texture barely moved and
+his z stayed 10+; the other groups carry the identity through a hotkey
+remap. Muscle-memory rhythm appears harder to change than key bindings.
+
+Caveats: two subjects, amateurs not pros; the 2017 enrollment spans the
+1.16→SC:R format transition (select-size dims don't exist pre-1.21, which
+depresses the gap-0 cosine); tiny-dim groups (selection/space, 2 dims) are
+noise. The old-era pro study (YGOSU 2004–2017 enrollments vs current ladder)
+still needs those corpora scraped — tracked as follow-up.
