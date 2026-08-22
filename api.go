@@ -2,6 +2,7 @@ package scfingerprint
 
 import (
 	"fmt"
+	"math"
 	"sort"
 
 	"github.com/marianogappa/scfingerprint/features"
@@ -45,6 +46,7 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 	}
 
 	synthetic := db.scorer.IsSynthetic()
+	catalogSize := db.Len()
 
 	var results []MatchResult
 	for i, fp := range db.fps {
@@ -56,12 +58,15 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 		if sc.Z < o.minZ {
 			continue
 		}
+		searchFPR := searchCorrectedOps(sc.OperatingPoints, catalogSize)
 		results = append(results, MatchResult{
 			Label:            fp.Meta.Label,
 			Z:                sc.Z,
 			Cosine:           sc.Cosine,
 			EvidenceN:        sc.EvidenceN,
 			OperatingPoints:  sc.OperatingPoints,
+			SearchFPR:        searchFPR,
+			CatalogSize:      catalogSize,
 			ModelIsSynthetic: synthetic,
 		})
 	}
@@ -126,6 +131,47 @@ func Enroll(games []PlayerGame, meta Meta) (*Fingerprint, error) {
 		}
 	}
 	return fp, nil
+}
+
+// searchCorrectedOps applies the Šidák correction to per-comparison operating
+// points: a per-comparison FPR α becomes search-level 1-(1-α)^N when N
+// comparisons are made. The result reports whether the per-comparison
+// threshold would still hold at the corrected (family-wise) FPR.
+//
+// For example, fpr_1e3 (α=0.001) against N=68 identities gives a search-level
+// FPR of ~6.6%. A hit that clears fpr_1e3 per-comparison but not after Šidák
+// correction is a lead, not an accusation.
+func searchCorrectedOps(perComparison map[string]bool, catalogSize int) map[string]bool {
+	if catalogSize <= 1 {
+		out := make(map[string]bool, len(perComparison))
+		for k, v := range perComparison {
+			out[k] = v
+		}
+		return out
+	}
+	fprValues := map[string]float64{
+		"fpr_1e2": 0.01,
+		"fpr_1e3": 0.001,
+		"fpr_1e4": 0.0001,
+	}
+	corrected := make(map[string]bool, len(perComparison))
+	for name, clears := range perComparison {
+		if !clears {
+			corrected[name] = false
+			continue
+		}
+		alpha, ok := fprValues[name]
+		if !ok {
+			corrected[name] = clears
+			continue
+		}
+		// Šidák correction: a hit clearing per-comparison threshold α has
+		// search-level FPR 1-(1-α)^N. We mark it as cleared at the search
+		// level only if the search-level FPR stays at or below the named rate.
+		searchFPR := 1 - math.Pow(1-alpha, float64(catalogSize))
+		corrected[name] = searchFPR <= alpha
+	}
+	return corrected
 }
 
 // extractAndTransform resolves each PlayerGame to a raw vector, then
