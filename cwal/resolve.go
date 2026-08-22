@@ -8,39 +8,32 @@ import (
 	"time"
 )
 
-const (
-	defaultSupabaseURL = "https://xmploueumzkrdvapbyfs.supabase.co/rest/v1"
-	handlesView        = "player_other_handles_view"
-)
+const defaultBaseURL = "https://api.aws.cwal.gg"
 
-// Resolver fetches current toons from the cwal.gg Supabase backend.
+// Resolver fetches current toons from the cwal.gg API.
 type Resolver struct {
-	apiKey     string
 	baseURL    string
 	httpClient *http.Client
 }
 
-// NewResolver creates a Resolver with the given Supabase anon API key.
-func NewResolver(apiKey string) *Resolver {
+// NewResolver creates a Resolver pointed at the cwal.gg API. The new API
+// requires no authentication — only browser-like headers.
+func NewResolver() *Resolver {
 	return &Resolver{
-		apiKey:  apiKey,
-		baseURL: defaultSupabaseURL,
+		baseURL: defaultBaseURL,
 		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
 	}
 }
 
-// ResolveToons fetches the current handles for an aurora_id from the cwal.gg
-// Supabase API.
+// ResolveToons fetches the current handles for an aurora_id.
 func (r *Resolver) ResolveToons(auroraID int64) ([]Toon, error) {
-	url := fmt.Sprintf("%s/%s?select=*&battlenet_account=eq.%d", r.baseURL, handlesView, auroraID)
+	url := fmt.Sprintf("%s/api/account/%d/handles", r.baseURL, auroraID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("apikey", r.apiKey)
-	req.Header.Set("Authorization", "Bearer "+r.apiKey)
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := r.httpClient.Do(req)
@@ -57,19 +50,84 @@ func (r *Resolver) ResolveToons(auroraID int64) ([]Toon, error) {
 		return nil, fmt.Errorf("cwal: API returned %d for aurora_id %d: %s", resp.StatusCode, auroraID, body)
 	}
 
-	var rows []struct {
-		Alias   string `json:"alias"`
-		Gateway int    `json:"gateway"`
+	var envelope struct {
+		Handles []struct {
+			Toon       string `json:"toon,omitempty"`
+			Gateway    int    `json:"gateway"`
+			BattleTag  string `json:"battleTag,omitempty"`
+			AuroraID   int64  `json:"auroraId"`
+			ProName    string `json:"proName,omitempty"`
+			Race       string `json:"race,omitempty"`
+			Rating     int    `json:"rating,omitempty"`
+			LastUpdate int64  `json:"lastUpdated,omitempty"`
+		} `json:"handles"`
 	}
-	if err := json.Unmarshal(body, &rows); err != nil {
+	if err := json.Unmarshal(body, &envelope); err != nil {
 		return nil, fmt.Errorf("cwal: parsing response for aurora_id %d: %w", auroraID, err)
 	}
 
-	toons := make([]Toon, len(rows))
-	for i, row := range rows {
-		toons[i] = Toon{Handle: row.Alias, Gateway: row.Gateway}
+	toons := make([]Toon, 0, len(envelope.Handles))
+	for _, h := range envelope.Handles {
+		handle := h.Toon
+		if handle == "" {
+			handle = h.BattleTag
+		}
+		if handle == "" {
+			continue
+		}
+		toons = append(toons, Toon{
+			Handle:  handle,
+			Gateway: h.Gateway,
+		})
 	}
 	return toons, nil
+}
+
+// FetchPros fetches the full pro registry from the cwal.gg API.
+func (r *Resolver) FetchPros() ([]Entry, error) {
+	url := r.baseURL + "/api/pros"
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := r.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("cwal: fetching pros: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("cwal: reading pros response: %w", err)
+	}
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("cwal: pros API returned %d: %s", resp.StatusCode, body)
+	}
+
+	var envelope struct {
+		Pros map[string][]struct {
+			AuroraID  int64  `json:"auroraId"`
+			BattleTag string `json:"battleTag"`
+		} `json:"pros"`
+	}
+	if err := json.Unmarshal(body, &envelope); err != nil {
+		return nil, fmt.Errorf("cwal: parsing pros: %w", err)
+	}
+
+	entries := make([]Entry, 0, len(envelope.Pros))
+	for name, accts := range envelope.Pros {
+		e := Entry{Nickname: name}
+		for _, a := range accts {
+			e.Accounts = append(e.Accounts, Account{
+				AuroraID:  a.AuroraID,
+				BattleTag: a.BattleTag,
+			})
+		}
+		entries = append(entries, e)
+	}
+	return entries, nil
 }
 
 // ResolveAll fetches toons for every account in the entries, with a rate
