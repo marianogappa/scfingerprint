@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/marianogappa/scfingerprint/hygiene"
 	"github.com/marianogappa/scfingerprint/scoring"
 	"github.com/marianogappa/scfingerprint/training"
 )
@@ -29,6 +30,18 @@ type Options struct {
 	// Exclusions lists known-smurf player pairs to remove from impostor
 	// pools (both directions).
 	Exclusions [][2]string
+	// MinLabelSelfConsistency, when > 0, excludes labels whose race-aware
+	// self-consistency falls below it. A benchmark over labels that fail
+	// this gate measures its own ground-truth contamination, not the model
+	// (issue #40). The audit is always recorded in the Report.
+	MinLabelSelfConsistency float64
+	// SplitByRace evaluates each (label, race) stratum as its own identity.
+	// A player whose style differs per race (random players especially)
+	// fragments a single global-mean fingerprint; per-race identities mirror
+	// how the fingerprint package's race sub-means match in production.
+	// Strata of the same label are excluded from each other's impostor
+	// pools — they are the same human.
+	SplitByRace bool
 }
 
 // DefaultOptions returns the default evaluation options.
@@ -51,11 +64,16 @@ type Metrics struct {
 }
 
 // Report holds metrics for every evaluated scenario, keyed by scenario name:
-// "n1_all", "n1_same_race", "n3_all", "n3_same_race".
+// "n1_all", "n1_same_race", "n3_all", "n3_same_race". LabelAudit records
+// per-label ground-truth health (race-aware self-consistency) over the
+// benchmarked labels; ExcludedLabels lists labels dropped by
+// Options.MinLabelSelfConsistency before metrics were computed.
 type Report struct {
-	NumPlayers int                `json:"num_players"`
-	NumProbes  int                `json:"num_probes"`
-	Scenarios  map[string]Metrics `json:"scenarios"`
+	NumPlayers     int                  `json:"num_players"`
+	NumProbes      int                  `json:"num_probes"`
+	Scenarios      map[string]Metrics   `json:"scenarios"`
+	LabelAudit     []hygiene.LabelAudit `json:"label_audit,omitempty"`
+	ExcludedLabels []string             `json:"excluded_labels,omitempty"`
 }
 
 // probe is one evaluation trial: an averaged whitened vector with its truth.
@@ -76,6 +94,43 @@ func Evaluate(samples []training.Sample, scorer *scoring.Scorer, opts Options) (
 	samples = filterMinGames(samples, opts.MinGamesPerPlayer)
 	if len(samples) == 0 {
 		return nil, fmt.Errorf("eval: no players with >= %d games", opts.MinGamesPerPlayer)
+	}
+
+	// Ground-truth health check: a label that fails race-aware
+	// self-consistency makes the benchmark measure its own contamination.
+	audit, err := hygiene.AuditLabels(samples, scorer, opts.MinGamesPerPlayer)
+	if err != nil {
+		return nil, fmt.Errorf("eval: label audit: %w", err)
+	}
+	var excludedLabels []string
+	if opts.MinLabelSelfConsistency > 0 {
+		drop := map[string]bool{}
+		for _, a := range audit {
+			if a.RaceAware < opts.MinLabelSelfConsistency {
+				drop[a.Label] = true
+				excludedLabels = append(excludedLabels, a.Label)
+			}
+		}
+		if len(drop) > 0 {
+			kept := samples[:0]
+			for _, s := range samples {
+				if !drop[s.Player] {
+					kept = append(kept, s)
+				}
+			}
+			samples = kept
+			if len(samples) == 0 {
+				return nil, fmt.Errorf("eval: every label fails self-consistency %.2f", opts.MinLabelSelfConsistency)
+			}
+		}
+	}
+
+	if opts.SplitByRace {
+		samples, opts.Exclusions = splitByRace(samples, opts.Exclusions)
+		samples = filterMinGames(samples, opts.MinGamesPerPlayer)
+		if len(samples) == 0 {
+			return nil, fmt.Errorf("eval: no (label, race) identities with >= %d games", opts.MinGamesPerPlayer)
+		}
 	}
 
 	enroll, probeSamples := training.ChronologicalSplit(samples, opts.EnrollFrac)
@@ -116,9 +171,11 @@ func Evaluate(samples []training.Sample, scorer *scoring.Scorer, opts Options) (
 	excluded := exclusionSet(opts.Exclusions)
 
 	report := &Report{
-		NumPlayers: len(players),
-		NumProbes:  len(probesN1),
-		Scenarios:  map[string]Metrics{},
+		NumPlayers:     len(players),
+		NumProbes:      len(probesN1),
+		Scenarios:      map[string]Metrics{},
+		LabelAudit:     audit,
+		ExcludedLabels: excludedLabels,
 	}
 	for _, sc := range []struct {
 		name     string
@@ -203,6 +260,43 @@ func runScenario(
 		NumGenuine:        len(genuine),
 		NumImpostor:       len(impostor),
 	}, nil
+}
+
+// splitByRace relabels every sample's identity to "label/race" and returns
+// the expanded exclusion list: strata of the same label never count as
+// impostors of each other, and caller exclusions on raw labels expand to all
+// their strata pairs.
+func splitByRace(samples []training.Sample, exclusions [][2]string) ([]training.Sample, [][2]string) {
+	split := make([]training.Sample, len(samples))
+	copy(split, samples)
+	idsByLabel := map[string][]string{}
+	seen := map[string]bool{}
+	for i := range split {
+		label := split[i].Player
+		id := label + "/" + split[i].Race
+		if !seen[id] {
+			seen[id] = true
+			idsByLabel[label] = append(idsByLabel[label], id)
+		}
+		split[i].Player = id
+	}
+
+	var out [][2]string
+	for _, pair := range exclusions {
+		for _, a := range idsByLabel[pair[0]] {
+			for _, b := range idsByLabel[pair[1]] {
+				out = append(out, [2]string{a, b})
+			}
+		}
+	}
+	for _, ids := range idsByLabel {
+		for i := 0; i < len(ids); i++ {
+			for j := i + 1; j < len(ids); j++ {
+				out = append(out, [2]string{ids[i], ids[j]})
+			}
+		}
+	}
+	return split, out
 }
 
 func transformAll(samples []training.Sample, scorer *scoring.Scorer) ([][]float64, error) {

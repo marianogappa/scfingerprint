@@ -151,3 +151,66 @@ extract-corpus -metadata corpus/replays.jsonl -replays-dir corpus -out features.
 catalog-check -csv features.csv        # n=1
 catalog-check -csv features.csv -n 3   # 3-game probes
 ```
+
+# Amateur baseline retirement + drift research — 2026-08-22 (issue #40)
+
+The committed amateur gate (1.19% EER / 0.957 TPR@1e-3, 8 ids) is retired:
+it never reproduced (15.08% ungated, 2.693% mixed-gated in the earlier
+re-run; 6.4% mixed-gated with today's tooling), and the corpus is a live
+replay folder that keeps growing, so any frozen number rots.
+
+## Ground truth from the corpus owner
+
+The labels flagged "shared accounts" by the mixed self-consistency audit are
+in fact single humans: **Mariano, oldie, chobo86, chobo85, chobo85s are one
+person** (the corpus owner); **-=FallenAngel=-** and **ReflectinG0d** are one
+person each. The audit's verdict wording was wrong — the failures are
+intra-person drift, not label contamination.
+
+## What drives the drift (measured with cmd/drift-analysis)
+
+Whitened-centroid cosine between strata of the same human, embedded artifact:
+
+| comparison | cosine | reading |
+|---|---|---|
+| chobo85/P vs chobo85/T | 0.984 | P and T are one style |
+| chobo86/P vs chobo86/T | 0.988 | same |
+| chobo85/P vs chobo85/Z | 0.495 | Zerg is a different style |
+| chobo86/P vs chobo86/Z | 0.584 | same |
+| chobo85/Z vs oldie/Z | 0.962 | same human, different account, race-controlled |
+| chobo85/Z vs chobo86/Z | 0.911 | same, 7 years apart |
+| chobo85/2024-26 vs chobo86/2024-26 | 0.992 | same era, different account |
+| chobo85/2017-18 vs chobo85/2024-26 | 0.693 | 9-year drift is real but secondary |
+| Mariano/Z vs chobo85/Z | 0.411 | Mariano is 97% vs-AI games — unrepresentative |
+
+**Race dominates; identity holds per race.** Controlling for race, the same
+human matches across accounts and years in the genuine range. Zerg vs
+Protoss/Terran within one human reads as impostor. vs-AI games form their own
+cluster and should not be enrolled or benchmarked.
+
+## Consequences shipped
+
+- `hygiene.AuditLabels`: race-aware label self-consistency (per-race
+  half-vs-half, game-weighted). Rescues random-race players from false
+  "CONTAMINATED" verdicts (chobo86: 0.870 mixed → 0.941 race-aware; oldie:
+  0.892 → 0.930). Limitation: cannot catch two humans on one account playing
+  different races.
+- `eval.Evaluate` always records the label audit in the report;
+  `MinLabelSelfConsistency` excludes failing labels before metrics
+  (`-min-label-self-consistency` in cmd/eval).
+- `eval.Options.SplitByRace` (`-split-by-race`): identity = (label, race),
+  same-label strata excluded from each other's impostor pools — mirrors the
+  fingerprint package's per-race sub-means.
+- `cmd/corpus-audit` reports mixed and race-aware columns, corrected verdict
+  wording, and `-clean-csv` writes the gated corpus.
+- `amateur_team_audit.json` is the committed audit record: 16 of 24 labels
+  (>= 20 games) pass race-aware self-consistency >= 0.90 against the
+  embedded artifact.
+
+## Why no new amateur gate
+
+Even gated and race-split, today's numbers (n1_all EER 6.4–8.4%) reflect a
+casual, multi-mode, decade-spanning domain that is much harder than ladder
+1v1 — and the corpus mutates as its owner plays. A regression gate needs a
+frozen benchmark; freezing a snapshot of this folder is tracked as future
+work. Until then the pro 1v1 and cwal-harvest gates carry regression duty.
