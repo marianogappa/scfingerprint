@@ -1,0 +1,10 @@
+{
+    "n1_all": {
+        "eer_max": 0.0153,
+        "tpr_at_fpr_1e3_min": 0.911
+    },
+    "n3_all": {
+        "eer_max": 0.0082,
+        "tpr_at_fpr_1e3_min": 0.978
+    }
+}
