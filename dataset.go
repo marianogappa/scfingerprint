@@ -11,9 +11,9 @@ import (
 // Confidence tiers for built-in dataset entries, from strictest to loosest.
 // BuiltinDataset includes every entry at or above the tier it is given.
 const (
-	ConfidenceConfirmed = dataset.ConfidenceConfirmed
-	ConfidenceHigh      = dataset.ConfidenceHigh
-	ConfidenceCandidate = dataset.ConfidenceCandidate
+	ConfidenceConfirmed = "confirmed"
+	ConfidenceHigh      = "high"
+	ConfidenceCandidate = "candidate"
 )
 
 // Dataset is a collection of known fingerprints that Match and MatchMany
