@@ -64,7 +64,7 @@ type MatchResult struct {
 	Cosine           float64         `json:"cosine"`             // raw cosine similarity
 	EvidenceN        int             `json:"evidence_n"`         // number of games in the probe
 	OperatingPoints  map[string]bool `json:"operating_points"`   // named per-comparison thresholds cleared
-	SearchFPR        map[string]bool `json:"search_fpr"`         // Šidák-corrected thresholds at the search (1:N) level
+	SearchFPR        float64         `json:"search_fpr"`         // family-wise FPR across the whole catalog (see below)
 	CatalogSize      int             `json:"catalog_size"`       // N used for the search-level correction
 	ModelIsSynthetic bool            `json:"model_is_synthetic"` // true when the backing model was trained on synthetic data
 }
@@ -75,6 +75,7 @@ type Verdict struct {
 	Cosine           float64         `json:"cosine"`             // raw cosine
 	EvidenceN        int             `json:"evidence_n"`         // total games across both sides
 	OperatingPoints  map[string]bool `json:"operating_points"`   // named thresholds cleared
+	FPR              float64         `json:"fpr"`                // strictest false-positive rate this verdict clears; 1.0 = none
 	ModelIsSynthetic bool            `json:"model_is_synthetic"` // true when the backing model was trained on synthetic data
 }
 

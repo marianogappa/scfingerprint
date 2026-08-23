@@ -57,14 +57,13 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 		if sc.Z < o.minZ {
 			continue
 		}
-		searchFPR := searchCorrectedOps(sc.OperatingPoints, catalogSize)
 		results = append(results, MatchResult{
 			Label:            fp.Meta.Label,
 			Z:                sc.Z,
 			Cosine:           sc.Cosine,
 			EvidenceN:        sc.EvidenceN,
 			OperatingPoints:  sc.OperatingPoints,
-			SearchFPR:        searchFPR,
+			SearchFPR:        searchFPR(sc.OperatingPoints, catalogSize),
 			CatalogSize:      catalogSize,
 			ModelIsSynthetic: synthetic,
 		})
@@ -109,49 +108,51 @@ func Same(a, b []PlayerGame, opts ...Option) (Verdict, error) {
 		Cosine:           sc.Cosine,
 		EvidenceN:        len(a) + len(b),
 		OperatingPoints:  sc.OperatingPoints,
+		FPR:              searchFPR(sc.OperatingPoints, 1),
 		ModelIsSynthetic: scorer.IsSynthetic(),
 	}, nil
 }
 
-// searchCorrectedOps applies the Šidák correction to per-comparison operating
-// points: a per-comparison FPR α becomes search-level 1-(1-α)^N when N
-// comparisons are made. The result reports whether the per-comparison
-// threshold would still hold at the corrected (family-wise) FPR.
+// perComparisonFPR maps each named operating point to the per-comparison
+// false-positive rate it represents.
+var perComparisonFPR = map[string]float64{
+	"fpr_1e2": 0.01,
+	"fpr_1e3": 0.001,
+	"fpr_1e4": 0.0001,
+}
+
+// searchFPR converts the per-comparison operating points a hit clears into the
+// family-wise false-positive rate it achieves across a catalog of N entries:
+// the probability that a stranger would score at least this high against *some*
+// entry, not against one specific entry.
 //
-// For example, fpr_1e3 (α=0.001) against N=68 identities gives a search-level
-// FPR of ~6.6%. A hit that clears fpr_1e3 per-comparison but not after Šidák
-// correction is a lead, not an accusation.
-func searchCorrectedOps(perComparison map[string]bool, catalogSize int) map[string]bool {
-	if catalogSize <= 1 {
-		out := make(map[string]bool, len(perComparison))
-		for k, v := range perComparison {
-			out[k] = v
-		}
-		return out
+// Šidák: a per-comparison rate α over N independent comparisons gives a
+// family-wise rate of 1-(1-α)^N. The strictest point the hit clears gives the
+// tightest claim, so that is the one reported. A hit clearing no point gets 1.0
+// — no confidence to state.
+//
+// For example, clearing fpr_1e3 against a 68-entry catalog means ~6.6%
+// family-wise: better than chance, but nowhere near proof. That gap between
+// per-comparison and family-wise confidence is exactly why a 1:N sweep needs
+// this correction reported alongside the raw z.
+func searchFPR(perComparison map[string]bool, catalogSize int) float64 {
+	if catalogSize < 1 {
+		catalogSize = 1
 	}
-	fprValues := map[string]float64{
-		"fpr_1e2": 0.01,
-		"fpr_1e3": 0.001,
-		"fpr_1e4": 0.0001,
-	}
-	corrected := make(map[string]bool, len(perComparison))
+	best := 1.0
 	for name, clears := range perComparison {
 		if !clears {
-			corrected[name] = false
 			continue
 		}
-		alpha, ok := fprValues[name]
+		alpha, ok := perComparisonFPR[name]
 		if !ok {
-			corrected[name] = clears
 			continue
 		}
-		// Šidák correction: a hit clearing per-comparison threshold α has
-		// search-level FPR 1-(1-α)^N. We mark it as cleared at the search
-		// level only if the search-level FPR stays at or below the named rate.
-		searchFPR := 1 - math.Pow(1-alpha, float64(catalogSize))
-		corrected[name] = searchFPR <= alpha
+		if fw := 1 - math.Pow(1-alpha, float64(catalogSize)); fw < best {
+			best = fw
+		}
 	}
-	return corrected
+	return best
 }
 
 // extractAndTransform resolves each PlayerGame to a raw vector, then

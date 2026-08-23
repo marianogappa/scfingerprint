@@ -8,35 +8,50 @@ import (
 	"github.com/marianogappa/scfingerprint/internal/synthtest"
 )
 
-func TestSearchCorrectedOps(t *testing.T) {
-	// N=1: search-level = per-comparison, so all cleared ops stay cleared.
-	ops := map[string]bool{"fpr_1e2": true, "fpr_1e3": true, "fpr_1e4": true}
-	corrected := searchCorrectedOps(ops, 1)
-	for name, want := range ops {
-		if corrected[name] != want {
-			t.Errorf("N=1: %s = %v, want %v", name, corrected[name], want)
-		}
+func TestSearchFPR(t *testing.T) {
+	all := map[string]bool{"fpr_1e2": true, "fpr_1e3": true, "fpr_1e4": true}
+
+	// N=1: family-wise equals per-comparison, and the strictest cleared point
+	// wins, so clearing everything reports 1e-4.
+	if got := searchFPR(all, 1); math.Abs(got-0.0001) > 1e-9 {
+		t.Errorf("N=1 all cleared: got %g, want 1e-4", got)
 	}
 
-	// N=68 (shipped catalog): 1e-3 per-comparison → ~6.6% search-level,
-	// which exceeds 0.1%, so fpr_1e3 should NOT clear at search level.
-	corrected68 := searchCorrectedOps(ops, 68)
-	if corrected68["fpr_1e3"] {
-		searchFPR := 1 - math.Pow(1-0.001, 68)
-		t.Errorf("N=68: fpr_1e3 should not clear at search level (search FPR=%.4f)", searchFPR)
+	// N=68 (shipped catalog): clearing 1e-4 gives 1-(1-1e-4)^68 ≈ 0.678%.
+	// This is the case the old boolean implementation reported as "not
+	// cleared", because 1-(1-α)^N > α holds for every N>1 — so every result
+	// against a real catalog looked like a weak signal.
+	got68 := searchFPR(all, 68)
+	if math.Abs(got68-0.006777) > 1e-5 {
+		t.Errorf("N=68 all cleared: got %g, want ~0.006777", got68)
 	}
-	// fpr_1e4 at N=68 → ~0.68% search-level, still exceeds 0.01%.
-	if corrected68["fpr_1e4"] {
-		t.Error("N=68: fpr_1e4 should not clear at search level")
+	if got68 >= 1 {
+		t.Error("N=68: a result clearing every operating point must not report FPR 1.0")
 	}
 
-	// Uncleared ops stay uncleared.
-	notCleared := map[string]bool{"fpr_1e2": false, "fpr_1e3": false}
-	correctedNot := searchCorrectedOps(notCleared, 68)
-	for name := range notCleared {
-		if correctedNot[name] {
-			t.Errorf("uncleared %s became cleared after correction", name)
-		}
+	// Clearing only the loosest point is much weaker at catalog scale.
+	loose := searchFPR(map[string]bool{"fpr_1e2": true}, 68)
+	if math.Abs(loose-0.495110) > 1e-5 {
+		t.Errorf("N=68 only 1e-2: got %g, want ~0.495110", loose)
+	}
+	if loose <= got68 {
+		t.Error("clearing a stricter point must report a smaller family-wise FPR")
+	}
+
+	// Clearing nothing has no confidence to state.
+	none := searchFPR(map[string]bool{"fpr_1e2": false, "fpr_1e3": false}, 68)
+	if none != 1.0 {
+		t.Errorf("nothing cleared: got %g, want 1.0", none)
+	}
+
+	// Family-wise rate grows with catalog size for a fixed hit.
+	if searchFPR(all, 229) <= searchFPR(all, 68) {
+		t.Error("a larger catalog must report a larger family-wise FPR")
+	}
+
+	// Unknown point names are ignored rather than trusted.
+	if got := searchFPR(map[string]bool{"fpr_made_up": true}, 68); got != 1.0 {
+		t.Errorf("unknown operating point: got %g, want 1.0", got)
 	}
 }
 
@@ -71,12 +86,12 @@ func TestMatchResultHasSearchFPR(t *testing.T) {
 	if top.CatalogSize != 10 {
 		t.Fatalf("CatalogSize = %d, want 10", top.CatalogSize)
 	}
-	if top.SearchFPR == nil {
-		t.Fatal("SearchFPR is nil")
+	if top.SearchFPR <= 0 || top.SearchFPR > 1 {
+		t.Fatalf("SearchFPR = %g, want a rate in (0,1]", top.SearchFPR)
 	}
-	for _, name := range []string{"fpr_1e2", "fpr_1e3", "fpr_1e4"} {
-		if _, ok := top.SearchFPR[name]; !ok {
-			t.Errorf("SearchFPR missing key %q", name)
-		}
+	// The self-match should clear at least one operating point, so it must
+	// report a real rate rather than the "clears nothing" sentinel.
+	if top.SearchFPR == 1.0 {
+		t.Error("self-match reported no confidence at all")
 	}
 }

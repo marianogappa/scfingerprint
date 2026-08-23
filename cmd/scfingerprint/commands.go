@@ -52,42 +52,74 @@ func parseAll(fs *flag.FlagSet, args []string) ([]string, error) {
 	}
 }
 
-// interpretation returns the plain-language confidence line for a match result.
-// It uses the search-level (Šidák-corrected) operating points when available,
-// since Match performs a 1:N sweep and per-comparison FPRs overstate confidence.
-func interpretation(evidenceN int, searchOps map[string]bool, catalogSize int) string {
-	switch {
-	case !searchOps["fpr_1e2"]:
-		return fmt.Sprintf("weak signal: below the search-level 1-in-100 operating point (%d game(s), catalog N=%d)", evidenceN, catalogSize)
-	case evidenceN >= 3 && searchOps["fpr_1e3"]:
-		return fmt.Sprintf("accusation-grade: %d games of evidence at the search-level 1-in-1,000 operating point (catalog N=%d)", evidenceN, catalogSize)
-	case searchOps["fpr_1e3"]:
-		return fmt.Sprintf("strong lead, not confirmation: %d game(s) of evidence (catalog N=%d)", evidenceN, catalogSize)
-	default:
-		return fmt.Sprintf("lead: clears search-level 1-in-100 but not 1-in-1,000 (%d game(s), catalog N=%d)", evidenceN, catalogSize)
+// Confidence tiers, keyed on the false-positive rate a result achieves. For a
+// 1:N search that rate is family-wise (Šidák-corrected for catalog size); for a
+// 1:1 comparison it is the raw per-comparison rate.
+const (
+	fprStrong = 0.01 // at or below: the evidence is strong
+	fprLead   = 0.10 // at or below: worth following up
+)
+
+// fprCell renders a result's false-positive rate for the results table.
+func fprCell(fpr float64) string {
+	if fpr >= 1 {
+		return "—"
 	}
+	return oddsPhrase(fpr)
 }
 
-// interpretationPairwise returns the plain-language confidence line for a
-// pairwise (1:1) Same comparison where no search correction is needed.
-func interpretationPairwise(evidenceN int, ops map[string]bool) string {
-	switch {
-	case !ops["fpr_1e2"]:
-		return fmt.Sprintf("weak signal: below the 1-in-100 operating point (%d game(s) of evidence)", evidenceN)
-	case evidenceN >= 3 && ops["fpr_1e3"]:
-		return fmt.Sprintf("accusation-grade: %d games of evidence at the 1-in-1,000 operating point", evidenceN)
-	case ops["fpr_1e3"]:
-		return fmt.Sprintf("strong lead, not confirmation: %d game(s) of evidence", evidenceN)
-	default:
-		return fmt.Sprintf("lead: clears 1-in-100 but not 1-in-1,000 (%d game(s) of evidence)", evidenceN)
+// oddsPhrase renders a false-positive rate as "1 in N", which reads better than
+// a percentage at the small rates that matter here.
+func oddsPhrase(fpr float64) string {
+	if fpr <= 0 {
+		return "far better than 1 in 100,000"
 	}
+	// Round before bucketing: 1/(1-(1-1e-3)) lands on 999.999... in float,
+	// which would otherwise print as "1 in 1000" rather than "1 in 1,000".
+	n := math.Round(1 / fpr)
+	if n >= 1000 {
+		return fmt.Sprintf("1 in %.0f,000", math.Round(n/1000))
+	}
+	return fmt.Sprintf("1 in %.0f", n)
 }
 
-func opsCell(ops map[string]bool, key string) string {
-	if ops[key] {
-		return "yes"
+// interpretation returns the plain-language confidence line for a result.
+//
+// fpr is the false-positive rate the result achieves; scope names what that
+// rate is over ("this 68-player catalog", or "" for a 1:1 comparison). margin
+// is the z gap to the runner-up, or 0 when there is none — a big margin is what
+// separates a real identification from a lucky draw, so it is reported even
+// when the rate alone is unimpressive.
+func interpretation(fpr float64, evidenceN int, scope string, margin float64) string {
+	over := ""
+	if scope != "" {
+		over = " across " + scope
 	}
-	return "no"
+	evidence := fmt.Sprintf("%d game(s) of evidence", evidenceN)
+	if evidenceN >= 3 {
+		evidence = fmt.Sprintf("%d games of evidence", evidenceN)
+	}
+	gap := ""
+	if margin > 0 {
+		gap = fmt.Sprintf(", %.2f z clear of the runner-up", margin)
+	}
+
+	switch {
+	case fpr >= 1:
+		return fmt.Sprintf("weak signal: clears no operating point (%s%s). Not evidence of anything.", evidence, gap)
+	case fpr > fprLead:
+		return fmt.Sprintf("weak signal: a stranger would score this high %s%s (%s%s). Not evidence of anything.",
+			oddsPhrase(fpr), over, evidence, gap)
+	case fpr > fprStrong:
+		return fmt.Sprintf("lead: a stranger would score this high %s%s (%s%s). Worth following up with more games.",
+			oddsPhrase(fpr), over, evidence, gap)
+	case evidenceN < 3:
+		return fmt.Sprintf("strong lead, not confirmation: a stranger would score this high %s%s, but on only %s%s. Get 3+ games.",
+			oddsPhrase(fpr), over, evidence, gap)
+	default:
+		return fmt.Sprintf("strong: a stranger would score this high %s%s, on %s%s. Still confirm by hand before acting on it.",
+			oddsPhrase(fpr), over, evidence, gap)
+	}
 }
 
 func cmdMatch(args []string) int {
@@ -182,15 +214,19 @@ func cmdMatch(args []string) int {
 				continue
 			}
 			w := tabwriter.NewWriter(os.Stdout, 2, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "  LABEL\tZ\tCOSINE\tEVIDENCE\tSEARCH 1e-2\tSEARCH 1e-3\tSEARCH 1e-4")
+			_, _ = fmt.Fprintln(w, "  LABEL\tZ\tCOSINE\tGAMES\tSTRANGER SCORES THIS HIGH")
 			for _, m := range r.Matches {
-				_, _ = fmt.Fprintf(w, "  %s\t%.2f\t%.3f\t%d\t%s\t%s\t%s\n",
-					m.Label, m.Z, m.Cosine, m.EvidenceN,
-					opsCell(m.SearchFPR, "fpr_1e2"), opsCell(m.SearchFPR, "fpr_1e3"), opsCell(m.SearchFPR, "fpr_1e4"))
+				_, _ = fmt.Fprintf(w, "  %s\t%.2f\t%.3f\t%d\t%s\n",
+					m.Label, m.Z, m.Cosine, m.EvidenceN, fprCell(m.SearchFPR))
 			}
 			_ = w.Flush()
 			top := r.Matches[0]
-			fmt.Printf("  → %s\n", interpretation(top.EvidenceN, top.SearchFPR, top.CatalogSize))
+			margin := 0.0
+			if len(r.Matches) > 1 {
+				margin = top.Z - r.Matches[1].Z
+			}
+			scope := fmt.Sprintf("this %d-player catalog", top.CatalogSize)
+			fmt.Printf("  → %s\n", interpretation(top.SearchFPR, top.EvidenceN, scope, margin))
 		}
 	}
 	if anyMatch {
@@ -267,7 +303,7 @@ func cmdSame(args []string) int {
 		fmt.Println(string(out))
 	} else {
 		fmt.Printf("Z: %.2f  Cosine: %.3f  Evidence: %d games (%d + %d)\n", v.Z, v.Cosine, v.EvidenceN, len(gamesA), len(gamesB))
-		fmt.Printf("→ %s\n", interpretationPairwise(v.EvidenceN, v.OperatingPoints))
+		fmt.Printf("→ %s\n", interpretation(v.FPR, v.EvidenceN, "", 0))
 	}
 	if v.OperatingPoints["fpr_1e3"] {
 		return exitOK
