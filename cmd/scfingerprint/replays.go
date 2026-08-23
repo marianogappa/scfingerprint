@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/icza/screp/repparser"
-	"github.com/marianogappa/scfingerprint/features"
+	"github.com/marianogappa/scfingerprint/internal/features"
 )
 
 // gameObs is one observed player-game: the extracted features plus where it

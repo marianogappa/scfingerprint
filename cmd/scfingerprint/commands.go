@@ -9,11 +9,11 @@ import (
 	"text/tabwriter"
 
 	scfingerprint "github.com/marianogappa/scfingerprint"
-	"github.com/marianogappa/scfingerprint/dataset"
-	"github.com/marianogappa/scfingerprint/features"
-	"github.com/marianogappa/scfingerprint/fingerprint"
-	"github.com/marianogappa/scfingerprint/hygiene"
-	"github.com/marianogappa/scfingerprint/scoring"
+	"github.com/marianogappa/scfingerprint/internal/dataset"
+	"github.com/marianogappa/scfingerprint/internal/features"
+	"github.com/marianogappa/scfingerprint/internal/fingerprint"
+	"github.com/marianogappa/scfingerprint/internal/hygiene"
+	"github.com/marianogappa/scfingerprint/internal/scoring"
 )
 
 const syntheticBanner = `
@@ -23,8 +23,8 @@ const syntheticBanner = `
 ╚══════════════════════════════════════════════════════════════════╝
 `
 
-func warnIfSynthetic(scorer *scoring.Scorer, strict bool) int {
-	if !scorer.IsSynthetic() {
+func warnIfSynthetic(isSynthetic, strict bool) int {
+	if !isSynthetic {
 		return -1
 	}
 	fmt.Fprint(os.Stderr, syntheticBanner)
@@ -104,24 +104,15 @@ func cmdMatch(args []string) int {
 		return exitError
 	}
 
-	db, err := dataset.NewDefaultDataset(nil, *minConfidence)
+	lib, err := scfingerprint.BuiltinDataset(*minConfidence)
 	if err != nil {
 		return fail(err)
 	}
-	if code := warnIfSynthetic(db.Scorer(), *strict); code >= 0 {
+	if code := warnIfSynthetic(lib.ModelIsSynthetic(), *strict); code >= 0 {
 		return code
 	}
-	if db.Len() == 0 {
+	if lib.Len() == 0 {
 		return fail(fmt.Errorf("built-in dataset is empty at confidence tier %q", *minConfidence))
-	}
-	lib, err := scfingerprint.NewDataset(db.Scorer())
-	if err != nil {
-		return fail(err)
-	}
-	for _, fp := range db.Fingerprints() {
-		if err := lib.Add(fp); err != nil {
-			return fail(err)
-		}
 	}
 
 	paths, err := collectReplays(*dir, positional)
@@ -227,7 +218,7 @@ func cmdSame(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
-	if code := warnIfSynthetic(scorer, *strict); code >= 0 {
+	if code := warnIfSynthetic(scorer.IsSynthetic(), *strict); code >= 0 {
 		return code
 	}
 
@@ -304,7 +295,7 @@ func cmdEnroll(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
-	if code := warnIfSynthetic(enrollScorer, *strict); code >= 0 {
+	if code := warnIfSynthetic(enrollScorer.IsSynthetic(), *strict); code >= 0 {
 		return code
 	}
 
@@ -336,11 +327,7 @@ func cmdEnroll(args []string) int {
 	}
 
 	if !*skipGate {
-		db, err := scfingerprint.NewDataset(nil)
-		if err != nil {
-			return fail(err)
-		}
-		score, err := hygiene.SelfConsistencyGate(fp, db.Scorer(), hygiene.DefaultThresholds())
+		score, err := fp.SelfConsistencyGate()
 		if err != nil {
 			return fail(fmt.Errorf("%w (re-check the games belong to one person, or pass --skip-gate)", err))
 		}

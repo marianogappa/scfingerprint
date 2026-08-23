@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-const fixtureRep = "../../features/testdata/01_zvt_zergling_rush.rep"
-const fixtureRep2 = "../../features/testdata/03_zvp_progamer_soma.rep"
+const fixtureRep = "../../internal/features/testdata/01_zvt_zergling_rush.rep"
+const fixtureRep2 = "../../internal/features/testdata/03_zvp_progamer_soma.rep"
 
 func TestRunUsageAndErrors(t *testing.T) {
 	if code := run(nil); code != exitError {

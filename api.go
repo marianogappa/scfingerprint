@@ -5,18 +5,17 @@ import (
 	"math"
 	"sort"
 
-	"github.com/marianogappa/scfingerprint/features"
-	"github.com/marianogappa/scfingerprint/fingerprint"
-	"github.com/marianogappa/scfingerprint/scoring"
+	"github.com/marianogappa/scfingerprint/internal/features"
+	"github.com/marianogappa/scfingerprint/internal/scoring"
 )
 
 // Match identifies a single observed player against every fingerprint in db.
 // Results are returned sorted by z-score descending, filtered to those at or
 // above the minimum z threshold (see WithMinZ; default 2.0).
 //
-// Accepts the in-memory screp model — callers like screpdb must not pay a
-// re-parse. Single-game matches are "leads"; use MatchMany with 3+ games to
-// reach accusation-grade confidence.
+// Accepts the in-memory screp model so callers never pay a re-parse.
+// Single-game matches are "leads"; use MatchMany with 3+ games to reach
+// accusation-grade confidence.
 func Match(r *Replay, playerID byte, db *Dataset, opts ...Option) ([]MatchResult, error) {
 	return MatchMany([]PlayerGame{{Replay: r, PlayerID: playerID}}, db, opts...)
 }
@@ -25,8 +24,8 @@ func Match(r *Replay, playerID byte, db *Dataset, opts ...Option) ([]MatchResult
 // fingerprint in db. More games → stronger evidence. Results sorted by
 // z-score descending, filtered to the minimum z threshold.
 //
-// The spike showed: single-game EER 0.21%, 3-game same-race EER 0.05% with
-// TPR@FPR=1e-3 = 1.000.
+// Measured on the reference corpora: single-game EER 0.21%, 3-game same-race
+// EER 0.05% with TPR@FPR=1e-3 = 1.000.
 func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, error) {
 	if len(games) == 0 {
 		return nil, fmt.Errorf("scfingerprint: no games provided")
@@ -112,25 +111,6 @@ func Same(a, b []PlayerGame, opts ...Option) (Verdict, error) {
 		OperatingPoints:  sc.OperatingPoints,
 		ModelIsSynthetic: scorer.IsSynthetic(),
 	}, nil
-}
-
-// Enroll builds a fingerprint from one or more observed games, running the
-// self-consistency gate when there are enough games.
-func Enroll(games []PlayerGame, meta Meta) (*Fingerprint, error) {
-	if len(games) == 0 {
-		return nil, fmt.Errorf("scfingerprint: no games to enroll")
-	}
-	fp := fingerprint.New(meta)
-	for _, g := range games {
-		vec, race, err := resolveVector(g)
-		if err != nil {
-			return nil, err
-		}
-		if err := fp.Add(vec, race); err != nil {
-			return nil, err
-		}
-	}
-	return fp, nil
 }
 
 // searchCorrectedOps applies the Šidák correction to per-comparison operating

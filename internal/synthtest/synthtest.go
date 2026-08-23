@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/marianogappa/scfingerprint/scoring"
-	"github.com/marianogappa/scfingerprint/training"
+	"github.com/marianogappa/scfingerprint/internal/scoring"
+	"github.com/marianogappa/scfingerprint/internal/training"
 )
 
 // Races are assigned round-robin to synthetic players.

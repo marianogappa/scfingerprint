@@ -4,8 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/marianogappa/scfingerprint/features"
-	"github.com/marianogappa/scfingerprint/fingerprint"
+	"github.com/marianogappa/scfingerprint/internal/features"
 	"github.com/marianogappa/scfingerprint/internal/synthtest"
 )
 
@@ -46,12 +45,12 @@ func TestMatchResultHasSearchFPR(t *testing.T) {
 	d := len(names)
 	scorer := synthtest.Scorer(t, synthtest.Corpus(0, 30, 60, d))
 
-	db, err := NewDataset(scorer)
+	db, err := newDatasetWithScorer(scorer)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for p := 0; p < 10; p++ {
-		fp := fingerprint.New(Meta{Label: synthtest.GameID(p, 0)})
+		fp := NewFingerprint(Meta{Label: synthtest.GameID(p, 0)})
 		for g := 0; g < 30; g++ {
 			_ = fp.Add(synthtest.GameVector(p, g, d), "")
 		}
