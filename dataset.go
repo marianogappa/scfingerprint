@@ -23,6 +23,7 @@ type Dataset struct {
 	scorer *scoring.Scorer
 	fps    []*fingerprint.Fingerprint
 	projs  [][]float64 // cached projected embeddings, parallel to fps
+	links  []string    // Liquipedia profile URLs, parallel to fps; "" when unknown
 }
 
 // NewDataset creates an empty dataset backed by the embedded model.
@@ -43,8 +44,11 @@ func BuiltinDataset(minConfidence string) (*Dataset, error) {
 		return nil, fmt.Errorf("scfingerprint: loading built-in dataset: %w", err)
 	}
 	d := &Dataset{scorer: db.Scorer()}
-	for _, fp := range db.Fingerprints() {
-		if err := d.add(fp); err != nil {
+	// Identities() and Fingerprints() are parallel: both are built in
+	// sorted-by-ID order by NewDefaultDataset.
+	ids := db.Identities()
+	for i, fp := range db.Fingerprints() {
+		if err := d.add(fp, ids[i].Liquipedia); err != nil {
 			return nil, err
 		}
 	}
@@ -57,7 +61,7 @@ func (d *Dataset) Add(fp *Fingerprint) error {
 	if fp == nil || fp.inner == nil {
 		return fmt.Errorf("scfingerprint: nil fingerprint")
 	}
-	return d.add(fp.inner)
+	return d.add(fp.inner, "")
 }
 
 // Len returns the number of fingerprints in the dataset.
@@ -73,13 +77,14 @@ func (d *Dataset) Labels() []string {
 	return out
 }
 
-func (d *Dataset) add(fp *fingerprint.Fingerprint) error {
+func (d *Dataset) add(fp *fingerprint.Fingerprint, liquipedia string) error {
 	proj, err := fp.Projected(d.scorer)
 	if err != nil {
 		return fmt.Errorf("scfingerprint: projecting %q: %w", fp.Meta.Label, err)
 	}
 	d.fps = append(d.fps, fp)
 	d.projs = append(d.projs, proj)
+	d.links = append(d.links, liquipedia)
 	return nil
 }
 

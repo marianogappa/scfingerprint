@@ -59,14 +59,15 @@ type PlayerVector struct {
 
 // MatchResult is one candidate identity returned by Match or MatchMany.
 type MatchResult struct {
-	Label            string          `json:"label"`              // the fingerprint's label
-	Z                float64         `json:"z"`                  // calibrated z-score, comparable across evidence counts
-	Cosine           float64         `json:"cosine"`             // raw cosine similarity
-	EvidenceN        int             `json:"evidence_n"`         // number of games in the probe
-	OperatingPoints  map[string]bool `json:"operating_points"`   // named per-comparison thresholds cleared
-	SearchFPR        float64         `json:"search_fpr"`         // family-wise FPR across the whole catalog (see below)
-	CatalogSize      int             `json:"catalog_size"`       // N used for the search-level correction
-	ModelIsSynthetic bool            `json:"model_is_synthetic"` // true when the backing model was trained on synthetic data
+	Label            string          `json:"label"`                // the fingerprint's label
+	Liquipedia       string          `json:"liquipedia,omitempty"` // the player's Liquipedia profile URL, when known
+	Z                float64         `json:"z"`                    // calibrated z-score, comparable across evidence counts
+	Cosine           float64         `json:"cosine"`               // raw cosine similarity
+	EvidenceN        int             `json:"evidence_n"`           // number of games in the probe
+	OperatingPoints  map[string]bool `json:"operating_points"`     // named per-comparison thresholds cleared
+	SearchFPR        float64         `json:"search_fpr"`           // family-wise FPR across the whole catalog (see below)
+	CatalogSize      int             `json:"catalog_size"`         // N used for the search-level correction
+	ModelIsSynthetic bool            `json:"model_is_synthetic"`   // true when the backing model was trained on synthetic data
 }
 
 // Verdict is the result of a pairwise Same comparison.

@@ -25,6 +25,14 @@ import (
 //go:embed players/*.json
 var playersFS embed.FS
 
+// liquipedia.json maps identity IDs to their Liquipedia profile URL. It lives
+// in its own file rather than in players/*.json so seed-dataset regeneration
+// never wipes it. Only verified pages belong here: existence on the wiki plus
+// a race match against the fingerprint.
+//
+//go:embed liquipedia.json
+var liquipediaJSON []byte
+
 // Confidence tiers for dataset entries.
 const (
 	ConfidenceConfirmed = "confirmed"
@@ -54,6 +62,11 @@ type Identity struct {
 
 	// Notes is free-text curation context.
 	Notes string `json:"notes,omitempty"`
+
+	// Liquipedia is the player's profile URL, filled from the embedded
+	// liquipedia.json at load time (never stored in players/*.json).
+	// Empty when the player has no verified page.
+	Liquipedia string `json:"liquipedia,omitempty"`
 }
 
 // Alias is one known account name for an identity.
@@ -71,6 +84,10 @@ func LoadEmbedded() ([]Identity, []*fingerprint.Fingerprint, error) {
 	entries, err := playersFS.ReadDir("players")
 	if err != nil {
 		return nil, nil, fmt.Errorf("dataset: reading embedded players: %w", err)
+	}
+	var links map[string]string
+	if err := json.Unmarshal(liquipediaJSON, &links); err != nil {
+		return nil, nil, fmt.Errorf("dataset: parsing liquipedia.json: %w", err)
 	}
 
 	var ids []Identity
@@ -94,6 +111,7 @@ func LoadEmbedded() ([]Identity, []*fingerprint.Fingerprint, error) {
 		if fp.Version() != features.Version {
 			return nil, nil, fmt.Errorf("dataset: %s has feature version %d, current is %d — re-derive from replays", id.ID, fp.Version(), features.Version)
 		}
+		id.Liquipedia = links[id.ID]
 		ids = append(ids, id)
 		fps = append(fps, fp)
 	}

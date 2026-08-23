@@ -9,11 +9,18 @@
 //	scfingerprint same --a dirA/ --b dirB/              # are these two players the same human?
 //	scfingerprint enroll --label "C9_FlaSh" --dir reps/ # build a fingerprint file
 //	scfingerprint extract <replay.rep>                  # dump feature vectors (JSON) for debugging
+//	scfingerprint dataset list                          # who is in the built-in catalog?
+//	scfingerprint dataset show FlaSh                    # one catalog entry in detail
+//	scfingerprint dataset fingerprint FlaSh             # export a catalog fingerprint blob
 //	scfingerprint dataset verify                        # hygiene checks over the built-in dataset
 //
-// Output is a human-readable table by default; pass --json for machines.
+// Output goes to two separate streams: a human-readable report on stderr
+// (coloured on a terminal; NO_COLOR and --no-color disable) and JSON on
+// stdout (emitted whenever stdout is piped or redirected; --json forces it
+// on a terminal, --jsonl emits one object per line for streaming consumers).
 //
-// Exit codes: 0 = match found / success, 1 = no match / findings, 2 = error.
+// Exit codes: 0 = confident determination at or above --min-verdict,
+// 1 = no confident determination / findings, 2 = error.
 package main
 
 import (
@@ -46,10 +53,21 @@ func run(args []string) int {
 	case "extract":
 		return cmdExtract(args[1:])
 	case "dataset":
-		if len(args) >= 2 && args[1] == "verify" {
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "error: missing dataset subcommand (want: list, show, fingerprint or verify)")
+			return exitError
+		}
+		switch args[1] {
+		case "list":
+			return cmdDatasetList(args[2:])
+		case "show":
+			return cmdDatasetShow(args[2:])
+		case "fingerprint":
+			return cmdDatasetFingerprint(args[2:])
+		case "verify":
 			return cmdDatasetVerify(args[2:])
 		}
-		fmt.Fprintln(os.Stderr, "error: unknown dataset subcommand (want: verify)")
+		fmt.Fprintf(os.Stderr, "error: unknown dataset subcommand %q (want: list, show, fingerprint or verify)\n", args[1])
 		return exitError
 	case "-h", "--help", "help":
 		usage()
@@ -65,14 +83,24 @@ func usage() {
 	fmt.Fprint(os.Stderr, `scfingerprint — identify StarCraft: Brood War players by how they play
 
 Usage:
-  scfingerprint match <replay.rep> [--json] [--min-z 2.0] [--min-confidence high]
-  scfingerprint match (--player N | --name NAME) --dir replays/ [--json]
-  scfingerprint same --a <dir|.rep> --b <dir|.rep> [--name-a NAME] [--name-b NAME] [--json]
+  scfingerprint match <replay.rep>... [--min-verdict lead] [--min-z 2.0] [--min-confidence high]
+  scfingerprint match (--player N | --name NAME) --dir replays/
+  scfingerprint same --a <dir|.rep> --b <dir|.rep> [--name-a NAME] [--name-b NAME]
   scfingerprint enroll --label LABEL (--dir replays/ | <replay.rep>...) [--name NAME] [-o out.json]
-  scfingerprint extract <replay.rep> [--json]
+  scfingerprint extract <replay.rep>
+  scfingerprint dataset list [--min-confidence candidate]
+  scfingerprint dataset show <player>
+  scfingerprint dataset fingerprint <player>
   scfingerprint dataset verify [--json]
 
-Exit codes: 0 = match found / success, 1 = no match / findings, 2 = error.
+Output:
+  stderr  human-readable report; colour on a terminal (NO_COLOR/--no-color disable)
+  stdout  JSON only, emitted when piped or redirected (--json forces it; --jsonl = one object per line)
+  -q      only the ✓/✗ determination line   -v   add the full candidate table
+  -qq     nothing on stderr                 -vv  add model tag and per-game breakdown
+
+Exit codes: 0 = confident determination (bar set by --min-verdict: strong/lead/weak/any),
+            1 = no confident determination / findings, 2 = error.
 `)
 }
 

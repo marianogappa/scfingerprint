@@ -95,3 +95,12 @@ func TestMatchResultHasSearchFPR(t *testing.T) {
 		t.Error("self-match reported no confidence at all")
 	}
 }
+
+// A 1:1 comparison must return the operating point's rate exactly: float
+// noise from the Šidák formula (0.010000000000000009) would misclassify
+// results sitting on a tier boundary.
+func TestSearchFPRExactAtCatalogSizeOne(t *testing.T) {
+	if got := searchFPR(map[string]bool{"fpr_1e2": true}, 1); got != 0.01 {
+		t.Fatalf("searchFPR at N=1: got %v, want exactly 0.01", got)
+	}
+}
