@@ -189,6 +189,6 @@ instructions.
 Everything above is re-derivable: replays are the source of truth, feature
 extraction is versioned and append-only, the training pipeline is
 deterministic (same inputs → byte-identical model artifact), and the
-evaluation harness (`eval/`, with CI regression gates) recomputes EER/TPR
+evaluation harness (`internal/eval/`, with CI regression gates) recomputes EER/TPR
 tables from any labeled corpus. See the [README](../README.md) for the
 package map.
