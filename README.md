@@ -47,6 +47,10 @@ go install github.com/marianogappa/scfingerprint/cmd/scfingerprint@latest
 That gives you a `scfingerprint` command. Everything below is a real run with
 real output.
 
+This needs a Go toolchain for now. Prebuilt binaries for Windows, macOS and
+Linux, so you can just download and run, are tracked in
+[#54](../../issues/54).
+
 ## What you can do with it
 
 <details>
