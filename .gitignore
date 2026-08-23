@@ -3,3 +3,14 @@
 /dist
 .claude/
 *.test
+
+# Stray binaries from `go build ./internal/cmd/...` in the repo root.
+/alias-discovery
+/catalog-check
+/corpus-audit
+/cwal-resolve
+/era-probe
+/eval
+/extract-corpus
+/seed-dataset
+/train
