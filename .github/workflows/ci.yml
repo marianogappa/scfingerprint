@@ -50,7 +50,7 @@ jobs:
           cache: true
 
       - name: Run evaluation regression gates
-        run: go test ./eval/ -run TestRegressionGates -v
+        run: go test ./internal/eval/ -run TestRegressionGates -v
 
   release-gate:
     if: startsWith(github.ref, 'refs/tags/')
@@ -66,7 +66,7 @@ jobs:
           cache: true
 
       - name: Block release if artifact is synthetic
-        run: go test ./model/ -run TestEmbeddedArtifactIsNotSynthetic -v
+        run: go test ./internal/model/ -run TestEmbeddedArtifactIsNotSynthetic -v
         env:
           SCFINGERPRINT_RELEASE_GATE: "1"
 

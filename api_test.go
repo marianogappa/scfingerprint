@@ -6,10 +6,9 @@ import (
 	"testing"
 
 	"github.com/icza/screp/repparser"
-	"github.com/marianogappa/scfingerprint/features"
-	"github.com/marianogappa/scfingerprint/fingerprint"
+	"github.com/marianogappa/scfingerprint/internal/features"
+	"github.com/marianogappa/scfingerprint/internal/scoring"
 	"github.com/marianogappa/scfingerprint/internal/synthtest"
-	"github.com/marianogappa/scfingerprint/scoring"
 )
 
 func testScorer(t *testing.T) *scoring.Scorer {
@@ -20,15 +19,15 @@ func testScorer(t *testing.T) *scoring.Scorer {
 
 func TestMatchWithReplay(t *testing.T) {
 	scorer := testScorer(t)
-	db, err := NewDataset(scorer)
+	db, err := newDatasetWithScorer(scorer)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Enroll: build fingerprints from the fixture replay players.
 	replays := []string{
-		filepath.Join("features", "testdata", "01_zvt_zergling_rush.rep"),
-		filepath.Join("features", "testdata", "03_zvp_progamer_soma.rep"),
+		filepath.Join("internal", "features", "testdata", "01_zvt_zergling_rush.rep"),
+		filepath.Join("internal", "features", "testdata", "03_zvp_progamer_soma.rep"),
 	}
 	type enrollment struct {
 		label string
@@ -100,7 +99,7 @@ func TestMatchManyWithVectors(t *testing.T) {
 	names, _ := features.FeatureNames(features.Version)
 	d := len(names)
 	scorer := testScorer(t)
-	db, err := NewDataset(scorer)
+	db, err := newDatasetWithScorer(scorer)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,8 +199,8 @@ func TestEnroll(t *testing.T) {
 	if fp.N() != 20 {
 		t.Fatalf("N = %d, want 20", fp.N())
 	}
-	if fp.Meta.Label != "TestPlayer" {
-		t.Fatalf("label = %q", fp.Meta.Label)
+	if fp.Meta().Label != "TestPlayer" {
+		t.Fatalf("label = %q", fp.Meta().Label)
 	}
 	rc := fp.RaceCounts()
 	if rc["p"] != 20 {
@@ -214,7 +213,7 @@ func TestMatchErrors(t *testing.T) {
 		t.Fatal("expected error for nil games")
 	}
 	scorer := testScorer(t)
-	db, _ := NewDataset(scorer)
+	db, _ := newDatasetWithScorer(scorer)
 	if _, err := MatchMany([]PlayerGame{{Vector: make([]float64, 360)}}, db); err == nil {
 		t.Fatal("expected error for empty dataset")
 	}
@@ -228,8 +227,8 @@ func TestMatchErrors(t *testing.T) {
 
 func TestPlayerGameWithoutVectorOrReplay(t *testing.T) {
 	scorer := testScorer(t)
-	db, _ := NewDataset(scorer)
-	fp := fingerprint.New(Meta{Label: "x"})
+	db, _ := newDatasetWithScorer(scorer)
+	fp := NewFingerprint(Meta{Label: "x"})
 	names, _ := features.FeatureNames(features.Version)
 	for g := 0; g < 5; g++ {
 		_ = fp.Add(synthtest.GameVector(0, g, len(names)), "")

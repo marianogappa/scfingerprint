@@ -11,6 +11,7 @@ corpus.
 | `replays.jsonl` | Per-replay metadata: match ID, player aurora IDs, race, MMR, map, timestamp | git |
 | `identities.jsonl` | Player identity records (369 entries): aurora ID → battle tag, rank, handles | git |
 | `pros_merged.json` | Pro-player ID mapping from CWAL.gg | git |
+| `cwal_default_list.json` | Raw CWAL.gg Player Tracker snapshot (128 nicknames → 152 accounts, 2026-08-08, curated by WorsT21/Impact44 + DudeNerd) — the provenance behind `pros_merged.json` | git |
 | `corpus-manifest.json` | SHA-256 hash of every `.rep` file, plus aggregate stats | git |
 | `replays/*.rep` | The actual replay files | **Git LFS** |
 | `scripts/filter_corpus.py` | Script that built this filtered corpus from the full harvest | git |
