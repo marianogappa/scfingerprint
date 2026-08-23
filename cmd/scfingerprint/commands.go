@@ -8,9 +8,9 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/icza/screp/repparser"
 	scfingerprint "github.com/marianogappa/scfingerprint"
 	"github.com/marianogappa/scfingerprint/internal/dataset"
-	"github.com/marianogappa/scfingerprint/internal/features"
 	"github.com/marianogappa/scfingerprint/internal/fingerprint"
 	"github.com/marianogappa/scfingerprint/internal/hygiene"
 	"github.com/marianogappa/scfingerprint/internal/scoring"
@@ -362,16 +362,20 @@ func cmdExtract(args []string) int {
 		return fail(err)
 	}
 	type extracted struct {
-		File    string                    `json:"file"`
-		Players []features.PlayerFeatures `json:"players"`
+		File    string                       `json:"file"`
+		Players []scfingerprint.PlayerVector `json:"players"`
 	}
 	var out []extracted
 	for _, path := range paths {
-		pfs, err := features.ExtractFile(path)
+		r, err := repparser.ParseFileConfig(path, repparser.Config{Commands: true})
 		if err != nil {
 			return fail(err)
 		}
-		out = append(out, extracted{File: path, Players: pfs})
+		pvs, err := scfingerprint.Extract(r)
+		if err != nil {
+			return fail(err)
+		}
+		out = append(out, extracted{File: path, Players: pvs})
 	}
 	data, _ := json.MarshalIndent(out, "", " ")
 	fmt.Println(string(data))

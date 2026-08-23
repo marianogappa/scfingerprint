@@ -49,33 +49,33 @@ type PlayerGame struct {
 // PlayerVector is one player's extracted feature vector plus the identity and
 // volume metadata needed to interpret it.
 type PlayerVector struct {
-	PlayerID byte
-	Name     string
-	Race     string
-	Vector   []float64 // raw feature vector for FeatureVersion()
-	Frames   int       // game length in frames
-	CmdCount int       // commands issued by this player
+	PlayerID byte      `json:"player_id"`
+	Name     string    `json:"name"`
+	Race     string    `json:"race"`
+	Vector   []float64 `json:"vector"`    // raw feature vector for FeatureVersion()
+	Frames   int       `json:"frames"`    // game length in frames
+	CmdCount int       `json:"cmd_count"` // commands issued by this player
 }
 
 // MatchResult is one candidate identity returned by Match or MatchMany.
 type MatchResult struct {
-	Label            string          // the fingerprint's label
-	Z                float64         // calibrated z-score, comparable across evidence counts
-	Cosine           float64         // raw cosine similarity
-	EvidenceN        int             // number of games in the probe
-	OperatingPoints  map[string]bool // named per-comparison thresholds cleared
-	SearchFPR        map[string]bool // Šidák-corrected thresholds at the search (1:N) level
-	CatalogSize      int             // N used for the search-level correction
-	ModelIsSynthetic bool            // true when the backing model was trained on synthetic data
+	Label            string          `json:"label"`              // the fingerprint's label
+	Z                float64         `json:"z"`                  // calibrated z-score, comparable across evidence counts
+	Cosine           float64         `json:"cosine"`             // raw cosine similarity
+	EvidenceN        int             `json:"evidence_n"`         // number of games in the probe
+	OperatingPoints  map[string]bool `json:"operating_points"`   // named per-comparison thresholds cleared
+	SearchFPR        map[string]bool `json:"search_fpr"`         // Šidák-corrected thresholds at the search (1:N) level
+	CatalogSize      int             `json:"catalog_size"`       // N used for the search-level correction
+	ModelIsSynthetic bool            `json:"model_is_synthetic"` // true when the backing model was trained on synthetic data
 }
 
 // Verdict is the result of a pairwise Same comparison.
 type Verdict struct {
-	Z                float64         // calibrated z-score
-	Cosine           float64         // raw cosine
-	EvidenceN        int             // total games across both sides
-	OperatingPoints  map[string]bool // named thresholds cleared
-	ModelIsSynthetic bool            // true when the backing model was trained on synthetic data
+	Z                float64         `json:"z"`                  // calibrated z-score
+	Cosine           float64         `json:"cosine"`             // raw cosine
+	EvidenceN        int             `json:"evidence_n"`         // total games across both sides
+	OperatingPoints  map[string]bool `json:"operating_points"`   // named thresholds cleared
+	ModelIsSynthetic bool            `json:"model_is_synthetic"` // true when the backing model was trained on synthetic data
 }
 
 // Option configures the top-level API functions.
