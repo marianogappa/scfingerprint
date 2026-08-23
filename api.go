@@ -59,6 +59,7 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 		}
 		results = append(results, MatchResult{
 			Label:            fp.Meta.Label,
+			Liquipedia:       db.links[i],
 			Z:                sc.Z,
 			Cosine:           sc.Cosine,
 			EvidenceN:        sc.EvidenceN,
@@ -148,11 +149,22 @@ func searchFPR(perComparison map[string]bool, catalogSize int) float64 {
 		if !ok {
 			continue
 		}
-		if fw := 1 - math.Pow(1-alpha, float64(catalogSize)); fw < best {
+		if fw := familyWise(alpha, catalogSize); fw < best {
 			best = fw
 		}
 	}
 	return best
+}
+
+// familyWise applies the Šidák correction. The N=1 case returns alpha
+// verbatim: 1-(1-α)^1 is mathematically α but picks up float noise
+// (0.010000000000000009), which matters to consumers comparing against
+// exact thresholds.
+func familyWise(alpha float64, n int) float64 {
+	if n == 1 {
+		return alpha
+	}
+	return 1 - math.Pow(1-alpha, float64(n))
 }
 
 // extractAndTransform resolves each PlayerGame to a raw vector, then

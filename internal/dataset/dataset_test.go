@@ -1,6 +1,8 @@
 package dataset
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/marianogappa/scfingerprint/internal/features"
@@ -123,6 +125,39 @@ func TestIdentitiesHaveReplayManifest(t *testing.T) {
 		}
 		if len(id.ReplayManifest) != fps[i].N() {
 			t.Fatalf("%s: manifest has %d entries but fingerprint has %d games", id.ID, len(id.ReplayManifest), fps[i].N())
+		}
+	}
+}
+
+// Every liquipedia.json key must name an existing identity, and every URL
+// must point at the wiki; a typo here would silently drop the link.
+func TestLiquipediaLinksMatchIdentities(t *testing.T) {
+	var links map[string]string
+	if err := json.Unmarshal(liquipediaJSON, &links); err != nil {
+		t.Fatalf("parsing liquipedia.json: %v", err)
+	}
+	if len(links) == 0 {
+		t.Fatal("liquipedia.json is empty")
+	}
+	ids, _, err := LoadEmbedded()
+	if err != nil {
+		t.Fatal(err)
+	}
+	byID := map[string]Identity{}
+	for _, id := range ids {
+		byID[id.ID] = id
+	}
+	for pid, url := range links {
+		if _, ok := byID[pid]; !ok {
+			t.Errorf("liquipedia.json entry %q matches no identity", pid)
+		}
+		if !strings.HasPrefix(url, "https://liquipedia.net/starcraft/") {
+			t.Errorf("liquipedia.json entry %q has malformed URL %q", pid, url)
+		}
+	}
+	for pid, url := range links {
+		if got := byID[pid].Liquipedia; got != url {
+			t.Errorf("identity %q loaded liquipedia %q, want %q", pid, got, url)
 		}
 	}
 }

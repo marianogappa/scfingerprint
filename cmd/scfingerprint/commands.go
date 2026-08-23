@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"text/tabwriter"
 
 	"github.com/icza/screp/repparser"
 	scfingerprint "github.com/marianogappa/scfingerprint"
@@ -18,16 +17,20 @@ import (
 
 const syntheticBanner = `
 ╔══════════════════════════════════════════════════════════════════╗
-║  WARNING: model trained on SYNTHETIC data — scores are not      ║
+║  WARNING: model trained on SYNTHETIC data; scores are not       ║
 ║  meaningful. See docs/METHODOLOGY.md for details.               ║
 ╚══════════════════════════════════════════════════════════════════╝
 `
 
-func warnIfSynthetic(isSynthetic, strict bool) int {
+// warnIfSynthetic prints the banner (suppressed below the default verbosity;
+// the JSON carries model_is_synthetic regardless) and enforces --strict.
+func warnIfSynthetic(isSynthetic, strict bool, verbosity int) int {
 	if !isSynthetic {
 		return -1
 	}
-	fmt.Fprint(os.Stderr, syntheticBanner)
+	if verbosity >= 0 {
+		fmt.Fprint(os.Stderr, syntheticBanner)
+	}
 	if strict {
 		fmt.Fprintln(os.Stderr, "error: --strict is set and the model is synthetic; refusing to continue")
 		return exitError
@@ -53,74 +56,18 @@ func parseAll(fs *flag.FlagSet, args []string) ([]string, error) {
 }
 
 // Confidence tiers, keyed on the false-positive rate a result achieves. For a
-// 1:N search that rate is family-wise (Šidák-corrected for catalog size); for a
-// 1:1 comparison it is the raw per-comparison rate.
+// 1:N search the rate is family-wise (Šidák-corrected for catalog size) and a
+// decisive z margin over the runner-up can substitute for a strong rate — a
+// real identification pulls away from the field. For a 1:1 comparison the
+// rate is per-comparison, so the bars are one notch stricter.
 const (
-	fprStrong = 0.01 // at or below: the evidence is strong
-	fprLead   = 0.10 // at or below: worth following up
+	fprStrong    = 0.01 // 1:N, at or below: the evidence is strong
+	fprLead      = 0.10 // 1:N, at or below: worth following up
+	marginStrong = 1.5  // 1:N, z gap to the runner-up that makes a lead-grade rate strong
+
+	fprStrong1v1 = 0.001 // 1:1, at or below: the evidence is strong
+	fprLead1v1   = 0.01  // 1:1, at or below: worth following up
 )
-
-// fprCell renders a result's false-positive rate for the results table.
-func fprCell(fpr float64) string {
-	if fpr >= 1 {
-		return "—"
-	}
-	return oddsPhrase(fpr)
-}
-
-// oddsPhrase renders a false-positive rate as "1 in N", which reads better than
-// a percentage at the small rates that matter here.
-func oddsPhrase(fpr float64) string {
-	if fpr <= 0 {
-		return "far better than 1 in 100,000"
-	}
-	// Round before bucketing: 1/(1-(1-1e-3)) lands on 999.999... in float,
-	// which would otherwise print as "1 in 1000" rather than "1 in 1,000".
-	n := math.Round(1 / fpr)
-	if n >= 1000 {
-		return fmt.Sprintf("1 in %.0f,000", math.Round(n/1000))
-	}
-	return fmt.Sprintf("1 in %.0f", n)
-}
-
-// interpretation returns the plain-language confidence line for a result.
-//
-// fpr is the false-positive rate the result achieves; scope names what that
-// rate is over ("this 68-player catalog", or "" for a 1:1 comparison). margin
-// is the z gap to the runner-up, or 0 when there is none — a big margin is what
-// separates a real identification from a lucky draw, so it is reported even
-// when the rate alone is unimpressive.
-func interpretation(fpr float64, evidenceN int, scope string, margin float64) string {
-	over := ""
-	if scope != "" {
-		over = " across " + scope
-	}
-	evidence := fmt.Sprintf("%d game(s) of evidence", evidenceN)
-	if evidenceN >= 3 {
-		evidence = fmt.Sprintf("%d games of evidence", evidenceN)
-	}
-	gap := ""
-	if margin > 0 {
-		gap = fmt.Sprintf(", %.2f z clear of the runner-up", margin)
-	}
-
-	switch {
-	case fpr >= 1:
-		return fmt.Sprintf("weak signal: clears no operating point (%s%s). Not evidence of anything.", evidence, gap)
-	case fpr > fprLead:
-		return fmt.Sprintf("weak signal: a stranger would score this high %s%s (%s%s). Not evidence of anything.",
-			oddsPhrase(fpr), over, evidence, gap)
-	case fpr > fprStrong:
-		return fmt.Sprintf("lead: a stranger would score this high %s%s (%s%s). Worth following up with more games.",
-			oddsPhrase(fpr), over, evidence, gap)
-	case evidenceN < 3:
-		return fmt.Sprintf("strong lead, not confirmation: a stranger would score this high %s%s, but on only %s%s. Get 3+ games.",
-			oddsPhrase(fpr), over, evidence, gap)
-	default:
-		return fmt.Sprintf("strong: a stranger would score this high %s%s, on %s%s. Still confirm by hand before acting on it.",
-			oddsPhrase(fpr), over, evidence, gap)
-	}
-}
 
 func cmdMatch(args []string) int {
 	fs := flag.NewFlagSet("match", flag.ContinueOnError)
@@ -129,18 +76,25 @@ func cmdMatch(args []string) int {
 	playerID := fs.Int("player", -1, "select the player by slot ID")
 	minZ := fs.Float64("min-z", 2.0, "minimum calibrated z-score to report")
 	minConfidence := fs.String("min-confidence", dataset.ConfidenceHigh, "minimum dataset confidence tier (confirmed/high/candidate)")
-	asJSON := fs.Bool("json", false, "machine-readable output")
 	strict := fs.Bool("strict", false, "exit with error if the model is synthetic")
+	var out outputOpts
+	addOutputFlags(fs, &out, true)
 	positional, err := parseAll(fs, args)
 	if err != nil {
 		return exitError
 	}
+	bar, err := parseMinVerdict(out.minVerdict)
+	if err != nil {
+		return fail(err)
+	}
+	verb := out.verbosity()
+	pal := newPalette(colorEnabled(out.noColor))
 
 	lib, err := scfingerprint.BuiltinDataset(*minConfidence)
 	if err != nil {
 		return fail(err)
 	}
-	if code := warnIfSynthetic(lib.ModelIsSynthetic(), *strict); code >= 0 {
+	if code := warnIfSynthetic(lib.ModelIsSynthetic(), *strict, verb); code >= 0 {
 		return code
 	}
 	if lib.Len() == 0 {
@@ -156,12 +110,6 @@ func cmdMatch(args []string) int {
 		return fail(err)
 	}
 
-	type playerReport struct {
-		Player  string                      `json:"player"`
-		Games   int                         `json:"games"`
-		Matches []scfingerprint.MatchResult `json:"matches"`
-		Notes   []string                    `json:"notes,omitempty"`
-	}
 	var reports []playerReport
 
 	if *dir != "" || *name != "" || *playerID >= 0 {
@@ -171,8 +119,10 @@ func cmdMatch(args []string) int {
 			return fail(err)
 		}
 		games := make([]scfingerprint.PlayerGame, len(sel))
+		files := make([]string, len(sel))
 		for i, o := range sel {
 			games[i] = scfingerprint.PlayerGame{Vector: o.pf.Vector, Race: o.pf.Race}
+			files[i] = o.file
 		}
 		results, err := scfingerprint.MatchMany(games, lib, scfingerprint.WithMinZ(*minZ))
 		if err != nil {
@@ -182,7 +132,9 @@ func cmdMatch(args []string) int {
 		if label == "" {
 			label = sel[0].pf.Name
 		}
-		reports = append(reports, playerReport{Player: label, Games: len(sel), Matches: results})
+		r := playerReport{Player: label, Games: len(sel), Verdict: reportVerdict(results, *minZ), Matches: results}
+		r.setFiles(files)
+		reports = append(reports, r)
 	} else {
 		// Every player of one replay, one game each.
 		for _, o := range obs {
@@ -192,47 +144,64 @@ func cmdMatch(args []string) int {
 			if err != nil {
 				return fail(err)
 			}
-			reports = append(reports, playerReport{Player: o.pf.Name, Games: 1, Matches: results})
+			r := playerReport{Player: o.pf.Name, Games: 1, Verdict: reportVerdict(results, *minZ), Matches: results}
+			r.setFiles([]string{o.file})
+			reports = append(reports, r)
 		}
 	}
 
-	anyMatch := false
 	for _, r := range reports {
-		if len(r.Matches) > 0 {
-			anyMatch = true
+		renderMatchReport(os.Stderr, pal, verb, bar, r)
+	}
+	if verb >= 2 {
+		renderRunMeta(os.Stderr, pal, fmt.Sprintf("catalog size: %d (min confidence: %s)", lib.Len(), *minConfidence))
+		fmt.Fprintln(os.Stderr)
+	}
+	if verb >= 0 {
+		renderScale(os.Stderr, pal)
+		renderHints(os.Stderr, pal, "the full candidate table", true)
+	}
+
+	if stdoutWantsJSON(out.jsonForce || out.jsonl) {
+		if out.jsonl {
+			printJSONLines(reports)
+		} else {
+			printJSON(reports)
 		}
 	}
 
-	if *asJSON {
-		out, _ := json.MarshalIndent(reports, "", " ")
-		fmt.Println(string(out))
-	} else {
-		for _, r := range reports {
-			fmt.Printf("Player: %s (%d game(s))\n", r.Player, r.Games)
-			if len(r.Matches) == 0 {
-				fmt.Println("  no matches above threshold")
-				continue
-			}
-			w := tabwriter.NewWriter(os.Stdout, 2, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "  LABEL\tZ\tCOSINE\tGAMES\tSTRANGER SCORES THIS HIGH")
-			for _, m := range r.Matches {
-				_, _ = fmt.Fprintf(w, "  %s\t%.2f\t%.3f\t%d\t%s\n",
-					m.Label, m.Z, m.Cosine, m.EvidenceN, fprCell(m.SearchFPR))
-			}
-			_ = w.Flush()
-			top := r.Matches[0]
-			margin := 0.0
-			if len(r.Matches) > 1 {
-				margin = top.Z - r.Matches[1].Z
-			}
-			scope := fmt.Sprintf("this %d-player catalog", top.CatalogSize)
-			fmt.Printf("  → %s\n", interpretation(top.SearchFPR, top.EvidenceN, scope, margin))
+	for _, r := range reports {
+		if verdictRank[r.Verdict] >= verdictRank[bar] {
+			return exitOK
 		}
-	}
-	if anyMatch {
-		return exitOK
 	}
 	return exitNoMatch
+}
+
+// reportVerdict makes the call for one player's result list, or none when
+// nothing survived the --min-z filter. Strong needs 3+ games and either a
+// strong rate or a lead-grade rate with a decisive margin over the runner-up
+// (when no runner-up survived the filter, the filter threshold is the
+// margin's floor).
+func reportVerdict(matches []scfingerprint.MatchResult, minZ float64) string {
+	if len(matches) == 0 {
+		return verdictNone
+	}
+	top := matches[0]
+	margin := top.Z - minZ
+	if len(matches) > 1 {
+		margin = top.Z - matches[1].Z
+	}
+	switch {
+	case top.SearchFPR > fprLead:
+		return verdictWeak
+	case top.EvidenceN < 3:
+		return verdictLead
+	case top.SearchFPR <= fprStrong || margin >= marginStrong:
+		return verdictStrong
+	default:
+		return verdictLead
+	}
 }
 
 func cmdSame(args []string) int {
@@ -241,20 +210,27 @@ func cmdSame(args []string) int {
 	b := fs.String("b", "", "directory or .rep file for side B")
 	nameA := fs.String("name-a", "", "select side A's player by name")
 	nameB := fs.String("name-b", "", "select side B's player by name")
-	asJSON := fs.Bool("json", false, "machine-readable output")
 	strict := fs.Bool("strict", false, "exit with error if the model is synthetic")
+	var out outputOpts
+	addOutputFlags(fs, &out, false)
 	if err := fs.Parse(args); err != nil {
 		return exitError
 	}
 	if *a == "" || *b == "" {
 		return fail(fmt.Errorf("both --a and --b are required"))
 	}
+	bar, err := parseMinVerdict(out.minVerdict)
+	if err != nil {
+		return fail(err)
+	}
+	verb := out.verbosity()
+	pal := newPalette(colorEnabled(out.noColor))
 
 	scorer, err := scoring.NewFromEmbedded()
 	if err != nil {
 		return fail(err)
 	}
-	if code := warnIfSynthetic(scorer.IsSynthetic(), *strict); code >= 0 {
+	if code := warnIfSynthetic(scorer.IsSynthetic(), *strict, verb); code >= 0 {
 		return code
 	}
 
@@ -297,15 +273,18 @@ func cmdSame(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
+	report := sameReport{Tier: sameVerdict(v.FPR, v.EvidenceN), Verdict: v}
 
-	if *asJSON {
-		out, _ := json.MarshalIndent(v, "", " ")
-		fmt.Println(string(out))
-	} else {
-		fmt.Printf("Z: %.2f  Cosine: %.3f  Evidence: %d games (%d + %d)\n", v.Z, v.Cosine, v.EvidenceN, len(gamesA), len(gamesB))
-		fmt.Printf("→ %s\n", interpretation(v.FPR, v.EvidenceN, "", 0))
+	renderSameReport(os.Stderr, pal, verb, bar, report, len(gamesA), len(gamesB))
+	if verb >= 0 {
+		renderScale(os.Stderr, pal)
+		renderHints(os.Stderr, pal, "the raw scores and operating points", false)
 	}
-	if v.OperatingPoints["fpr_1e3"] {
+	if stdoutWantsJSON(out.jsonForce) {
+		printJSON(report)
+	}
+
+	if verdictRank[report.Tier] >= verdictRank[bar] {
 		return exitOK
 	}
 	return exitNoMatch
@@ -331,7 +310,7 @@ func cmdEnroll(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
-	if code := warnIfSynthetic(enrollScorer.IsSynthetic(), *strict); code >= 0 {
+	if code := warnIfSynthetic(enrollScorer.IsSynthetic(), *strict, 0); code >= 0 {
 		return code
 	}
 
@@ -420,7 +399,7 @@ func cmdExtract(args []string) int {
 
 func cmdDatasetVerify(args []string) int {
 	fs := flag.NewFlagSet("dataset verify", flag.ContinueOnError)
-	asJSON := fs.Bool("json", false, "machine-readable output")
+	asJSON := fs.Bool("json", false, "emit JSON on stdout even when it is a terminal")
 	if err := fs.Parse(args); err != nil {
 		return exitError
 	}
@@ -437,24 +416,22 @@ func cmdDatasetVerify(args []string) int {
 		return fail(err)
 	}
 
-	if *asJSON {
+	fmt.Fprintf(os.Stderr, "verified %d identities\n", db.Len())
+	if len(findings) == 0 {
+		fmt.Fprintln(os.Stderr, "catalog is clean")
+	}
+	for _, f := range findings {
+		score := ""
+		if !math.IsNaN(f.Score) && f.Score != 0 {
+			score = fmt.Sprintf(" (%.3f)", f.Score)
+		}
+		fmt.Fprintf(os.Stderr, "FINDING [%s] %v%s: %s\n", f.Kind, f.Labels, score, f.Message)
+	}
+	if stdoutWantsJSON(*asJSON) {
 		if findings == nil {
 			findings = []hygiene.Finding{}
 		}
-		out, _ := json.MarshalIndent(findings, "", " ")
-		fmt.Println(string(out))
-	} else {
-		fmt.Printf("verified %d identities\n", db.Len())
-		if len(findings) == 0 {
-			fmt.Println("catalog is clean")
-		}
-		for _, f := range findings {
-			score := ""
-			if !math.IsNaN(f.Score) && f.Score != 0 {
-				score = fmt.Sprintf(" (%.3f)", f.Score)
-			}
-			fmt.Printf("FINDING [%s] %v%s: %s\n", f.Kind, f.Labels, score, f.Message)
-		}
+		printJSON(findings)
 	}
 	if len(findings) > 0 {
 		return exitNoMatch

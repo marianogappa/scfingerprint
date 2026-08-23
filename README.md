@@ -69,38 +69,60 @@ known players is built into the binary.
 Output (a real ladder replay, where player one is the pro Larva):
 
 ```
-Player: JSA_Larva (1 game(s))
-  LABEL    Z     COSINE  GAMES  STRANGER SCORES THIS HIGH
-  Larva    5.04  0.891   1      1 in 15
-  Judge    3.45  0.612   1      1 in 2
-  Soo      3.43  0.610   1      1 in 2
-  Soma     2.93  0.523   1      1 in 2
-  Stryker  2.72  0.484   1      —
-  Gunwook  2.07  0.371   1      —
-  Effort   2.01  0.360   1      —
-  → lead: a stranger would score this high 1 in 15 across this 68-player catalog (1 game(s) of evidence, 1.59 z clear of the runner-up). Worth following up with more games.
-Player: kroking (1 game(s))
-  LABEL  Z     COSINE  GAMES  STRANGER SCORES THIS HIGH
-  Skey   3.00  0.358   1      1 in 2
-  Scan   2.00  0.238   1      —
-  → weak signal: a stranger would score this high 1 in 2 across this 68-player catalog (1 game(s) of evidence, 1.00 z clear of the runner-up). Not evidence of anything.
+✓ LEAD: JSA_Larva looks like Larva, pending more games
+
+  Confidence: lead (1 game of evidence)
+
+  Why: Larva scored 5.04, which is 1.59 clear of the next candidate (Judge, 3.45).
+       A stranger reaches this score about 1 in 15 times against a 68-player catalog.
+       Worth following up with more games before treating it as an identification.
+
+  Liquipedia: https://liquipedia.net/starcraft/Larva_(Player)
+
+✗ NO MATCH: kroking is not anyone in the catalog
+
+  Confidence: weak (1 game of evidence)
+
+  Why: the best candidate (Skey, 3.00) is only 1.00 clear of the next one (Scan, 2.00),
+       and a stranger reaches that score roughly 1 in 2 times against a 68-player catalog.
+       That is coin-flip territory, not evidence of anything.
+
+  Scale: none < weak < lead < strong
+    strong  treat as an identification, then confirm by hand
+    lead    promising; means little until confirmed with more games
+    weak    the score a stranger gets; not evidence of anything
+    none    nothing cleared the reporting threshold
+
+  Re-run with -v for the full candidate table, -vv for run metadata, -q or -qq for less.
+  Exit code 0 means the bar was met; set the bar with --min-verdict strong|lead|weak|any.
+  JSON goes to stdout when piped or redirected; --jsonl streams one object per line.
 ```
 
 Reading it:
 
-- **LABEL** — the known player this row is about. Best guess is first.
-- **Z** — how far above normal the similarity is. Higher is better. Below 2 is hidden by default.
-- **COSINE** — the raw similarity, from -1 to 1.
-- **GAMES** — how many games of the mystery player went into this.
-- **STRANGER SCORES THIS HIGH** — how often a random other person would look
-  this similar. `1 in 15` is interesting; `1 in 2` is coin-flip noise; `—` means
-  it did not even reach the loosest bar.
-- The **→ line** is the verdict in words. Trust this over the numbers.
+- The **✓/✗ line is the call.** You don't have to weigh any numbers — the tool
+  already did, and the exit code agrees with the symbol. The wording scales
+  with the confidence: only a **strong** verdict says "X *is* Y"; a lead only
+  "looks like".
+- **Confidence** is one of four tiers, and the scale legend at the bottom of
+  every run says what each one means.
+- The **Why block** is the justification, so the call is auditable rather than
+  magic.
+- When the matched player has a verified **Liquipedia** page, the report links
+  it (50 of the 70 built-in players do; the rest are ladder handles without a
+  page). The link also rides along in the JSON as `liquipedia` on each match.
+
+Later examples elide the trailing scale legend and flag hints for brevity.
 
 The second player, `kroking`, is not a pro and is not in the catalog — so the
-right answer for them is "no idea", and the verdict says so.
+right answer for them is "no idea", and the tool says so.
 
-Exit code is 0 when anything matched, 1 when nothing did.
+Want the underlying numbers? `-v` adds the full candidate table, `-vv` adds the
+model version and per-game breakdown. `-q` shows only the ✓/✗ lines, `-qq`
+nothing at all.
+
+Exit code is 0 when any player reaches the bar (a *lead* by default; pick your
+own with `--min-verdict strong|lead|weak|any`), 1 otherwise.
 
 </details>
 
@@ -119,23 +141,30 @@ scfingerprint match --name JSA_Larva --dir larva-replays/
   Needed because each replay has two players and it must know which one is
   yours.
 
-Output:
+Output (with `-v` to also show the candidate table):
 
 ```
-Player: JSA_Larva (6 game(s))
+✓ MATCH: JSA_Larva is Larva
+
+  Confidence: strong (6 games of evidence)
+
+  Why: Larva scored 5.25, which is 2.27 clear of the next candidate (Judge, 2.98).
+       A stranger reaches this score about 1 in 15 times against a 68-player catalog.
+       6 games agreeing while pulling 2.27 z clear of the field is what makes this strong. Still confirm by hand before acting on it.
+
   LABEL    Z     COSINE  GAMES  STRANGER SCORES THIS HIGH
   Larva    5.25  0.963   6      1 in 15
   Judge    2.98  0.551   6      1 in 2
-  Soo      2.82  0.523   6      —
-  Soma     2.67  0.494   6      —
-  Stryker  2.38  0.441   6      —
-  Gunwook  2.08  0.387   6      —
-  → lead: a stranger would score this high 1 in 15 across this 68-player catalog (6 games of evidence, 2.27 z clear of the runner-up). Worth following up with more games.
+  Soo      2.82  0.523   6      below any bar
+  Soma     2.67  0.494   6      below any bar
+  Stryker  2.38  0.441   6      below any bar
+  Gunwook  2.08  0.387   6      below any bar
 ```
 
 Six games instead of one pushes the cosine from 0.891 to **0.963** and widens
 the gap over the runner-up from 1.59 to **2.27**. That widening gap is the real
-signal — more games make the right answer pull away from the field.
+signal — more games make the right answer pull away from the field, and that
+decisive margin on 3+ games is exactly what upgrades a lead to **strong**.
 
 **Don't know the in-game name?** Use the player slot instead. `--player 0` is
 the first player, `--player 1` the second:
@@ -169,21 +198,32 @@ scfingerprint same \
 Two accounts that really are the same human:
 
 ```
-Z: 4.93  Cosine: 0.906  Evidence: 12 games (6 + 6)
-→ strong: a stranger would score this high 1 in 1,000, on 12 games of evidence. Still confirm by hand before acting on it.
+✓ MATCH: the two sides are the same player
+
+  Confidence: strong (12 games of evidence)
+
+  Why: the pair scored z=4.93 (cosine 0.906) on 12 games (6 + 6).
+       A stranger reaches this score about 1 in 1,000 times in a direct 1:1 comparison.
+       12 games agreeing at that rate is what makes this strong rather than a lead. Still confirm by hand before acting on it.
 ```
 
 The same command, with two genuinely different pros:
 
 ```
-Z: -0.38  Cosine: -0.059  Evidence: 12 games (6 + 6)
-→ weak signal: clears no operating point (12 games of evidence). Not evidence of anything.
+✗ NO MATCH: the evidence does not show the two sides are the same player
+
+  Confidence: weak (12 games of evidence)
+
+  Why: the pair scored z=-0.38 (cosine -0.059) on 12 games (6 + 6).
+       That score clears no operating point; a stranger reaches it routinely.
+       That is coin-flip territory, not evidence of anything.
 ```
 
 Note how far apart those are — 4.93 versus -0.38. When it is the same person the
 answer is usually not subtle.
 
-Exit code is 0 for a confident match, 1 otherwise, so you can use it in scripts.
+Exit code is 0 for a confident match (`--min-verdict` picks the bar, as with
+`match`), 1 otherwise, so you can use it in scripts.
 
 </details>
 
@@ -243,16 +283,43 @@ It does not contain the replays or anything about them — just the habits.
 </details>
 
 <details>
-<summary><b>Get machine-readable output for scripts</b></summary>
+<summary><b>Use it in scripts</b></summary>
 
-Add `--json` to any command.
+The two output streams are separate by design: **stderr** carries the
+human-readable report, **stdout** carries JSON and nothing else, ever. JSON is
+emitted whenever stdout is piped or redirected — no flag needed — so every
+command composes:
 
 ```bash
-scfingerprint same --a account-one/ --name-a JSA_Larva --b account-two/ --name-b JSA_Larva --json
+# Is anyone in this replay a known pro? (silent, exit code only)
+if scfingerprint match game.rep --min-verdict strong -qq; then
+  echo "pro detected"
+fi
+
+# Who does the tool think player one is?
+scfingerprint match --player 0 game.rep 2>/dev/null | jq -r '.[0].matches[0].label'
+
+# Scan a whole folder, keep only strong calls, as CSV
+scfingerprint match replays/*.rep --jsonl 2>/dev/null \
+  | jq -r 'select(.verdict=="strong") | [.file, .player, .matches[0].label] | @csv'
+
+# Watch a human-readable run on the terminal while saving machine output
+scfingerprint match replays/*.rep --jsonl > results.jsonl
+```
+
+`--jsonl` streams one compact object per player instead of one indented array,
+for batch work. `--json` forces JSON onto a terminal too.
+
+The JSON carries the determination explicitly, so scripts never have to
+re-derive the call from raw numbers:
+
+```bash
+scfingerprint same --a account-one/ --name-a JSA_Larva --b account-two/ --name-b JSA_Larva 2>/dev/null
 ```
 
 ```json
 {
+ "verdict": "strong",
  "z": 4.932859790149249,
  "cosine": 0.9056169584593489,
  "evidence_n": 12,
@@ -266,16 +333,19 @@ scfingerprint same --a account-one/ --name-a JSA_Larva --b account-two/ --name-b
 }
 ```
 
+- `verdict` — the call: `strong`, `lead`, `weak` or `none`. Same tiers as the
+  human output and the exit code.
 - `operating_points` — which strictness bars this result cleared. `fpr_1e3: true`
   means "a stranger clears this bar only 1 time in 1,000".
 - `fpr` — the strictest bar it cleared, as a number. `1.0` means none.
 - `model_is_synthetic` — should always be `false`. If it is ever `true`, the
   scores are meaningless test data and the tool will shout at you.
 
-For `match --json`, each result also carries `search_fpr` and `catalog_size`.
-`search_fpr` is the honest one to show a person: it accounts for the fact that
-comparing against 68 players gives 68 chances to get lucky, so it is always
-worse than the per-comparison `operating_points`.
+For `match`, each report carries the `file` it came from plus per-candidate
+`search_fpr` and `catalog_size`. `search_fpr` is the honest one to show a
+person: it accounts for the fact that comparing against 68 players gives 68
+chances to get lucky, so it is always worse than the per-comparison
+`operating_points`.
 
 </details>
 
@@ -292,10 +362,13 @@ scfingerprint match --name JSA_Larva --dir larva-replays/ --min-z 4
 ```
 
 ```
-Player: JSA_Larva (6 game(s))
-  LABEL  Z     COSINE  GAMES  STRANGER SCORES THIS HIGH
-  Larva  5.25  0.963   6      1 in 15
-  → lead: a stranger would score this high 1 in 15 across this 68-player catalog (6 games of evidence). Worth following up with more games.
+✓ LEAD: JSA_Larva looks like Larva, pending more games
+
+  Confidence: lead (6 games of evidence)
+
+  Why: Larva scored 5.25, and no other candidate cleared the reporting threshold.
+       A stranger reaches this score about 1 in 15 times against a 68-player catalog.
+       Worth following up with more games before treating it as an identification.
 ```
 
 **Search more of the built-in list.** Each known player is tagged with how sure
@@ -311,6 +384,56 @@ scfingerprint match --name JSA_Larva --dir larva-replays/ --min-confidence candi
 
 Widening to `candidate` adds more possible answers, so expect more noise along
 with more coverage.
+
+</details>
+
+<details>
+<summary><b>Browse the built-in catalog</b></summary>
+
+Who does it already know, and on how much evidence?
+
+```bash
+scfingerprint dataset list
+```
+
+```
+70 players in the built-in catalog: 27 confirmed, 41 high, 2 candidate
+
+  PLAYER   RACES        CONFIDENCE  GAMES  REPLAYS  LIQUIPEDIA
+  AAAA     Terran (44)  confirmed   44     44
+  Alen     Zerg (33)    high        33     33       https://liquipedia.net/starcraft/Alen
+  Ample    Terran (22)  high        22     22       https://liquipedia.net/starcraft/Ample
+  ...
+```
+
+One player in detail, looked up by ID, label or any alias (case-insensitive):
+
+```bash
+scfingerprint dataset show Larva
+```
+
+```
+Larva (id: larva)
+
+  Confidence:  confirmed
+  Races:       Zerg (49)
+  Training:    49 games from 49 catalogued replays, feature version 3
+  Source:      cwal-harvest
+  Aliases:     Larva (primary)
+  Liquipedia:  https://liquipedia.net/starcraft/Larva_(Player)
+  Notes:       enrolled from cwal-harvest corpus
+```
+
+And the fingerprint itself, in the same single-string format `enroll` writes,
+so you can store catalog entries in your own database:
+
+```bash
+scfingerprint dataset fingerprint Larva > larva.fingerprint.json
+```
+
+Both `list` and `show` follow the usual contract: human output on stderr, JSON
+on stdout when piped (each entry carries `races`, `games`, `replays`,
+`aliases`, `liquipedia` and more).
 
 </details>
 
@@ -366,8 +489,9 @@ length) and `cmd_count` (how many actions they issued).
 ## Who it already knows
 
 70 players, mostly Korean pros, built from a labelled corpus of about 7,900
-ladder replays. Each entry records how confident the curation is, so you can ask
-for only the solid ones (see `--min-confidence` above).
+ladder replays. Run `scfingerprint dataset list` to see them all. Each entry
+records how confident the curation is, so you can ask for only the solid ones
+(see `--min-confidence` above).
 
 ---
 
