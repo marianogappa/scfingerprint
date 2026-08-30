@@ -42,6 +42,10 @@ type Options struct {
 	// Strata of the same label are excluded from each other's impostor
 	// pools — they are the same human.
 	SplitByRace bool
+	// MaxEnrollGamesPerPlayer, when > 0, keeps only the most recent N of
+	// each player's enrollment games. Probes are untouched, so sweeping N
+	// measures what a catalog-wide enrollment cap would cost.
+	MaxEnrollGamesPerPlayer int
 }
 
 // DefaultOptions returns the default evaluation options.
@@ -134,6 +138,9 @@ func Evaluate(samples []training.Sample, scorer *scoring.Scorer, opts Options) (
 	}
 
 	enroll, probeSamples := training.ChronologicalSplit(samples, opts.EnrollFrac)
+	if opts.MaxEnrollGamesPerPlayer > 0 {
+		enroll = capPerPlayer(enroll, opts.MaxEnrollGamesPerPlayer)
+	}
 
 	// Whiten everything once.
 	enrollW, err := transformAll(enroll, scorer)
@@ -390,4 +397,32 @@ func exclusionSet(pairs [][2]string) map[[2]string]bool {
 		set[[2]string{p[1], p[0]}] = true
 	}
 	return set
+}
+
+// capPerPlayer keeps only the most recent n games per player, preserving the
+// input order so it stays aligned with a subsequent whitening pass.
+func capPerPlayer(samples []training.Sample, n int) []training.Sample {
+	byPlayer := map[string][]int{}
+	for i, s := range samples {
+		byPlayer[s.Player] = append(byPlayer[s.Player], i)
+	}
+	keep := map[int]bool{}
+	for _, idx := range byPlayer {
+		sort.SliceStable(idx, func(a, b int) bool {
+			return samples[idx[a]].StartTime.Before(samples[idx[b]].StartTime)
+		})
+		if len(idx) > n {
+			idx = idx[len(idx)-n:]
+		}
+		for _, i := range idx {
+			keep[i] = true
+		}
+	}
+	out := make([]training.Sample, 0, len(keep))
+	for i, s := range samples {
+		if keep[i] {
+			out = append(out, s)
+		}
+	}
+	return out
 }

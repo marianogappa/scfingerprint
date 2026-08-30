@@ -11,6 +11,8 @@ corpus.
 | `replays.jsonl` | Per-replay metadata: match ID, player aurora IDs, race, MMR, map, timestamp | git |
 | `identities.jsonl` | Player identity records (369 entries): aurora ID → battle tag, rank, handles | git |
 | `pros_merged.json` | Pro-player ID mapping from CWAL.gg | git |
+| `pro_aliases.json` | Curated ring names that never appear as a toon (Organ ↔ PianO) | git |
+| `pro_exclusions.json` | Aurora IDs CWAL maps to a pro that must not be enrolled under it, with evidence | git |
 | `cwal_default_list.json` | Raw CWAL.gg Player Tracker snapshot (128 nicknames → 152 accounts, 2026-08-08, curated by WorsT21/Impact44 + DudeNerd) — the provenance behind `pros_merged.json` | git |
 | `corpus-manifest.json` | SHA-256 of every `.rep` file, plus aggregate stats | git |
 | `corpus-source.json` | Which release assets hold the replays for this commit | git |
@@ -55,7 +57,7 @@ works there and nowhere after.
 The full harvest contains ~23,951 replays across ~2,139 players (1.8 GB). The
 ladder subset applies:
 
-- **Exclude** `auroraId == 0` (unidentified opponents, ~5,189 replays)
+- **Exclude** `auroraId == 0` (unidentified opponents)
 - **Require** ≥20 games per player
 - **Cap** at 50 most-recent replays per player
 

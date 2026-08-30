@@ -39,6 +39,7 @@ func main() {
 	minGames := flag.Int("min-games", 4, "minimum games per player")
 	minLabelSC := flag.Float64("min-label-self-consistency", 0, "exclude labels below this race-aware self-consistency (0 = audit only)")
 	splitByRace := flag.Bool("split-by-race", false, "evaluate each (label, race) stratum as its own identity")
+	maxEnrollGames := flag.Int("max-enroll-games", 0, "cap enrollment games per player at the N most recent (0 = no cap); sweep this to price an enrollment cap")
 	flag.Parse()
 
 	if *csvPaths == "" {
@@ -83,6 +84,7 @@ func main() {
 	opts.MinGamesPerPlayer = *minGames
 	opts.MinLabelSelfConsistency = *minLabelSC
 	opts.SplitByRace = *splitByRace
+	opts.MaxEnrollGamesPerPlayer = *maxEnrollGames
 	if *exclusionsPath != "" {
 		opts.Exclusions, err = eval.LoadExclusions(*exclusionsPath)
 		if err != nil {
