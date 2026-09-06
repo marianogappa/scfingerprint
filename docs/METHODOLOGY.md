@@ -169,18 +169,29 @@ claim about a person, remember:
 
 ## Corpus
 
-The labeled replay corpus is committed under [`corpus/`](../corpus/) — 231
-players, 7,935 replays, ~640 MB. Replay files are stored via **Git LFS**;
-a regular clone fetches only pointer files. Run `git lfs pull` to download
-the actual replay data.
+The labeled replay corpus lives under [`corpus/`](../corpus/) — 9,416 replays,
+~771 MB. The replay files are **not in git**: at that size they exhaust Git
+LFS's free tier, so they are published as GitHub release assets under their own
+`corpus-vN` tags. A clone contains no replay data at all. To download it:
+
+```bash
+go run ./internal/cmd/fetch-corpus
+```
 
 Attribution manifests (`replays.jsonl`, `identities.jsonl`,
 `pros_merged.json`) are committed as regular git objects — they are what make
-the replays labeled rather than anonymous. `corpus-manifest.json` records a
-SHA-256 hash of every replay file for integrity verification.
+the replays labeled rather than anonymous. Two further committed files tie a
+commit to its data: `corpus-source.json` names the release assets that
+reproduce it, and `corpus-manifest.json` records a SHA-256 hash of every replay
+file. `fetch-corpus` checks the archive against the first and every extracted
+replay against the second, so a corpus that verifies is bit-identical to the
+one the published numbers were computed on.
 
-The corpus is filtered from a ~23,951-replay harvest (CWAL.gg, 2025–2026) to
-players with ≥20 games, capped at 50 most-recent per player. See
+Most of it — 7,935 replays across 231 players — is filtered from a
+~23,951-replay harvest (CWAL.gg, 2025–2026) to players with ≥20 games, capped
+at 50 most-recent per player. The remainder is 343 non-ladder replays and 1,138
+harvest replays backfilled so that every fingerprint in the catalog is
+re-derivable from this repository alone. See
 [corpus/README.md](../corpus/README.md) for provenance and verification
 instructions.
 

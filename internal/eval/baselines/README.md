@@ -12,6 +12,7 @@ past them:
 only one runnable from a clean checkout — it gates the committed `corpus/`:
 
 ```
+go run ./internal/cmd/fetch-corpus
 go run ./internal/cmd/extract-corpus -metadata corpus/replays.jsonl -replays-dir corpus -out /tmp/features.csv
 go run ./internal/cmd/eval -csv /tmp/features.csv -gates internal/eval/baselines/cwal_harvest_gates.json
 ```

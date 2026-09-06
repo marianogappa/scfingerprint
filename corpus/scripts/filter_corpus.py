@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
-"""Filter the harvest corpus to players with ≥MIN_GAMES games, capped at
+"""Filter the harvest corpus to players with >=MIN_GAMES games, capped at
 MAX_PER_PLAYER most-recent replays per player. Copies the selected .rep files
-into corpus/replays/ and writes filtered manifests + a corpus-manifest.json
-with per-file SHA-256 hashes.
+into corpus/replays/ and writes the filtered metadata plus the provenance half
+of corpus-manifest.json.
+
+This script does NOT write the manifest's per-file "files" hashes. The corpus
+now also holds replays this filter never sees (corpus/replays/localapi/, and
+anything backfilled from the harvest to satisfy a dataset replay_manifest), so
+hashing only the selected files would silently drop them. Run
+
+    go run ./internal/cmd/publish-corpus -tag corpus-vN
+
+afterwards; it hashes the whole replay tree, carries this script's "filter" and
+ladder "stats" through untouched, and publishes the release asset.
 
 Usage:
     python3 corpus/scripts/filter_corpus.py [HARVEST_DIR]
@@ -10,7 +20,6 @@ Usage:
 HARVEST_DIR defaults to ../screpharvest/harvest (relative to repo root).
 """
 
-import hashlib
 import json
 import os
 import shutil
@@ -25,14 +34,6 @@ MAX_PER_PLAYER = 50
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CORPUS_DIR = REPO_ROOT / "corpus"
 REPLAYS_OUT = CORPUS_DIR / "replays"
-
-
-def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 16), b""):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def main():
@@ -104,14 +105,7 @@ def main():
     print("Copying pros_merged.json ...")
     shutil.copy2(pros_merged, CORPUS_DIR / "pros_merged.json")
 
-    print("Computing SHA-256 hashes ...")
-    file_hashes = {}
-    total_bytes = 0
-    for fname in sorted(selected_files):
-        fp = REPLAYS_OUT / fname
-        if fp.exists():
-            file_hashes[fname] = sha256_file(fp)
-            total_bytes += fp.stat().st_size
+    total_bytes = sum((REPLAYS_OUT / f).stat().st_size for f in selected_files if (REPLAYS_OUT / f).exists())
 
     max_plausible = 1_900_000_000_000  # ~year 2030, filter uint32 sentinels
     timestamps = [r.get("timestamp", 0) for r in selected_rows if r.get("timestamp") and r["timestamp"] < max_plausible]
@@ -134,7 +128,6 @@ def main():
             "date_range": [date_min, date_max],
             "total_bytes": total_bytes,
         },
-        "files": file_hashes,
     }
 
     manifest_path = CORPUS_DIR / "corpus-manifest.json"
@@ -144,6 +137,7 @@ def main():
         f.write("\n")
 
     print(f"\nDone. {eligible_players} players, {len(selected_files)} replays, {total_bytes / 1024 / 1024:.0f} MB")
+    print("Next: go run ./internal/cmd/publish-corpus -tag corpus-vN   (hashes and publishes the corpus)")
 
 
 if __name__ == "__main__":

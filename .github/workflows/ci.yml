@@ -7,6 +7,10 @@ on:
       - main
     tags:
       - 'v*'
+  # The corpus lives in release assets rather than in git, so its liveness is
+  # not guaranteed by anything a commit can carry. Re-check it weekly.
+  schedule:
+    - cron: '17 6 * * 1'
 
 jobs:
   test:
@@ -51,6 +55,23 @@ jobs:
 
       - name: Run evaluation regression gates
         run: go test ./internal/eval/ -run TestRegressionGates -v
+
+  corpus-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      # HEAD requests only: catches a deleted or renamed release asset without
+      # moving hundreds of megabytes.
+      - name: Check corpus release assets are reachable
+        run: go run ./internal/cmd/fetch-corpus -check-assets
 
   release-gate:
     if: startsWith(github.ref, 'refs/tags/')

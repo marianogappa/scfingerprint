@@ -12,5 +12,11 @@
 /era-probe
 /eval
 /extract-corpus
+/fetch-corpus
+/publish-corpus
 /seed-dataset
 /train
+
+# The replay corpus is distributed as GitHub release assets, not via git.
+# Run `go run ./internal/cmd/fetch-corpus` to materialize it.
+/corpus/replays/
