@@ -586,7 +586,11 @@ go run ./internal/cmd/extract-corpus -metadata corpus/replays.jsonl -replays-dir
 go run ./internal/cmd/corpus-audit -csv /tmp/features.csv
 go run ./internal/cmd/train -csv /tmp/features.csv -out internal/model/artifact.json
 go run ./internal/cmd/eval -csv /tmp/features.csv -gates internal/eval/baselines/cwal_harvest_gates.json
+go run ./internal/cmd/seed-dataset -csv /tmp/features.csv -max-games 60
 ```
+
+The last step rewrites `internal/dataset/players/` and should reproduce what is
+committed byte for byte.
 
 Research harnesses that produced published one-off findings (cross-era probing,
 open-set alias discovery, catalog accuracy measurement, registry refresh) are

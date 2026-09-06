@@ -81,6 +81,11 @@ func main() {
 	}
 	log.Printf("read %d metadata rows", len(rows))
 
+	rows, dropped := dedupe(rows)
+	if dropped > 0 {
+		log.Printf("dropped %d duplicate (replay, account) rows", dropped)
+	}
+
 	byFile := map[string][]replayRow{}
 	for _, r := range rows {
 		byFile[r.File] = append(byFile[r.File], r)
@@ -187,12 +192,7 @@ func main() {
 	}
 	wg.Wait()
 
-	sort.Slice(results, func(i, j int) bool {
-		if results[i].player != results[j].player {
-			return results[i].player < results[j].player
-		}
-		return results[i].startTime < results[j].startTime
-	})
+	sort.Slice(results, func(i, j int) bool { return lessRow(results[i], results[j]) })
 
 	log.Printf("extracted %d rows (%d no-match, %d extract-errors)", len(results), noMatch, errCnt)
 
@@ -234,6 +234,43 @@ func writeCSV(out string, results []csvRow, featNames []string) {
 	if err := w.Error(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// lessRow orders rows by (player, start time, file). The file is the tiebreak
+// and not decoration: without it the order of same-timestamp rows varies run to
+// run, and with it the chronological blocks a fingerprint serializes into. The
+// 343 non-ladder replays all carry the uint32 no-timestamp sentinel, which puts
+// 154 of them in ties.
+func lessRow(a, b csvRow) bool {
+	if a.player != b.player {
+		return a.player < b.player
+	}
+	if a.startTime != b.startTime {
+		return a.startTime < b.startTime
+	}
+	return a.file < b.file
+}
+
+// dedupe keeps one row per (replay, account). The upstream harvest records the
+// same game twice when a player is picked up by more than one fetch pass, and
+// a duplicated row is a duplicated feature vector: it double-weights that game
+// in every mean computed downstream and inflates enrollment counts.
+func dedupe(rows []replayRow) ([]replayRow, int) {
+	type key struct {
+		file     string
+		auroraID int64
+	}
+	seen := make(map[key]bool, len(rows))
+	out := make([]replayRow, 0, len(rows))
+	for _, r := range rows {
+		k := key{r.File, r.AuroraID}
+		if seen[k] {
+			continue
+		}
+		seen[k] = true
+		out = append(out, r)
+	}
+	return out, len(rows) - len(out)
 }
 
 func readMetadata(path string) ([]replayRow, error) {
@@ -349,15 +386,7 @@ func extractDir(root string, workers int, minGameMin float64, only1v1 bool) []cs
 	}
 	wg.Wait()
 
-	sort.Slice(results, func(i, j int) bool {
-		if results[i].player != results[j].player {
-			return results[i].player < results[j].player
-		}
-		if results[i].startTime != results[j].startTime {
-			return results[i].startTime < results[j].startTime
-		}
-		return results[i].file < results[j].file
-	})
+	sort.Slice(results, func(i, j int) bool { return lessRow(results[i], results[j]) })
 
 	log.Printf("extracted %d rows from %d files (%d skipped, %d errors)", len(results), len(paths), skipped, errCnt)
 	return results
