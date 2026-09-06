@@ -558,7 +558,7 @@ Full reference: [pkg.go.dev](https://pkg.go.dev/github.com/marianogappa/scfinger
 | `internal/` | implementation: features, scoring, training, evaluation, hygiene, catalog |
 | `internal/cmd/` | tooling that rebuilds the committed artifacts; not part of the public surface |
 | `internal/dataset/players/` | the built-in catalog: one JSON file per known player |
-| `corpus/` | the labelled replay corpus every published number traces back to (Git LFS) |
+| `corpus/` | the labelled replay corpus every published number traces back to (fetched from release assets) |
 | `docs/METHODOLOGY.md` | how it works, and what it cannot claim |
 
 ### internal/cmd
@@ -568,6 +568,8 @@ rebuilds a committed artifact or guards one:
 
 | Command | Role |
 |---|---|
+| `fetch-corpus` | downloads `corpus/replays/` from its release assets; replaces `git lfs pull` |
+| `publish-corpus` | maintainer-only: packages `corpus/replays/` and publishes it as a release asset |
 | `extract-corpus` | replays → labelled feature CSV; the input to everything below |
 | `train` | CSV → `internal/model/artifact.json` |
 | `seed-dataset` | CSV → `internal/dataset/players/` |
@@ -577,7 +579,7 @@ rebuilds a committed artifact or guards one:
 Full rebuild from the committed corpus:
 
 ```bash
-git lfs pull
+go run ./internal/cmd/fetch-corpus
 go run ./internal/cmd/extract-corpus -metadata corpus/replays.jsonl -replays-dir corpus -out /tmp/features.csv
 go run ./internal/cmd/corpus-audit -csv /tmp/features.csv
 go run ./internal/cmd/train -csv /tmp/features.csv -out internal/model/artifact.json

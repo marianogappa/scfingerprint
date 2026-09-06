@@ -40,17 +40,10 @@ func TestParityWithSpike(t *testing.T) {
 	})
 
 	t.Run("corpus_sample", func(t *testing.T) {
-		corpusDir := filepath.Join("..", "corpus", "replays")
+		corpusDir := filepath.Join("..", "..", "corpus", "replays")
 		entries, err := os.ReadDir(corpusDir)
 		if err != nil {
-			t.Skipf("corpus replays not available: %v", err)
-		}
-		// LFS pointer files are 130–140 bytes; skip if replays aren't fetched.
-		if len(entries) > 0 {
-			info, err := entries[0].Info()
-			if err == nil && info.Size() < 200 {
-				t.Skip("corpus replays are LFS pointers (run git lfs pull)")
-			}
+			t.Skipf("corpus replays not fetched (run go run ./internal/cmd/fetch-corpus): %v", err)
 		}
 
 		const sampleSize = 50
