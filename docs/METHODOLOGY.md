@@ -179,8 +179,8 @@ claim about a person, remember:
 
 ## Corpus
 
-The labeled replay corpus lives under [`corpus/`](../corpus/) — 9,416 replays,
-~771 MB. The replay files are **not in git**: at that size they exhaust Git
+The labeled replay corpus lives under [`corpus/`](../corpus/) — 10,684 replays,
+~880 MB. The replay files are **not in git**: at that size they exhaust Git
 LFS's free tier, so they are published as GitHub release assets under their own
 `corpus-vN` tags. A clone contains no replay data at all. To download it:
 
@@ -199,7 +199,7 @@ one the published numbers were computed on.
 
 Most of it — 7,935 replays across 231 players — is filtered from a
 ~23,951-replay harvest (CWAL.gg, 2025–2026) to players with ≥20 games, capped
-at 50 most-recent per player. The remainder is 343 non-ladder replays and 1,138
+at 50 most-recent per player. The remainder is 343 non-ladder replays and 2,406
 harvest replays backfilled so that every fingerprint in the catalog is
 re-derivable from this repository alone. See
 [corpus/README.md](../corpus/README.md) for provenance and verification

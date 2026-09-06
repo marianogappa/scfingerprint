@@ -46,13 +46,13 @@ works there and nowhere after.
 
 ## Composition
 
-**9,416 replays, ~771 MB**, from three sources:
+**10,684 replays, ~880 MB**, from three sources:
 
 | Count | Source |
 |---|---|
 | 7,935 | Ladder replays selected by `scripts/filter_corpus.py` from the full harvest |
 | 343 | Non-ladder replays collected via the local Battle.net web API |
-| 1,138 | Harvest replays backfilled so every catalog fingerprint is re-derivable |
+| 2,406 | Harvest replays backfilled so every catalog fingerprint is re-derivable |
 
 The full harvest contains ~23,951 replays across ~2,139 players (1.8 GB). The
 ladder subset applies:
@@ -64,12 +64,12 @@ ladder subset applies:
 That filter, originally chosen to fit inside Git LFS's free tier, produced 231
 players and 7,935 replays.
 
-The 1,138 backfilled replays close the gap that made this corpus insufficient
+The 2,406 backfilled replays close the gap that made this corpus insufficient
 on its own: `internal/dataset/players/*.json` `replay_manifest` fields name
 every replay behind each enrollment, so a feature-version bump can re-derive
-the fingerprints. 1,138 of those names had no file in the repository, and only
-existed in the external harvest. `publish-corpus -backfill-from` copies them in
-and reports coverage, so this cannot silently regress.
+the fingerprints. Those names had no file in the repository, and only existed
+in the external harvest. `publish-corpus -backfill-from` copies them in and
+reports coverage, so this cannot silently regress.
 
 ## Verifying integrity
 
@@ -114,7 +114,7 @@ its own corpus via the tag in `corpus-source.json`.
 ### About the archive
 
 Individual `.rep` files are already internally compressed and shrink by ~0.3%
-on their own. The corpus nonetheless packs to **38% of raw** (771 MB → 293 MB)
+on their own. The corpus nonetheless packs to **38% of raw** (880 MB → 338 MB)
 because replays share map and unit data, and a solid archive with a 128 MB zstd
 window finds those matches across files. Per-file compression would gain
 nothing.
