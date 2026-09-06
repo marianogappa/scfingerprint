@@ -1,0 +1,3980 @@
+{
+ "version": 1,
+ "generated": "2026-09-06",
+ "accounts": [
+  {
+   "name": "815",
+   "aurora_id": 42283872,
+   "battle_tag": "배병우",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "KLGST_815",
+     "gateway": 10
+    },
+    {
+     "toon": "No.7Kante",
+     "gateway": 10
+    },
+    {
+     "toon": "7411_TamKenChi",
+     "gateway": 11
+    },
+    {
+     "toon": "815555555555555",
+     "gateway": 20
+    },
+    {
+     "toon": "BBY_BBW",
+     "gateway": 20
+    },
+    {
+     "toon": "NeedGirl",
+     "gateway": 20
+    },
+    {
+     "toon": "IIIIllIlIlIlIIl",
+     "gateway": 30
+    },
+    {
+     "toon": "JSU_81555",
+     "gateway": 30
+    },
+    {
+     "toon": "WhyAllwaysMe.",
+     "gateway": 30
+    },
+    {
+     "toon": "IIIIlIIIlIIlII",
+     "gateway": 45
+    },
+    {
+     "toon": "IIIlIlIlIIIIII",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi/name-search:배병우",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "AAAA",
+   "aurora_id": 1424026379,
+   "battle_tag": "lllllllliii",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIIIIIIIlII",
+     "gateway": 10
+    },
+    {
+     "toon": "llllllll112",
+     "gateway": 10
+    },
+    {
+     "toon": "Black_DGR",
+     "gateway": 30
+    },
+    {
+     "toon": "JokerTerrran",
+     "gateway": 30
+    },
+    {
+     "toon": "aaaa[kS]",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Absolute",
+   "aurora_id": 702723014,
+   "battle_tag": "NaBi",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Absolute",
+   "aurora_id": 1416145900,
+   "battle_tag": "Twenty",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "llIIIlIIIllII2I",
+     "gateway": 10
+    },
+    {
+     "toon": "llIIllIIIIlII4l",
+     "gateway": 11
+    },
+    {
+     "toon": "DIC_NaeGongJeJa",
+     "gateway": 30,
+     "games_last_week": 3
+    },
+    {
+     "toon": "HwansiK...2",
+     "gateway": 30,
+     "games_last_week": 2
+    },
+    {
+     "toon": "WFU_ab",
+     "gateway": 30
+    },
+    {
+     "toon": "lllIIlII3lII",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Action",
+   "aurora_id": 14812543,
+   "battle_tag": "뿌뿌뿡",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Action",
+   "aurora_id": 1414683591,
+   "battle_tag": "llIIIlllIIl",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "JSA_Action",
+     "gateway": 30
+    },
+    {
+     "toon": "sd9112",
+     "gateway": 30
+    },
+    {
+     "toon": "wG_Action0",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Airfou",
+   "aurora_id": 702028426,
+   "battle_tag": "마법바지",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Alen",
+   "aurora_id": 1407381453,
+   "battle_tag": "alen",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "2dsa2rsasd",
+     "gateway": 10
+    },
+    {
+     "toon": "llllll`lll1l",
+     "gateway": 10
+    },
+    {
+     "toon": "DIC_alen`",
+     "gateway": 30
+    },
+    {
+     "toon": "SSU_alen",
+     "gateway": 30
+    },
+    {
+     "toon": "alen11`",
+     "gateway": 30
+    },
+    {
+     "toon": "[C9]Angel",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Ample",
+   "aurora_id": 11415776,
+   "battle_tag": "뇌없냐태영아",
+   "toons": [
+    {
+     "toon": "Mstz_5O0",
+     "gateway": 20
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Artosis",
+   "aurora_id": 850218,
+   "battle_tag": "Artosis",
+   "toons": [
+    {
+     "toon": "theyearwas2069",
+     "gateway": 10
+    },
+    {
+     "toon": "valks",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Artuser",
+   "aurora_id": 11160854,
+   "battle_tag": "왓다김병쑤",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "ArtUser",
+     "gateway": 30
+    },
+    {
+     "toon": "JSA_ArtUser",
+     "gateway": 30
+    },
+    {
+     "toon": "lllllioiilllll",
+     "gateway": 30
+    },
+    {
+     "toon": "JogiSeok",
+     "gateway": 45
+    },
+    {
+     "toon": "asdasdasd.12.3.",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "BackHo",
+   "aurora_id": 14658252,
+   "battle_tag": "옆집교회오빠",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "BarrackS",
+   "aurora_id": 12366304,
+   "battle_tag": "암살",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "zxcxzczxcxzcxzc",
+     "gateway": 11,
+     "games_last_week": 6
+    },
+    {
+     "toon": "zxczxczxczzxcv",
+     "gateway": 11,
+     "games_last_week": 15
+    },
+    {
+     "toon": "\u0026-Barracks",
+     "gateway": 30
+    },
+    {
+     "toon": "DREAM_Barracks",
+     "gateway": 30
+    },
+    {
+     "toon": "gogoaspdaspdasp",
+     "gateway": 30
+    },
+    {
+     "toon": "zcxzzxzcxxzczx",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Baskin",
+   "aurora_id": 19133571,
+   "battle_tag": "베스킨",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "baskin12345",
+     "gateway": 10,
+     "games_last_week": 1
+    },
+    {
+     "toon": "Baskin-_-",
+     "gateway": 30,
+     "games_last_week": 4
+    },
+    {
+     "toon": "KinduiI",
+     "gateway": 30
+    },
+    {
+     "toon": "[ACE]Baskin",
+     "gateway": 30
+    },
+    {
+     "toon": "Paskin-_-",
+     "gateway": 45
+    },
+    {
+     "toon": "Taskin-_-",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "BCM",
+   "aurora_id": 31109493,
+   "battle_tag": "배창민",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "YouTubeBCM",
+     "gateway": 10
+    },
+    {
+     "toon": "liilili1lililil",
+     "gateway": 10
+    },
+    {
+     "toon": "liilililil1illl",
+     "gateway": 10
+    },
+    {
+     "toon": "AfreecaTvBCM",
+     "gateway": 11
+    },
+    {
+     "toon": "SOOPTVBCM",
+     "gateway": 11
+    },
+    {
+     "toon": "lilii1ilililili",
+     "gateway": 11
+    },
+    {
+     "toon": "lili1ililililil",
+     "gateway": 20
+    },
+    {
+     "toon": "liliil1ilililil",
+     "gateway": 20
+    },
+    {
+     "toon": "lililii1ilillli",
+     "gateway": 20
+    },
+    {
+     "toon": "BCM[S.O]",
+     "gateway": 30
+    },
+    {
+     "toon": "[PRA]Style",
+     "gateway": 30
+    },
+    {
+     "toon": "lilili1ilililli",
+     "gateway": 30
+    },
+    {
+     "toon": "liliiilil1ilili",
+     "gateway": 45
+    },
+    {
+     "toon": "lilili1lllilil",
+     "gateway": 45,
+     "games_last_week": 4
+    },
+    {
+     "toon": "lllililil1ilili",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Best",
+   "aurora_id": 15320242,
+   "battle_tag": "도재욱",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "Besttt[WHITE]",
+     "gateway": 10
+    },
+    {
+     "toon": "lllIIlIlI",
+     "gateway": 10
+    },
+    {
+     "toon": "adsfasdfasdrq",
+     "gateway": 11
+    },
+    {
+     "toon": "BESTSDT",
+     "gateway": 20
+    },
+    {
+     "toon": "Bestt[WHITE]",
+     "gateway": 30,
+     "games_last_week": 31
+    },
+    {
+     "toon": "NCS_Bestt",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "BishOp",
+   "aurora_id": 1405175941,
+   "battle_tag": "BishOp",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IllIIIlIlIllII",
+     "gateway": 20
+    },
+    {
+     "toon": "IllIIIIlIIlIIIl",
+     "gateway": 30
+    },
+    {
+     "toon": "K_BishOp",
+     "gateway": 30
+    },
+    {
+     "toon": "K_JyJ",
+     "gateway": 30
+    },
+    {
+     "toon": "K_Meonjibisong",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Bisu",
+   "aurora_id": 18372718,
+   "battle_tag": "김택용",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "BisuOOA",
+     "gateway": 10
+    },
+    {
+     "toon": "sdfsfdsfs",
+     "gateway": 11
+    },
+    {
+     "toon": "CWU_Bisuuu",
+     "gateway": 20
+    },
+    {
+     "toon": "BisuShield89",
+     "gateway": 30
+    },
+    {
+     "toon": "IIIllIIllIIlI",
+     "gateway": 30
+    },
+    {
+     "toon": "taechoplzyong2",
+     "gateway": 30
+    },
+    {
+     "toon": "sflkdslkslflsal",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi/name-search:김택용",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Bisu",
+   "aurora_id": 778296319,
+   "battle_tag": "김택용",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Bisu",
+   "aurora_id": 1409696313,
+   "battle_tag": "lIlIlIlIIIll",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Blade",
+   "aurora_id": 18875340,
+   "battle_tag": "구구콘",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Blade",
+   "aurora_id": 792041952,
+   "battle_tag": "llllIllIlIll",
+   "toons": [
+    {
+     "toon": "IIIIIIlIlIIIlIl",
+     "gateway": 20
+    },
+    {
+     "toon": "jjabrich",
+     "gateway": 30
+    },
+    {
+     "toon": "lIIIIIIlIl1llll",
+     "gateway": 45
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "BliSs",
+   "aurora_id": 15132094,
+   "battle_tag": "허유진",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "WFU_HY",
+     "gateway": 30
+    },
+    {
+     "toon": "lIIlIIIllIlIIl",
+     "gateway": 30
+    },
+    {
+     "toon": "lIlIlIIlllIlII",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Bonyth",
+   "aurora_id": 107065264,
+   "battle_tag": "Bonyth",
+   "country": "POL",
+   "toons": [
+    {
+     "toon": "Bonyth",
+     "gateway": 10
+    },
+    {
+     "toon": "SouL)P(Bonyth",
+     "gateway": 10
+    },
+    {
+     "toon": "StarCast_Bonyth",
+     "gateway": 10
+    },
+    {
+     "toon": "BSL-Bonyth",
+     "gateway": 11
+    },
+    {
+     "toon": "PLN",
+     "gateway": 11
+    },
+    {
+     "toon": "Bonyth",
+     "gateway": 20
+    },
+    {
+     "toon": "SouL)P(Bonyth",
+     "gateway": 20
+    },
+    {
+     "toon": "StarCast_Bonyth",
+     "gateway": 20
+    },
+    {
+     "toon": "BSL-Bonyth",
+     "gateway": 30
+    },
+    {
+     "toon": "Bonyth",
+     "gateway": 30
+    },
+    {
+     "toon": "StarCast_Bonyth",
+     "gateway": 30
+    },
+    {
+     "toon": "FurAdun",
+     "gateway": 45,
+     "games_last_week": 23
+    },
+    {
+     "toon": "FurAiur",
+     "gateway": 45
+    },
+    {
+     "toon": "IIIlllIIl1IIIII",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi/name-search:Bonyth",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Brain",
+   "aurora_id": 10856350,
+   "battle_tag": "창백한녹청위습",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Brori",
+   "aurora_id": 716478223,
+   "battle_tag": "llllllllllll",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Brori",
+   "aurora_id": 820013935,
+   "battle_tag": "llllllllllll",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Byul",
+   "aurora_id": 11020815,
+   "battle_tag": "llllllllll",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "-Ank]Gomdor",
+     "gateway": 10
+    },
+    {
+     "toon": "-Ank]Gomdor!",
+     "gateway": 10
+    },
+    {
+     "toon": "Gomdor!",
+     "gateway": 10
+    },
+    {
+     "toon": "Gomtaeng",
+     "gateway": 11
+    },
+    {
+     "toon": "llIIllIIllllIIl",
+     "gateway": 11
+    },
+    {
+     "toon": "By_Gom",
+     "gateway": 30
+    },
+    {
+     "toon": "Gomdor!",
+     "gateway": 30
+    },
+    {
+     "toon": "xodxodqhf",
+     "gateway": 30
+    },
+    {
+     "toon": "IIIlllIIIIllIIl",
+     "gateway": 45
+    },
+    {
+     "toon": "WVWWWVWVV",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Byul",
+   "aurora_id": 786567149,
+   "battle_tag": "llll",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "asdpoq",
+     "gateway": 10
+    },
+    {
+     "toon": "1p1p88",
+     "gateway": 30
+    },
+    {
+     "toon": "TaeeeeeBBBBBB",
+     "gateway": 30
+    },
+    {
+     "toon": "TuF`K",
+     "gateway": 30
+    },
+    {
+     "toon": "IIlIllIllIIIlI",
+     "gateway": 45
+    },
+    {
+     "toon": "Zerggggkinggg",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Calm",
+   "aurora_id": 34921618,
+   "battle_tag": "다이아디아",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Cola",
+   "aurora_id": 18731177,
+   "battle_tag": "노재상",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Core",
+   "aurora_id": 20837884,
+   "battle_tag": "대전왕따",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "E21-E0I120-IE90",
+     "gateway": 10
+    },
+    {
+     "toon": "qw98euqw89euqw",
+     "gateway": 10
+    },
+    {
+     "toon": "03u0eu2",
+     "gateway": 11
+    },
+    {
+     "toon": "HM_cOre",
+     "gateway": 30
+    },
+    {
+     "toon": "W09U21WE092U1",
+     "gateway": 30
+    },
+    {
+     "toon": "e082yue9821ye'",
+     "gateway": 30
+    },
+    {
+     "toon": "e12890eu12980eu",
+     "gateway": 30
+    },
+    {
+     "toon": "1298eu129e821ue",
+     "gateway": 45
+    },
+    {
+     "toon": "dmdjdmdjdmdjr",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Dasu",
+   "aurora_id": 702412531,
+   "battle_tag": "삼다수",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "HopeJeja",
+     "gateway": 30
+    },
+    {
+     "toon": "NOMALISA`",
+     "gateway": 30
+    },
+    {
+     "toon": "TuF`Dasu",
+     "gateway": 30
+    },
+    {
+     "toon": "[o'__'o]",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Ddasik",
+   "aurora_id": 35208657,
+   "battle_tag": "치킨소주",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Ddasik",
+   "aurora_id": 803688773,
+   "battle_tag": "KyleKatarn20",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Dewalt",
+   "aurora_id": 455547635,
+   "battle_tag": "Dewalt",
+   "country": "RUS",
+   "toons": [
+    {
+     "toon": "15yearsofaccel",
+     "gateway": 10
+    },
+    {
+     "toon": "Dewalt1",
+     "gateway": 10
+    },
+    {
+     "toon": "alIinmasterv2",
+     "gateway": 10
+    },
+    {
+     "toon": "LUDOMAN",
+     "gateway": 11
+    },
+    {
+     "toon": "tkasdklasd",
+     "gateway": 11
+    },
+    {
+     "toon": "DewaltTv",
+     "gateway": 20
+    },
+    {
+     "toon": "KimChlenin",
+     "gateway": 20,
+     "games_last_week": 53
+    },
+    {
+     "toon": "iRk-Dewalt",
+     "gateway": 20
+    },
+    {
+     "toon": "AndreiAndr",
+     "gateway": 30
+    },
+    {
+     "toon": "DewaltTv",
+     "gateway": 30
+    },
+    {
+     "toon": "IllllIIlIlIlll1",
+     "gateway": 30
+    },
+    {
+     "toon": "asdas12qsdasdas",
+     "gateway": 45
+    },
+    {
+     "toon": "gantel'kaFTW",
+     "gateway": 45,
+     "games_last_week": 12
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Disco",
+   "aurora_id": 701966621,
+   "battle_tag": "디스코",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "Disco[iris]",
+     "gateway": 30
+    },
+    {
+     "toon": "Wico`Disco",
+     "gateway": 30
+    },
+    {
+     "toon": "wico`hlya",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Effort",
+   "aurora_id": 18514263,
+   "battle_tag": "진화중",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "maeTUBE",
+     "gateway": 10
+    },
+    {
+     "toon": "mae_TUBE",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Famas2",
+   "aurora_id": 40703416,
+   "battle_tag": "나는야파마스",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "RazerViperV3Pro",
+     "gateway": 10
+    },
+    {
+     "toon": "FamasOrigin",
+     "gateway": 30
+    },
+    {
+     "toon": "NICEInfoTelecom",
+     "gateway": 30
+    },
+    {
+     "toon": "Jok_Mas",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "FantaSy",
+   "aurora_id": 14744039,
+   "battle_tag": "FanTaSy",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "FantaSy",
+   "aurora_id": 19619537,
+   "battle_tag": "lIllllllllll",
+   "toons": [
+    {
+     "toon": "lIIllIIIllIIIll",
+     "gateway": 20
+    },
+    {
+     "toon": "zezezezezezezee",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Fengzi",
+   "aurora_id": 792391044,
+   "battle_tag": "잔망루피",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "FireBatHero",
+   "aurora_id": 877892,
+   "battle_tag": "브라끄",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "CERIYONG",
+     "gateway": 10
+    },
+    {
+     "toon": "newbuildmaker",
+     "gateway": 10
+    },
+    {
+     "toon": "newlifeletsgo",
+     "gateway": 10
+    },
+    {
+     "toon": "LUCKLONGBLACK",
+     "gateway": 11
+    },
+    {
+     "toon": "Realtuber",
+     "gateway": 11
+    },
+    {
+     "toon": "lllllliliiiiiia",
+     "gateway": 11
+    },
+    {
+     "toon": "Europeblack",
+     "gateway": 20
+    },
+    {
+     "toon": "Vtuber",
+     "gateway": 20
+    },
+    {
+     "toon": "centerbbsuser",
+     "gateway": 20
+    },
+    {
+     "toon": "Black_woonjang2",
+     "gateway": 30
+    },
+    {
+     "toon": "NSU_Black",
+     "gateway": 30
+    },
+    {
+     "toon": "blackyoutube",
+     "gateway": 30
+    },
+    {
+     "toon": "JungSukUser",
+     "gateway": 45
+    },
+    {
+     "toon": "asdadadadad1112",
+     "gateway": 45
+    },
+    {
+     "toon": "happystarcraf",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "FlaSh",
+   "aurora_id": 18505773,
+   "battle_tag": "flash",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "FlaSh",
+   "aurora_id": 1416123498,
+   "battle_tag": "척살",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Free",
+   "aurora_id": 18389381,
+   "battle_tag": "취미유저",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Freyja",
+   "aurora_id": 702573234,
+   "battle_tag": "수샘쓰",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "8y_Henessy",
+     "gateway": 20
+    },
+    {
+     "toon": "mythfreyja",
+     "gateway": 20
+    },
+    {
+     "toon": "By_baby``",
+     "gateway": 30
+    },
+    {
+     "toon": "By_freyja",
+     "gateway": 30
+    },
+    {
+     "toon": "myth.freyja",
+     "gateway": 30
+    },
+    {
+     "toon": "!!99gate!!",
+     "gateway": 45
+    },
+    {
+     "toon": "vmtkrl2ghrl",
+     "gateway": 45,
+     "games_last_week": 6
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "ggaemo",
+   "aurora_id": 14751269,
+   "battle_tag": "사랑애",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "ggaemoda",
+     "gateway": 10
+    },
+    {
+     "toon": "ggaemoda",
+     "gateway": 20
+    },
+    {
+     "toon": "K_GGaemoDa",
+     "gateway": 30
+    },
+    {
+     "toon": "dustmqrhrh",
+     "gateway": 30
+    },
+    {
+     "toon": "ggaemoda",
+     "gateway": 30
+    },
+    {
+     "toon": "ggaemodddaa",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Gunwook",
+   "aurora_id": 41016813,
+   "battle_tag": "SongBale",
+   "toons": [
+    {
+     "toon": "Eros_Songjeong",
+     "gateway": 30
+    },
+    {
+     "toon": "NCS_Gun",
+     "gateway": 30
+    },
+    {
+     "toon": "llklliiliililil",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Gypsy",
+   "aurora_id": 470593,
+   "battle_tag": "gypsy",
+   "country": "CAN",
+   "toons": [
+    {
+     "toon": "gypsy",
+     "gateway": 10
+    },
+    {
+     "toon": "llIIlIlIIlIlI",
+     "gateway": 10
+    },
+    {
+     "toon": "stargamer1",
+     "gateway": 10
+    },
+    {
+     "toon": "adsofjawiopejfi",
+     "gateway": 11
+    },
+    {
+     "toon": "gypsy",
+     "gateway": 11
+    },
+    {
+     "toon": ".gypsy",
+     "gateway": 20
+    },
+    {
+     "toon": "BSL-gypsy",
+     "gateway": 20
+    },
+    {
+     "toon": "kngtheo",
+     "gateway": 20
+    },
+    {
+     "toon": "archmageDANNY",
+     "gateway": 30
+    },
+    {
+     "toon": "dhlrnrtls",
+     "gateway": 30
+    },
+    {
+     "toon": "jinjin5000",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "HBQ",
+   "aurora_id": 20009496,
+   "battle_tag": "chipslan",
+   "toons": [
+    {
+     "toon": "SS1NZ.",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "HBQ",
+   "aurora_id": 40939014,
+   "battle_tag": "구미호",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIIllIIllIl",
+     "gateway": 10
+    },
+    {
+     "toon": "IIIIllIIllIlII",
+     "gateway": 10
+    },
+    {
+     "toon": "IIIIllIIllIll",
+     "gateway": 10
+    },
+    {
+     "toon": "DefiIer",
+     "gateway": 11
+    },
+    {
+     "toon": "IIIIllIIllIl",
+     "gateway": 11
+    },
+    {
+     "toon": "IIlllIIlllI",
+     "gateway": 11
+    },
+    {
+     "toon": "llllllIIIIllI",
+     "gateway": 20
+    },
+    {
+     "toon": "ultraIisk",
+     "gateway": 20
+    },
+    {
+     "toon": "JJabdy",
+     "gateway": 30
+    },
+    {
+     "toon": "dic_JJabdy",
+     "gateway": 30
+    },
+    {
+     "toon": "dic_icarusclub",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "herO",
+   "aurora_id": 15127308,
+   "battle_tag": "조일장",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "By.herO2",
+     "gateway": 10
+    },
+    {
+     "toon": "BY.HERO_",
+     "gateway": 30
+    },
+    {
+     "toon": "almmadfmasdf",
+     "gateway": 30
+    },
+    {
+     "toon": "chobodariiiiiii",
+     "gateway": 30,
+     "games_last_week": 5
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "HiyA",
+   "aurora_id": 13968648,
+   "battle_tag": "누구냐넌",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "132213131231313",
+     "gateway": 10
+    },
+    {
+     "toon": "pop1435",
+     "gateway": 11
+    },
+    {
+     "toon": "21321321313123",
+     "gateway": 20
+    },
+    {
+     "toon": "IIIlIIIlIlIlIlI",
+     "gateway": 20
+    },
+    {
+     "toon": "p[kpwqojqpeoje",
+     "gateway": 20
+    },
+    {
+     "toon": "HiyA[WHITE]",
+     "gateway": 30,
+     "games_last_week": 1
+    },
+    {
+     "toon": "JSA_HiyA",
+     "gateway": 30,
+     "games_last_week": 1
+    },
+    {
+     "toon": "JSA_Moolgogi",
+     "gateway": 30
+    },
+    {
+     "toon": "41414we213123",
+     "gateway": 45
+    },
+    {
+     "toon": "dlddjqkdthdwnd",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Hm",
+   "aurora_id": 12388425,
+   "battle_tag": "인생",
+   "toons": [
+    {
+     "toon": "IIIlllIlll",
+     "gateway": 10
+    },
+    {
+     "toon": "IIIIlIIIllIIIII",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Hope",
+   "aurora_id": 11201773,
+   "battle_tag": "Hope",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IllIllllllll",
+     "gateway": 10,
+     "games_last_week": 5
+    },
+    {
+     "toon": "IlllIlllIll",
+     "gateway": 20
+    },
+    {
+     "toon": "IllIllllIllII",
+     "gateway": 30,
+     "games_last_week": 11
+    },
+    {
+     "toon": "TuF`Hope",
+     "gateway": 30,
+     "games_last_week": 12
+    },
+    {
+     "toon": "[A-T]Hope",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Hyuk",
+   "aurora_id": 13087603,
+   "battle_tag": "mizore",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Hyuk",
+   "aurora_id": 1423135470,
+   "battle_tag": "공허의옻빛전차",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "BB_SOMI",
+     "gateway": 30
+    },
+    {
+     "toon": "SOMIFA",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "HyuN",
+   "aurora_id": 18610231,
+   "battle_tag": "아조씨랑비밀친구",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "lllll1llllllll1",
+     "gateway": 20
+    },
+    {
+     "toon": "llllll1llllllll",
+     "gateway": 20
+    },
+    {
+     "toon": "K_michingae2",
+     "gateway": 30
+    },
+    {
+     "toon": "lllIII1llllllll",
+     "gateway": 30
+    },
+    {
+     "toon": "lllIIIll1llllll",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Iffy",
+   "aurora_id": 1409331814,
+   "battle_tag": "민동",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Invade",
+   "aurora_id": 28769006,
+   "battle_tag": "invade",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Iris",
+   "aurora_id": 14345768,
+   "battle_tag": "알아서뭐하게",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Ivory",
+   "aurora_id": 15128524,
+   "battle_tag": "Scenario",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "Dk)ivOry",
+     "gateway": 30
+    },
+    {
+     "toon": "ivOry[kS]",
+     "gateway": 30
+    },
+    {
+     "toon": "llIlIIIIIIlll",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Jaedong",
+   "aurora_id": 13968871,
+   "battle_tag": "이제동",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "llIIll1ll1lI",
+     "gateway": 11
+    },
+    {
+     "toon": "jd2321232",
+     "gateway": 30
+    },
+    {
+     "toon": "lllIIllIlIllI1l",
+     "gateway": 30
+    },
+    {
+     "toon": "ndieJD23",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Jiter",
+   "aurora_id": 797183037,
+   "battle_tag": "llIllIIlIlII",
+   "toons": [
+    {
+     "toon": "asdf91293mszad",
+     "gateway": 30
+    },
+    {
+     "toon": "llllllllIIIIIa",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Judge",
+   "aurora_id": 23762169,
+   "battle_tag": "Scene",
+   "toons": [
+    {
+     "toon": "TuF`Judge",
+     "gateway": 30
+    },
+    {
+     "toon": "Woyzeck",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "JyJ",
+   "aurora_id": 18372749,
+   "battle_tag": "정영재",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "JyJ123123123123",
+     "gateway": 10
+    },
+    {
+     "toon": "JYJYJ12",
+     "gateway": 11
+    },
+    {
+     "toon": "JYJJYJYJYJ",
+     "gateway": 20
+    },
+    {
+     "toon": "Ever)T(JyJ",
+     "gateway": 30
+    },
+    {
+     "toon": "K_JyJ1",
+     "gateway": 30
+    },
+    {
+     "toon": "dkfkehd0101",
+     "gateway": 30
+    },
+    {
+     "toon": "dkfkehd123456",
+     "gateway": 30
+    },
+    {
+     "toon": "lIllIlIIIIl",
+     "gateway": 45
+    },
+    {
+     "toon": "lllIIIlllIIllI",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Kante",
+   "aurora_id": 1403502804,
+   "battle_tag": "Cheek",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "123vrrg4sad",
+     "gateway": 10
+    },
+    {
+     "toon": "345sgt354q45tes",
+     "gateway": 10
+    },
+    {
+     "toon": "asdfasdfasdf31",
+     "gateway": 20
+    },
+    {
+     "toon": "81555",
+     "gateway": 30
+    },
+    {
+     "toon": "lllllll1IIIIIll",
+     "gateway": 30,
+     "games_last_week": 51
+    },
+    {
+     "toon": "lllllllIIIlIlII",
+     "gateway": 30
+    },
+    {
+     "toon": "lllllllllll11ll",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Killer",
+   "aurora_id": 12273860,
+   "battle_tag": "파리하아마리",
+   "toons": [
+    {
+     "toon": "GJGFKAJDRL",
+     "gateway": 30
+    },
+    {
+     "toon": "Mstz_Killer.",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "KOp",
+   "aurora_id": 11204860,
+   "battle_tag": "시대조던",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Larva",
+   "aurora_id": 11682563,
+   "battle_tag": "lllIlllIlll",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "KLGST_HONG9jjan",
+     "gateway": 10
+    },
+    {
+     "toon": "lllIIIIlllIlIll",
+     "gateway": 10
+    },
+    {
+     "toon": "hong9jjang2yeyo",
+     "gateway": 11
+    },
+    {
+     "toon": "lllIlIlIlllIlll",
+     "gateway": 11
+    },
+    {
+     "toon": "lllllIIIIIllIlI",
+     "gateway": 11
+    },
+    {
+     "toon": "IIlllllIllllIll",
+     "gateway": 20
+    },
+    {
+     "toon": "ganadalamabasa",
+     "gateway": 20
+    },
+    {
+     "toon": "lIIIIlllllIlIll",
+     "gateway": 20
+    },
+    {
+     "toon": "JSA_Larva",
+     "gateway": 30
+    },
+    {
+     "toon": "Larva1topZerg",
+     "gateway": 30
+    },
+    {
+     "toon": "maeundisin",
+     "gateway": 30
+    },
+    {
+     "toon": "sdfgveerwvtqweB",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Leta",
+   "aurora_id": 22578696,
+   "battle_tag": "상문상문",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IlIIIIIIIlIII",
+     "gateway": 30
+    },
+    {
+     "toon": "SSU_Leta",
+     "gateway": 30
+    },
+    {
+     "toon": "qwejlkqwenfajsd",
+     "gateway": 30
+    },
+    {
+     "toon": "anstlsktkasndkq",
+     "gateway": 45
+    },
+    {
+     "toon": "lkqwejlkqwejasd",
+     "gateway": 45,
+     "games_last_week": 7
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Light",
+   "aurora_id": 10287223,
+   "battle_tag": "NAMO40",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Light",
+   "aurora_id": 14926205,
+   "battle_tag": "미친고양이",
+   "toons": [
+    {
+     "toon": "SuperFatHero",
+     "gateway": 10
+    },
+    {
+     "toon": "DemonHunterho",
+     "gateway": 30
+    },
+    {
+     "toon": "ErOs_231208",
+     "gateway": 30
+    },
+    {
+     "toon": "kimsabuho",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Mayd",
+   "aurora_id": 13721102,
+   "battle_tag": "홍윽옥",
+   "toons": [
+    {
+     "toon": "I'm_finethanku",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Midas",
+   "aurora_id": 12751780,
+   "battle_tag": "Midas",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIlIIlIIIllllI",
+     "gateway": 30
+    },
+    {
+     "toon": "IIlllllIIllIII",
+     "gateway": 30
+    },
+    {
+     "toon": "WFU_Midas",
+     "gateway": 30
+    },
+    {
+     "toon": "waser23",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Mighty",
+   "aurora_id": 11217659,
+   "battle_tag": "프발",
+   "toons": [
+    {
+     "toon": "llIIlIlIl34e",
+     "gateway": 10
+    },
+    {
+     "toon": "lllIIllIIIIlIlI",
+     "gateway": 10
+    },
+    {
+     "toon": "llIIIllIIlIIlIl",
+     "gateway": 11
+    },
+    {
+     "toon": "lllIIllIllllIls",
+     "gateway": 11
+    },
+    {
+     "toon": "IIIllIlIlllIla",
+     "gateway": 45
+    },
+    {
+     "toon": "lllIIllIIllIlt",
+     "gateway": 45
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Mihu",
+   "aurora_id": 702037071,
+   "battle_tag": "houshifu",
+   "country": "CHN",
+   "toons": [
+    {
+     "toon": "CWT)mihu",
+     "gateway": 10
+    },
+    {
+     "toon": "BSL15-YHmihu",
+     "gateway": 20
+    },
+    {
+     "toon": "CWT)mihu",
+     "gateway": 20
+    },
+    {
+     "toon": "IllIIIIIIlIlIlI",
+     "gateway": 30
+    },
+    {
+     "toon": "YHxiaojishiliao",
+     "gateway": 30,
+     "games_last_week": 1
+    },
+    {
+     "toon": "BSL-YHmihu",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Mind",
+   "aurora_id": 18590274,
+   "battle_tag": "NiNaNo",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "InteRMindd",
+     "gateway": 30
+    },
+    {
+     "toon": "NCS_Mind",
+     "gateway": 30
+    },
+    {
+     "toon": "lIlllIlIlIlII",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Mind",
+   "aurora_id": 34526576,
+   "battle_tag": "Crossmax",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Mini",
+   "aurora_id": 18470019,
+   "battle_tag": "귀요미",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Miso",
+   "aurora_id": 18514286,
+   "battle_tag": "hdy",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Mong",
+   "aurora_id": 12351289,
+   "battle_tag": "몽군",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "SSG_Mong",
+     "gateway": 30
+    },
+    {
+     "toon": "a0o0f0ds",
+     "gateway": 30
+    },
+    {
+     "toon": "sdfksdopfksdpof",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "MoolSo",
+   "aurora_id": 21112814,
+   "battle_tag": "전제민",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "MoolSo.",
+     "gateway": 30
+    },
+    {
+     "toon": "SSU_MoolSo",
+     "gateway": 30
+    },
+    {
+     "toon": "lIIIIIlIllIlIl",
+     "gateway": 30,
+     "games_last_week": 2
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Motive",
+   "aurora_id": 15090494,
+   "battle_tag": "선미패밀리",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IllIIIlIlllIII",
+     "gateway": 10
+    },
+    {
+     "toon": "lIIlIIIlIIlI",
+     "gateway": 10
+    },
+    {
+     "toon": "IlIIlIIlIIl",
+     "gateway": 11
+    },
+    {
+     "toon": "IllIIllIIIlII",
+     "gateway": 11
+    },
+    {
+     "toon": "Motivve",
+     "gateway": 11
+    },
+    {
+     "toon": "IllIIllIIIlII",
+     "gateway": 20
+    },
+    {
+     "toon": "Motive",
+     "gateway": 20
+    },
+    {
+     "toon": "\u0026-Gryffin",
+     "gateway": 30
+    },
+    {
+     "toon": "DM_Motive",
+     "gateway": 30
+    },
+    {
+     "toon": "Motivationn",
+     "gateway": 30
+    },
+    {
+     "toon": "IIllIII1IIlll",
+     "gateway": 45
+    },
+    {
+     "toon": "IlIIllIIIIII3",
+     "gateway": 45
+    },
+    {
+     "toon": "IlllIIllIIIIIlI",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Movie",
+   "aurora_id": 13153502,
+   "battle_tag": "진무비",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Nada",
+   "aurora_id": 13822584,
+   "battle_tag": "IIllllIIllIl",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "123986497861923",
+     "gateway": 10
+    },
+    {
+     "toon": "Still_NaDa",
+     "gateway": 10
+    },
+    {
+     "toon": "hohohuhuhahakuk",
+     "gateway": 10
+    },
+    {
+     "toon": "091279612378965",
+     "gateway": 20
+    },
+    {
+     "toon": "12309872398612",
+     "gateway": 20
+    },
+    {
+     "toon": "afdssadf097asdf",
+     "gateway": 20
+    },
+    {
+     "toon": "123098123712312",
+     "gateway": 30,
+     "games_last_week": 62
+    },
+    {
+     "toon": "123986192783691",
+     "gateway": 30,
+     "games_last_week": 1
+    },
+    {
+     "toon": "BGM_NADA",
+     "gateway": 30
+    },
+    {
+     "toon": "wvvvwvvvvvvvvvv",
+     "gateway": 30
+    },
+    {
+     "toon": "20260808000000",
+     "gateway": 45
+    },
+    {
+     "toon": "aingbboaing",
+     "gateway": 45
+    },
+    {
+     "toon": "zerggosuyeyo112",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "NalrA",
+   "aurora_id": 10876368,
+   "battle_tag": "NalrA",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Noble",
+   "aurora_id": 701450235,
+   "battle_tag": "권혁진",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Noel",
+   "aurora_id": 15954768,
+   "battle_tag": "Noel",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "wico`1128",
+     "gateway": 10
+    },
+    {
+     "toon": "wico`Ey",
+     "gateway": 10
+    },
+    {
+     "toon": "wico`dudusin",
+     "gateway": 10
+    },
+    {
+     "toon": "LamechS2pNt",
+     "gateway": 11
+    },
+    {
+     "toon": "lllliiilllo",
+     "gateway": 11
+    },
+    {
+     "toon": "lllllhllllloll",
+     "gateway": 11
+    },
+    {
+     "toon": "pntgoguma",
+     "gateway": 20
+    },
+    {
+     "toon": "hidel",
+     "gateway": 30
+    },
+    {
+     "toon": "wico`1127",
+     "gateway": 30
+    },
+    {
+     "toon": "wico``````",
+     "gateway": 30
+    },
+    {
+     "toon": "lll1l1l1l1l1ll",
+     "gateway": 45
+    },
+    {
+     "toon": "wico```````````",
+     "gateway": 45
+    },
+    {
+     "toon": "wico`jjang8",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "nOOB",
+   "aurora_id": 12357306,
+   "battle_tag": "김범수",
+   "toons": [
+    {
+     "toon": "Rift.",
+     "gateway": 10
+    },
+    {
+     "toon": "dOgdAy",
+     "gateway": 20
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Noob13",
+   "aurora_id": 701954393,
+   "battle_tag": "kakao",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IllllIIlIlI",
+     "gateway": 10
+    },
+    {
+     "toon": "IllllIlIIIlI",
+     "gateway": 10
+    },
+    {
+     "toon": "IlllIlIIIlI",
+     "gateway": 11
+    },
+    {
+     "toon": "IllllIlIIlI",
+     "gateway": 11
+    },
+    {
+     "toon": "Poss",
+     "gateway": 11
+    },
+    {
+     "toon": "llllIlllIlI",
+     "gateway": 20
+    },
+    {
+     "toon": "DIC_Noob13",
+     "gateway": 30
+    },
+    {
+     "toon": "DIC_lIllIlII",
+     "gateway": 30,
+     "games_last_week": 6
+    },
+    {
+     "toon": "SSU_Mohanayo",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Organ",
+   "aurora_id": 795533569,
+   "battle_tag": "임진묵",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Paralyze",
+   "aurora_id": 18374885,
+   "battle_tag": "스타는내인생",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIIIIIlIIIIIlI",
+     "gateway": 11
+    },
+    {
+     "toon": "lllIIIllIIIIIII",
+     "gateway": 11
+    },
+    {
+     "toon": "llllllIIllIllll",
+     "gateway": 20
+    },
+    {
+     "toon": "MBU_Paralyze",
+     "gateway": 30
+    },
+    {
+     "toon": "Paralyze[kS]",
+     "gateway": 30,
+     "games_last_week": 20
+    },
+    {
+     "toon": "Paralyze[kaL]",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Prime",
+   "aurora_id": 16402534,
+   "battle_tag": "류뚱",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "KT_Bdd",
+     "gateway": 10
+    },
+    {
+     "toon": "b0ngsilfan",
+     "gateway": 10
+    },
+    {
+     "toon": "crimeseasonal",
+     "gateway": 11
+    },
+    {
+     "toon": "rhdehfdl",
+     "gateway": 11
+    },
+    {
+     "toon": "SubCharacter",
+     "gateway": 20
+    },
+    {
+     "toon": "dlqcns",
+     "gateway": 20
+    },
+    {
+     "toon": "lIlIIIIIIlllllI",
+     "gateway": 20
+    },
+    {
+     "toon": "DIC_Prime",
+     "gateway": 30
+    },
+    {
+     "toon": "JG_Legend",
+     "gateway": 30
+    },
+    {
+     "toon": "await1",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "ProMise",
+   "aurora_id": 41037753,
+   "battle_tag": "구라미스",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "NCS_GuRaMise",
+     "gateway": 30
+    },
+    {
+     "toon": "lliiiill1iilll",
+     "gateway": 30,
+     "games_last_week": 2
+    },
+    {
+     "toon": "lllIIIlHllIIIll",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Pusan",
+   "aurora_id": 12237035,
+   "battle_tag": "유령바지",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Queen",
+   "aurora_id": 18242965,
+   "battle_tag": "김명운",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "lllllIlIIIlIl",
+     "gateway": 10
+    },
+    {
+     "toon": "wooni222",
+     "gateway": 10
+    },
+    {
+     "toon": "IIllIIIIIIIl",
+     "gateway": 11
+    },
+    {
+     "toon": "lllIIllIIIIllII",
+     "gateway": 11
+    },
+    {
+     "toon": "lllIIllIIllIII",
+     "gateway": 11,
+     "games_last_week": 18
+    },
+    {
+     "toon": "wooni22222222",
+     "gateway": 20
+    },
+    {
+     "toon": "Queennnnnn",
+     "gateway": 30
+    },
+    {
+     "toon": "Queennnnnnnnn",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Quickly",
+   "aurora_id": 1087629,
+   "battle_tag": "와이파이",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IllIlIIlIIIllII",
+     "gateway": 10
+    },
+    {
+     "toon": "asdfafbzxcvqwer",
+     "gateway": 10
+    },
+    {
+     "toon": "awert3124123",
+     "gateway": 11
+    },
+    {
+     "toon": "oasdfiwemlxcmvl",
+     "gateway": 11
+    },
+    {
+     "toon": ";;..;.;..;;.;;;",
+     "gateway": 20
+    },
+    {
+     "toon": "awetayhghxcvbxc",
+     "gateway": 20
+    },
+    {
+     "toon": "\u0026-QuickIy",
+     "gateway": 30
+    },
+    {
+     "toon": "\u0026-Quickly",
+     "gateway": 30
+    },
+    {
+     "toon": "heixiongjing",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Rain",
+   "aurora_id": 18372652,
+   "battle_tag": "Rain",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Rich",
+   "aurora_id": 1400599318,
+   "battle_tag": "llIIIlllIIIl",
+   "toons": [
+    {
+     "toon": "DIC_Nene",
+     "gateway": 30
+    },
+    {
+     "toon": "dic_rich",
+     "gateway": 30
+    },
+    {
+     "toon": "lllIIlIIIlIIll",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Rich",
+   "aurora_id": 1423897462,
+   "battle_tag": "근사한바지",
+   "toons": [
+    {
+     "toon": "llIIlllIIlIl",
+     "gateway": 20
+    },
+    {
+     "toon": "lllIIlIIIll",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "RideSky",
+   "aurora_id": 42633318,
+   "battle_tag": "김호성",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "misomiso22",
+     "gateway": 10
+    },
+    {
+     "toon": "qqqbbeeeccc",
+     "gateway": 11
+    },
+    {
+     "toon": "ww22",
+     "gateway": 11
+    },
+    {
+     "toon": "wwe12345",
+     "gateway": 11
+    },
+    {
+     "toon": "Francechicken",
+     "gateway": 20
+    },
+    {
+     "toon": "QWEADASDWE2",
+     "gateway": 20
+    },
+    {
+     "toon": "DIC_Ridesky",
+     "gateway": 30
+    },
+    {
+     "toon": "MBU_10002",
+     "gateway": 30
+    },
+    {
+     "toon": "mandu123345",
+     "gateway": 30,
+     "games_last_week": 18
+    },
+    {
+     "toon": "wwe456e2231",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "RoyaL",
+   "aurora_id": 14801011,
+   "battle_tag": "니네니",
+   "toons": [
+    {
+     "toon": "23aa221111e",
+     "gateway": 30
+    },
+    {
+     "toon": "RoyaL1123",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Ruin",
+   "aurora_id": 18435433,
+   "battle_tag": "긍정갑홍덕",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIIIIhIIIIIll",
+     "gateway": 10
+    },
+    {
+     "toon": "IIllIlIllIllIll",
+     "gateway": 10
+    },
+    {
+     "toon": "IIIIIIllIIllIll",
+     "gateway": 11
+    },
+    {
+     "toon": "Rayoon2da",
+     "gateway": 11
+    },
+    {
+     "toon": "RAYUN2",
+     "gateway": 20
+    },
+    {
+     "toon": "StarCast_Ruin",
+     "gateway": 20
+    },
+    {
+     "toon": "K_Ruin1",
+     "gateway": 30
+    },
+    {
+     "toon": "MCU_Ruin",
+     "gateway": 30
+    },
+    {
+     "toon": "Ruin1[WHITE]",
+     "gateway": 30
+    },
+    {
+     "toon": "IIIIIIIuIIIIIIl",
+     "gateway": 45
+    },
+    {
+     "toon": "llllJlllllllll",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Rush",
+   "aurora_id": 15005496,
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Rush",
+   "aurora_id": 778298207,
+   "battle_tag": "Rush",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "Rushtube.",
+     "gateway": 30
+    },
+    {
+     "toon": "gogogooq1223",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Saber",
+   "aurora_id": 19456490,
+   "battle_tag": "ilililill",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "\u0026-saber",
+     "gateway": 30
+    },
+    {
+     "toon": "MBU_Saber",
+     "gateway": 30
+    },
+    {
+     "toon": "lii1l3li213l213",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Sacsri",
+   "aurora_id": 13914099,
+   "battle_tag": "Sacsri",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIIIIIlllllllI",
+     "gateway": 10
+    },
+    {
+     "toon": "IIIIIlIIIIIIlII",
+     "gateway": 10,
+     "games_last_week": 8
+    },
+    {
+     "toon": "Sacsri222",
+     "gateway": 10
+    },
+    {
+     "toon": "IIIIllIIlIIIlII",
+     "gateway": 11
+    },
+    {
+     "toon": "IlllIIllIIllIIl",
+     "gateway": 11
+    },
+    {
+     "toon": "IIIIIll",
+     "gateway": 20
+    },
+    {
+     "toon": "IIlllllllllllll",
+     "gateway": 20,
+     "games_last_week": 30
+    },
+    {
+     "toon": "SACTUBE",
+     "gateway": 20
+    },
+    {
+     "toon": "DM_Sacsri",
+     "gateway": 30
+    },
+    {
+     "toon": "INO_Sacsri",
+     "gateway": 30
+    },
+    {
+     "toon": "Sacsri",
+     "gateway": 30
+    },
+    {
+     "toon": "IIIIIIlIllllIII",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi/name-search:Sacsri",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Sai",
+   "aurora_id": 18665802,
+   "battle_tag": "사이",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIllIIllIlIlII1",
+     "gateway": 11
+    },
+    {
+     "toon": "sdasdc123asd",
+     "gateway": 11,
+     "games_last_week": 5
+    },
+    {
+     "toon": "IIllIIIIlllIIl1",
+     "gateway": 30
+    },
+    {
+     "toon": "SSU_sAi",
+     "gateway": 30
+    },
+    {
+     "toon": "sAi[WHITE]",
+     "gateway": 30
+    },
+    {
+     "toon": "IIllIIlllIIlll1",
+     "gateway": 45,
+     "games_last_week": 9
+    },
+    {
+     "toon": "IIlllII1IIllIIl",
+     "gateway": 45,
+     "games_last_week": 20
+    },
+    {
+     "toon": "wvwvwvwvvvwvwvw",
+     "gateway": 45,
+     "games_last_week": 9
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Sai",
+   "aurora_id": 21027124,
+   "battle_tag": "메시",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "BangaruUngSooni",
+     "gateway": 10
+    },
+    {
+     "toon": "VVWVWVVV",
+     "gateway": 10
+    },
+    {
+     "toon": "wwwvwvwvwvvvww",
+     "gateway": 11
+    },
+    {
+     "toon": "IIlIlIllllIIIl1",
+     "gateway": 20,
+     "games_last_week": 40
+    },
+    {
+     "toon": "IlIIIllIIlIIl",
+     "gateway": 20
+    },
+    {
+     "toon": "TemuDasu",
+     "gateway": 20
+    },
+    {
+     "toon": "19411",
+     "gateway": 30
+    },
+    {
+     "toon": "TPZ`Messi",
+     "gateway": 30,
+     "games_last_week": 49
+    },
+    {
+     "toon": "TuF`Messi",
+     "gateway": 30
+    },
+    {
+     "toon": "IIIII11IIIIlllI",
+     "gateway": 45
+    },
+    {
+     "toon": "VsZerg0nly",
+     "gateway": 45,
+     "games_last_week": 5
+    },
+    {
+     "toon": "lllIII11IlllII",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Scan",
+   "aurora_id": 41376348,
+   "battle_tag": "유승곤",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "Scan",
+     "gateway": 10
+    },
+    {
+     "toon": "llIllIllIIIIlll",
+     "gateway": 20
+    },
+    {
+     "toon": "Black_Scan",
+     "gateway": 30
+    },
+    {
+     "toon": "kaikuang2",
+     "gateway": 30
+    },
+    {
+     "toon": "lllllIIllIlIlII",
+     "gateway": 30,
+     "games_last_week": 11
+    },
+    {
+     "toon": "llIlIIlIIIIIllI",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Scan",
+   "aurora_id": 468995821,
+   "battle_tag": "Saturn",
+   "country": "BEL",
+   "toons": [
+    {
+     "toon": "mikronahrstoffe",
+     "gateway": 10
+    },
+    {
+     "toon": "mikronahrstoffe",
+     "gateway": 20
+    },
+    {
+     "toon": "SD_is_superman",
+     "gateway": 30
+    },
+    {
+     "toon": "TerranFan123",
+     "gateway": 30,
+     "games_last_week": 18
+    },
+    {
+     "toon": "llIIIllIIlIllI",
+     "gateway": 30
+    },
+    {
+     "toon": "Cleiry",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi/name-search:Saturn",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Scarlet",
+   "aurora_id": 790743029,
+   "battle_tag": "Scarlet",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Sea",
+   "aurora_id": 18093135,
+   "battle_tag": "똑똑한망치",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Sharp",
+   "aurora_id": 18578165,
+   "battle_tag": "조기석",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "JSA_Sharp",
+     "gateway": 10
+    },
+    {
+     "toon": "dancetime",
+     "gateway": 10
+    },
+    {
+     "toon": "iiilililililill",
+     "gateway": 10
+    },
+    {
+     "toon": "iiiiilililli",
+     "gateway": 11
+    },
+    {
+     "toon": "Kimbyungsoo",
+     "gateway": 20
+    },
+    {
+     "toon": "llllIIIIIllllI",
+     "gateway": 20,
+     "games_last_week": 1
+    },
+    {
+     "toon": "sharp123",
+     "gateway": 20
+    },
+    {
+     "toon": "JSA_Sharp1",
+     "gateway": 30
+    },
+    {
+     "toon": "Sharp1",
+     "gateway": 30
+    },
+    {
+     "toon": "llllllIIlI1ll",
+     "gateway": 30,
+     "games_last_week": 5
+    },
+    {
+     "toon": "iiilililiilllii",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Shine",
+   "aurora_id": 11900593,
+   "battle_tag": "김단비",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "kimdanbi",
+     "gateway": 30
+    },
+    {
+     "toon": "llIlIllIl1Illll",
+     "gateway": 30
+    },
+    {
+     "toon": "llllIIllIIllllI",
+     "gateway": 30
+    },
+    {
+     "toon": "1111llllllIIIll",
+     "gateway": 45
+    },
+    {
+     "toon": "llll1ll11IIII",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi/name-search:김단비",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Shine",
+   "aurora_id": 13474066,
+   "battle_tag": "Shine",
+   "toons": [
+    {
+     "toon": "Gyeo`GLE",
+     "gateway": 20
+    },
+    {
+     "toon": "Gyeo`GLE",
+     "gateway": 30
+    },
+    {
+     "toon": "MBU_Shine",
+     "gateway": 30
+    },
+    {
+     "toon": "wG_Shine",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Shinee",
+   "aurora_id": 15183299,
+   "battle_tag": "lilillll1ll",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "f518df851df18df",
+     "gateway": 0
+    },
+    {
+     "toon": "32231231123",
+     "gateway": 30,
+     "games_last_week": 16
+    },
+    {
+     "toon": "qqaaeewwqq",
+     "gateway": 30
+    }
+   ],
+   "source": "discovered-via-Best@1713036336",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Shinee",
+   "aurora_id": 1466133644,
+   "battle_tag": "ilililiiiili",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Shuttle",
+   "aurora_id": 18434492,
+   "battle_tag": "신탄진점중이",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "DREAM_DANJANG",
+     "gateway": 30,
+     "games_last_week": 4
+    },
+    {
+     "toon": "Jum2[White]",
+     "gateway": 30
+    },
+    {
+     "toon": "KleagueKiller",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Skey",
+   "aurora_id": 701972324,
+   "battle_tag": "김영진",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIllIIIIlllIl",
+     "gateway": 11,
+     "games_last_week": 16
+    },
+    {
+     "toon": "AnSan`S_xKing",
+     "gateway": 30,
+     "games_last_week": 10
+    },
+    {
+     "toon": "JSA_Seee__xxee",
+     "gateway": 30
+    },
+    {
+     "toon": "SuperGuy[WHITE]",
+     "gateway": 30
+    },
+    {
+     "toon": "rekwjnrhjknrwek",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Sky",
+   "aurora_id": 798458650,
+   "battle_tag": "IlIlIlllIIll",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IlllIIllIIlllII",
+     "gateway": 11
+    },
+    {
+     "toon": "1illliiilllliii",
+     "gateway": 30
+    },
+    {
+     "toon": "lillili1lilllil",
+     "gateway": 30
+    },
+    {
+     "toon": "1llilllillilll",
+     "gateway": 45
+    },
+    {
+     "toon": "lIIlllIlIlIIIll",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Sky",
+   "aurora_id": 1416774758,
+   "battle_tag": "웨하스",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Snow",
+   "aurora_id": 14955604,
+   "battle_tag": "장윤철",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIITlllIIllIIl",
+     "gateway": 10
+    },
+    {
+     "toon": "IIIlIllIIllllIl",
+     "gateway": 10
+    },
+    {
+     "toon": "JJUKTUBE",
+     "gateway": 10
+    },
+    {
+     "toon": "44441111",
+     "gateway": 20
+    },
+    {
+     "toon": "killzzoogi1",
+     "gateway": 20
+    },
+    {
+     "toon": "1z2z3t4t5z6d",
+     "gateway": 30
+    },
+    {
+     "toon": "By.SnOw1",
+     "gateway": 30
+    },
+    {
+     "toon": "aksungvillanin",
+     "gateway": 30
+    },
+    {
+     "toon": "HwangsoJJukguri",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Sobenz",
+   "aurora_id": 701288627,
+   "battle_tag": "SnowMiniYsc",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Soma",
+   "aurora_id": 42047599,
+   "battle_tag": "밍기적밍기적",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "SSU_soma",
+     "gateway": 30
+    },
+    {
+     "toon": "lIIlIlIlIl1IlI",
+     "gateway": 30
+    },
+    {
+     "toon": "llIlIlIIIIIlII1",
+     "gateway": 30
+    },
+    {
+     "toon": "lll1iiilili",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Soo",
+   "aurora_id": 14726310,
+   "battle_tag": "sOO",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "afoiasdpfjaopei",
+     "gateway": 10
+    },
+    {
+     "toon": "dfsafsdafsadfas",
+     "gateway": 11
+    },
+    {
+     "toon": "Dream_soO",
+     "gateway": 30
+    },
+    {
+     "toon": "lililllilillill",
+     "gateway": 30
+    },
+    {
+     "toon": "lllililliliilli",
+     "gateway": 30
+    },
+    {
+     "toon": "soO12343",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Soo",
+   "aurora_id": 35501269,
+   "battle_tag": "EsCKaL",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Soulkey",
+   "aurora_id": 12355047,
+   "battle_tag": "김민철",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Speed",
+   "aurora_id": 14447359,
+   "battle_tag": "herO",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "1313131sdsadsda",
+     "gateway": 10
+    },
+    {
+     "toon": "14dlada0d-a0d-d",
+     "gateway": 10
+    },
+    {
+     "toon": "Speedtube..",
+     "gateway": 10
+    },
+    {
+     "toon": "IllIlIIllIllIlI",
+     "gateway": 20
+    },
+    {
+     "toon": "dadadaa55151515",
+     "gateway": 20
+    },
+    {
+     "toon": "SpeedTube`",
+     "gateway": 30
+    },
+    {
+     "toon": "lIlIIIIIIllIIll",
+     "gateway": 30
+    },
+    {
+     "toon": "KimJiToL",
+     "gateway": 45
+    },
+    {
+     "toon": "dadadad13131",
+     "gateway": 45
+    },
+    {
+     "toon": "dadadadad1311",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Ss1nz",
+   "aurora_id": 15995371,
+   "battle_tag": "문스윙스",
+   "toons": [
+    {
+     "toon": "lIIIIlIlIllllll",
+     "gateway": 20
+    },
+    {
+     "toon": "dic_ng",
+     "gateway": 30
+    },
+    {
+     "toon": "ngtoss",
+     "gateway": 30
+    }
+   ],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "sSak",
+   "aurora_id": 18372656,
+   "battle_tag": "바코드",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "DIC_sSak1",
+     "gateway": 30,
+     "games_last_week": 14
+    },
+    {
+     "toon": "HM_sSak",
+     "gateway": 30
+    },
+    {
+     "toon": "ajkflajsdflksjf",
+     "gateway": 30,
+     "games_last_week": 46
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "sSak",
+   "aurora_id": 41366410,
+   "battle_tag": "누구냐넌",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "SsaL",
+   "aurora_id": 11062643,
+   "battle_tag": "SsaL",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Stork",
+   "aurora_id": 10267282,
+   "battle_tag": "송병구",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "Stork",
+     "gateway": 30
+    },
+    {
+     "toon": "llIIIIllIIlIlI",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Stryker",
+   "aurora_id": 2264640,
+   "battle_tag": "StRyKeR17",
+   "country": "USA",
+   "toons": [
+    {
+     "toon": "BSL-StRyKeR",
+     "gateway": 10
+    },
+    {
+     "toon": "StRyKeR17",
+     "gateway": 10
+    },
+    {
+     "toon": "lIIIllIlIII",
+     "gateway": 10
+    },
+    {
+     "toon": "StRyKeR17",
+     "gateway": 11
+    },
+    {
+     "toon": "lIIIllIlIII",
+     "gateway": 11
+    },
+    {
+     "toon": "IIlIIlIllllIIl",
+     "gateway": 20
+    },
+    {
+     "toon": "StRyKeR17",
+     "gateway": 20
+    },
+    {
+     "toon": "StRyKeR17[NaS]",
+     "gateway": 20
+    },
+    {
+     "toon": "IIlIIlIllllIIl",
+     "gateway": 30
+    },
+    {
+     "toon": "StRyKeR17",
+     "gateway": 30
+    },
+    {
+     "toon": "stryk",
+     "gateway": 30
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Sziky",
+   "aurora_id": 416568341,
+   "battle_tag": "HARCSA",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Taenggu",
+   "aurora_id": 16239856,
+   "battle_tag": "윤종현",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "TheRock",
+   "aurora_id": 18607481,
+   "battle_tag": "돋크네",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIIIIllllIIIlll",
+     "gateway": 10
+    },
+    {
+     "toon": "IlllIIIIlllIIll",
+     "gateway": 10
+    },
+    {
+     "toon": "anerbbubbu",
+     "gateway": 10
+    },
+    {
+     "toon": "IIlllIIlIIlllIl",
+     "gateway": 11
+    },
+    {
+     "toon": "IlIlIlIlIIllIlI",
+     "gateway": 11
+    },
+    {
+     "toon": "lIlIIIIIIIIlllI",
+     "gateway": 11
+    },
+    {
+     "toon": "IIIllIIllIIlIII",
+     "gateway": 20
+    },
+    {
+     "toon": "IlIlIlllIIllIII",
+     "gateway": 20
+    },
+    {
+     "toon": "IllIIllIIllIIll",
+     "gateway": 20
+    },
+    {
+     "toon": "GongbangMonster",
+     "gateway": 30
+    },
+    {
+     "toon": "asdj8w82ak1231",
+     "gateway": 30
+    },
+    {
+     "toon": "bbansbutgogja",
+     "gateway": 30
+    },
+    {
+     "toon": "2germatnya",
+     "gateway": 45
+    },
+    {
+     "toon": "IlIIllIlIlIIIII",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "TimeisGold",
+   "aurora_id": 15346760,
+   "battle_tag": "겁먹은햇병아리",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "lIlllIIIIIIlllI",
+     "gateway": 10
+    },
+    {
+     "toon": "ByungAri",
+     "gateway": 11
+    },
+    {
+     "toon": "TimeisgoId",
+     "gateway": 11,
+     "games_last_week": 153
+    },
+    {
+     "toon": "IllIIIIIIIllIIl",
+     "gateway": 20
+    },
+    {
+     "toon": "llllIIIlllllIII",
+     "gateway": 20
+    },
+    {
+     "toon": "5252[kS]",
+     "gateway": 30,
+     "games_last_week": 11
+    },
+    {
+     "toon": "TemuSoma",
+     "gateway": 30
+    },
+    {
+     "toon": "Zermookmook",
+     "gateway": 30
+    },
+    {
+     "toon": "BangaruHamTori",
+     "gateway": 45
+    },
+    {
+     "toon": "ChosimLessZerg",
+     "gateway": 45
+    },
+    {
+     "toon": "JJabSangHyun",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Togles",
+   "aurora_id": 12299339,
+   "battle_tag": "경찰",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "True",
+   "aurora_id": 14099535,
+   "battle_tag": "llllIllIIlI",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "asdfadfadfkljsa",
+     "gateway": 10
+    },
+    {
+     "toon": "asdfasdfadfasds",
+     "gateway": 20
+    },
+    {
+     "toon": "asdfasdfdafsafs",
+     "gateway": 20
+    },
+    {
+     "toon": "BTS[WHITE]",
+     "gateway": 30
+    },
+    {
+     "toon": "HM_BTS",
+     "gateway": 30
+    },
+    {
+     "toon": "lllllllllIIlll1",
+     "gateway": 30
+    },
+    {
+     "toon": "llllllIIllll3",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Tyson",
+   "aurora_id": 14192060,
+   "battle_tag": "박수범",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "WhyManMC",
+   "aurora_id": 15001226,
+   "battle_tag": "llllIIIll",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "xiaoshuai",
+   "aurora_id": 702213774,
+   "battle_tag": "小帅",
+   "country": "HKG",
+   "toons": [
+    {
+     "toon": "!lii!!lili!l!ii",
+     "gateway": 30
+    },
+    {
+     "toon": "guoyikasading",
+     "gateway": 30
+    },
+    {
+     "toon": "luludawanglaile",
+     "gateway": 30,
+     "games_last_week": 15
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "XuanXuan",
+   "aurora_id": 43286826,
+   "battle_tag": "轩轩",
+   "country": "HKG",
+   "toons": [
+    {
+     "toon": "dB)xuanxuan",
+     "gateway": 10
+    },
+    {
+     "toon": "sazx",
+     "gateway": 11
+    },
+    {
+     "toon": "dB)xuanxuan",
+     "gateway": 20
+    },
+    {
+     "toon": "llIIIllIIlIlIlI",
+     "gateway": 20
+    },
+    {
+     "toon": "The_xuanxuan",
+     "gateway": 30,
+     "games_last_week": 1
+    },
+    {
+     "toon": "ccz_xuanxuan",
+     "gateway": 30
+    },
+    {
+     "toon": "lIIIlIlIIIll",
+     "gateway": 30
+    },
+    {
+     "toon": "xingjixuanxuan",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "yabsab",
+   "aurora_id": 40860205,
+   "battle_tag": "unyeong",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "MBU_Yabsab",
+     "gateway": 30
+    },
+    {
+     "toon": "Play`Yabsab",
+     "gateway": 30
+    },
+    {
+     "toon": "manysorry",
+     "gateway": 30,
+     "games_last_week": 10
+    },
+    {
+     "toon": "yabsabbb",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "Yoon",
+   "aurora_id": 392545949,
+   "battle_tag": "ùñķñØŵņ",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "Yoon",
+   "aurora_id": 1424651593,
+   "battle_tag": "yoon",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "BB_yoon",
+     "gateway": 30,
+     "games_last_week": 27
+    },
+    {
+     "toon": "DIC_y00n",
+     "gateway": 30
+    },
+    {
+     "toon": "Ill1lllllllllll",
+     "gateway": 30,
+     "games_last_week": 17
+    },
+    {
+     "toon": "IlllllIllIllIl1",
+     "gateway": 30
+    },
+    {
+     "toon": "IllI1lllllllIII",
+     "gateway": 45
+    },
+    {
+     "toon": "kn1ght1",
+     "gateway": 45
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "YSC",
+   "aurora_id": 18365366,
+   "battle_tag": "윤수철",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "name": "ZeLoT",
+   "aurora_id": 14634034,
+   "battle_tag": "서문지훈",
+   "country": "KOR",
+   "toons": [
+    {
+     "toon": "IIlIlllIlII",
+     "gateway": 10
+    },
+    {
+     "toon": "IlIlllIlII",
+     "gateway": 10
+    },
+    {
+     "toon": "IIlIlllIlII",
+     "gateway": 11
+    },
+    {
+     "toon": "IIlIllllIlII",
+     "gateway": 11
+    },
+    {
+     "toon": "IIlIllIlII",
+     "gateway": 20
+    },
+    {
+     "toon": "IIlIlllII",
+     "gateway": 20,
+     "games_last_week": 4
+    },
+    {
+     "toon": "IIlIllllIlIIIl",
+     "gateway": 20
+    },
+    {
+     "toon": "23423esfsdfss34",
+     "gateway": 30
+    },
+    {
+     "toon": "973gaegosu",
+     "gateway": 30
+    },
+    {
+     "toon": "ErOs_ZeLoT",
+     "gateway": 30
+    },
+    {
+     "toon": "IIlIlIllIlIll",
+     "gateway": 45,
+     "games_last_week": 3
+    }
+   ],
+   "source": "bnet-webapi",
+   "last_verified": "2026-09-06"
+  },
+  {
+   "name": "zhanhun",
+   "aurora_id": 702508213,
+   "battle_tag": "战魂",
+   "toons": [],
+   "source": "cwal-default-list@2026-08-08",
+   "last_verified": "2026-08-08"
+  },
+  {
+   "aurora_id": 24020369,
+   "battle_tag": "llllllllllll",
+   "toons": [],
+   "source": "unattributed by corpus/pro_exclusions.json: carries no toon and fingerprints as Paralyze (similarity 0.951); enrolling it makes Blade a duplicate of Paralyze",
+   "last_verified": "2026-09-06"
+  }
+ ]
+}

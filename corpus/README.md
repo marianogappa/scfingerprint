@@ -19,6 +19,12 @@ corpus.
 | `replays/**/*.rep` | The actual replay files | **GitHub release asset** |
 | `scripts/filter_corpus.py` | Script that selected the ladder subset from the full harvest | git |
 
+The first three of those are also the seed for the shipped identity map: run
+`go run ./internal/cmd/registry-refresh -seed` to join them into
+`internal/registry/registry.json` (pro name ↔ aurora id ↔ battle tag ↔ toons).
+That join is offline and deterministic, so the map always has a reproducible
+floor; refreshing it against a live client is a separate, manual step.
+
 ## Fetching replays
 
 A clone contains **no replay data** — not even pointer files. Download it with:

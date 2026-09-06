@@ -46,6 +46,7 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 
 	synthetic := db.scorer.IsSynthetic()
 	catalogSize := db.Len()
+	opinion := registryOpinion(games, o.registry)
 
 	var results []MatchResult
 	for i, fp := range db.fps {
@@ -59,6 +60,7 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 		}
 		results = append(results, MatchResult{
 			Label:            fp.Meta.Label,
+			Registry:         opinion.forLabel(fp.Meta.Label),
 			Liquipedia:       db.links[i],
 			Z:                sc.Z,
 			Cosine:           sc.Cosine,
