@@ -10,10 +10,15 @@
 //   - [Same]: pairwise "are these the same human?" without any dataset.
 //   - [Enroll]: build a [Fingerprint] from observed games.
 //   - [BuiltinDataset]: the shipped catalog of known player fingerprints.
+//   - [BuiltinRegistry]: the shipped identity map, for name lookups.
 //
 // Results always carry a calibrated z-score, evidence count, and operating
 // points cleared — never bare booleans. Community trust depends on honest
 // confidence reporting.
+//
+// The one exception is [Registry], which is a name lookup rather than a
+// measurement: it has no calibration and no error rate, never enters a score,
+// and must never be quoted as confirming one.
 //
 // This package is the entire supported API. Everything under internal/ is
 // implementation and may change without notice.
@@ -44,6 +49,12 @@ type PlayerGame struct {
 	// Race of this player in this game, for race-aware sub-fingerprint
 	// matching. Optional; when empty, the global mean is used.
 	Race string
+
+	// Toon is the account name this game was played on. Optional, and only
+	// read when a [Registry] is supplied via [WithRegistry]; when empty and
+	// Replay is set, the name in the replay slot is used. It exists so a
+	// caller passing cached Vectors can still get a registry opinion.
+	Toon string
 }
 
 // PlayerVector is one player's extracted feature vector plus the identity and
@@ -68,6 +79,13 @@ type MatchResult struct {
 	SearchFPR        float64         `json:"search_fpr"`           // family-wise FPR across the whole catalog (see below)
 	CatalogSize      int             `json:"catalog_size"`         // N used for the search-level correction
 	ModelIsSynthetic bool            `json:"model_is_synthetic"`   // true when the backing model was trained on synthetic data
+
+	// Registry is what the built-in identity map says about the observed
+	// player, present only when [WithRegistry] was passed. It is a name
+	// lookup, not evidence: it never influences Z, Cosine or SearchFPR, and
+	// a Registry that disagrees with the top candidate is a finding to
+	// surface rather than a score to adjust. See [RegistryOpinion].
+	Registry *RegistryOpinion `json:"registry,omitempty"`
 }
 
 // Verdict is the result of a pairwise Same comparison.
@@ -84,7 +102,8 @@ type Verdict struct {
 type Option func(*options)
 
 type options struct {
-	minZ float64 // results below this calibrated z are suppressed
+	minZ     float64   // results below this calibrated z are suppressed
+	registry *Registry // when set, results carry a registry opinion
 }
 
 func defaultOptions() options {
@@ -95,6 +114,18 @@ func defaultOptions() options {
 // The default (2.0) suppresses noise; set to math.Inf(-1) to see everything.
 func WithMinZ(z float64) Option {
 	return func(o *options) { o.minZ = z }
+}
+
+// WithRegistry attaches the identity map's opinion to every [MatchResult], as
+// [MatchResult.Registry]. Opt-in, because it is a second and much weaker kind
+// of answer and the default result should carry only the fingerprint's.
+//
+// The opinion is derived from the account name the games were played on
+// ([PlayerGame.Toon], or the replay slot name), looked up in the registry. It
+// changes nothing about the scoring: pass it or not, Z, Cosine, SearchFPR and
+// the result ordering are identical.
+func WithRegistry(r *Registry) Option {
+	return func(o *options) { o.registry = r }
 }
 
 // Extract turns a parsed replay into one feature vector per human player.

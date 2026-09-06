@@ -9,6 +9,7 @@
 //	scfingerprint same --a dirA/ --b dirB/              # are these two players the same human?
 //	scfingerprint enroll --label "C9_FlaSh" --dir reps/ # build a fingerprint file
 //	scfingerprint extract <replay.rep>                  # dump feature vectors (JSON) for debugging
+//	scfingerprint whois Queennnnnn                      # who owns this account name? no replay needed
 //	scfingerprint dataset list                          # who is in the built-in catalog?
 //	scfingerprint dataset show FlaSh                    # one catalog entry in detail
 //	scfingerprint dataset fingerprint FlaSh             # export a catalog fingerprint blob
@@ -52,6 +53,8 @@ func run(args []string) int {
 		return cmdEnroll(args[1:])
 	case "extract":
 		return cmdExtract(args[1:])
+	case "whois":
+		return cmdWhois(args[1:])
 	case "dataset":
 		if len(args) < 2 {
 			fmt.Fprintln(os.Stderr, "error: missing dataset subcommand (want: list, show, fingerprint or verify)")
@@ -88,6 +91,7 @@ Usage:
   scfingerprint same --a <dir|.rep> --b <dir|.rep> [--name-a NAME] [--name-b NAME]
   scfingerprint enroll --label LABEL (--dir replays/ | <replay.rep>...) [--name NAME] [-o out.json]
   scfingerprint extract <replay.rep>
+  scfingerprint whois <toon | player | aurora-id>
   scfingerprint dataset list [--min-confidence candidate]
   scfingerprint dataset show <player>
   scfingerprint dataset fingerprint <player>

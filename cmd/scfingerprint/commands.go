@@ -77,6 +77,7 @@ func cmdMatch(args []string) int {
 	minZ := fs.Float64("min-z", 2.0, "minimum calibrated z-score to report")
 	minConfidence := fs.String("min-confidence", dataset.ConfidenceHigh, "minimum dataset confidence tier (confirmed/high/candidate)")
 	strict := fs.Bool("strict", false, "exit with error if the model is synthetic")
+	noRegistry := fs.Bool("no-registry", false, "do not cross-check account names against the built-in identity map")
 	var out outputOpts
 	addOutputFlags(fs, &out, true)
 	positional, err := parseAll(fs, args)
@@ -96,6 +97,18 @@ func cmdMatch(args []string) int {
 	}
 	if code := warnIfSynthetic(lib.ModelIsSynthetic(), *strict, verb); code >= 0 {
 		return code
+	}
+
+	// The identity map is a second, independent opinion on who each account
+	// name belongs to. It is reported next to the verdict and never folded
+	// into it, so the fingerprint's call is identical either way.
+	var matchOpts []scfingerprint.Option
+	if !*noRegistry {
+		reg, err := scfingerprint.BuiltinRegistry()
+		if err != nil {
+			return fail(err)
+		}
+		matchOpts = append(matchOpts, scfingerprint.WithRegistry(reg))
 	}
 	if lib.Len() == 0 {
 		return fail(fmt.Errorf("built-in dataset is empty at confidence tier %q", *minConfidence))
@@ -121,10 +134,10 @@ func cmdMatch(args []string) int {
 		games := make([]scfingerprint.PlayerGame, len(sel))
 		files := make([]string, len(sel))
 		for i, o := range sel {
-			games[i] = scfingerprint.PlayerGame{Vector: o.pf.Vector, Race: o.pf.Race}
+			games[i] = scfingerprint.PlayerGame{Vector: o.pf.Vector, Race: o.pf.Race, Toon: o.pf.Name}
 			files[i] = o.file
 		}
-		results, err := scfingerprint.MatchMany(games, lib, scfingerprint.WithMinZ(*minZ))
+		results, err := scfingerprint.MatchMany(games, lib, append(matchOpts, scfingerprint.WithMinZ(*minZ))...)
 		if err != nil {
 			return fail(err)
 		}
@@ -139,8 +152,8 @@ func cmdMatch(args []string) int {
 		// Every player of one replay, one game each.
 		for _, o := range obs {
 			results, err := scfingerprint.MatchMany(
-				[]scfingerprint.PlayerGame{{Vector: o.pf.Vector, Race: o.pf.Race}},
-				lib, scfingerprint.WithMinZ(*minZ))
+				[]scfingerprint.PlayerGame{{Vector: o.pf.Vector, Race: o.pf.Race, Toon: o.pf.Name}},
+				lib, append(matchOpts, scfingerprint.WithMinZ(*minZ))...)
 			if err != nil {
 				return fail(err)
 			}
@@ -255,7 +268,7 @@ func cmdSame(args []string) int {
 		}
 		games := make([]scfingerprint.PlayerGame, len(sel))
 		for i, o := range sel {
-			games[i] = scfingerprint.PlayerGame{Vector: o.pf.Vector, Race: o.pf.Race}
+			games[i] = scfingerprint.PlayerGame{Vector: o.pf.Vector, Race: o.pf.Race, Toon: o.pf.Name}
 		}
 		return games, nil
 	}
@@ -400,6 +413,7 @@ func cmdExtract(args []string) int {
 func cmdDatasetVerify(args []string) int {
 	fs := flag.NewFlagSet("dataset verify", flag.ContinueOnError)
 	asJSON := fs.Bool("json", false, "emit JSON on stdout even when it is a terminal")
+	replayMeta := fs.String("replay-metadata", "", "corpus/replays.jsonl, to also check which Battle.net account each enrolment's replays came from")
 	if err := fs.Parse(args); err != nil {
 		return exitError
 	}
@@ -415,6 +429,14 @@ func cmdDatasetVerify(args []string) int {
 	if err != nil {
 		return fail(err)
 	}
+
+	// Account-level gates, which the behavioural ones cannot see: one
+	// account enrolled twice looks perfectly self-consistent, because it is.
+	accountEvidence, err := collectAccountEvidence(db.Identities(), *replayMeta)
+	if err != nil {
+		return fail(err)
+	}
+	findings = append(findings, hygiene.VerifyAccounts(accountEvidence)...)
 
 	blocking := 0
 	for _, f := range findings {

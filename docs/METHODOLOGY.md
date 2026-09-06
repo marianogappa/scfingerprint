@@ -156,6 +156,16 @@ From the research spike (~2,900 1v1 ladder replays across 23 identities, plus
 - **The catalog is the weakest link.** Most false positives in practice come
   from contaminated enrollments (two people merged under one identity), not
   from the matcher. Hygiene gates reduce this; they do not make it zero.
+- **The identity map is not measured, and is not evidence.** The shipped
+  registry of pro name ↔ aurora id ↔ battle tag ↔ toons
+  (`scfingerprint whois`, `WithRegistry`) is a name lookup. It has no
+  calibration, no operating points and no error rate, because accounts get
+  shared, sold, lent to a friend and renamed, and a shipped snapshot is stale
+  the day after it ships. It never enters a score and must never be quoted as
+  confirming one. Where it disagrees with a fingerprint, report the
+  disagreement rather than picking a side: it points at a shared or sold
+  account, or a stale entry, and either way the honest answer is that two
+  independent opinions differ.
 
 ## Ethics and public claims
 
@@ -172,6 +182,9 @@ claim about a person, remember:
   - ✅ "Fingerprint analysis of N games matches X at the 1-in-1,000 operating
     point; treating as the same player pending confirmation."
   - ❌ "The tool proved X is Y."
+  - ❌ "The account is registered to X, so it is X." The identity map is a
+    name lookup with no error rate; it corroborates a fingerprint at best and
+    substitutes for one never.
 - Accusations of ghosting/smurfing affect real people's reputations. Use
   multi-game evidence, check the alias against co-occurrence, prefer 1:1
   verification framing, and give the accused the numbers you'd want shown if

@@ -210,7 +210,11 @@ func multiRace(fp *fingerprint.Fingerprint) bool {
 
 // Finding is one catalog-hygiene violation.
 type Finding struct {
-	Kind    string   // "self_consistency", "self_consistency_race_mixed", "self_consistency_unavailable", "duplicate"
+	// Kind is the gate that produced it: behavioural ("self_consistency",
+	// "self_consistency_race_mixed", "self_consistency_unavailable",
+	// "duplicate") or account-level ("account_shared", "enrollment_shared",
+	// "enrollment_outliers", "enrollment_ambiguous").
+	Kind    string
 	Labels  []string // the enrollment(s) involved
 	Score   float64  // the offending similarity/consistency value, when applicable
 	Message string
@@ -221,7 +225,15 @@ type Finding struct {
 // block: the fingerprint format cannot settle it either way, so treating it
 // as contamination would reject every multi-race pro in the catalog.
 func (f Finding) Blocking() bool {
-	return f.Kind != "self_consistency_race_mixed"
+	switch f.Kind {
+	// Informational: each of these has a legitimate reading as well as a
+	// broken one, so it is reported for a human rather than failing the run.
+	// A player using an alt for a couple of games is not a curation bug, and
+	// neither is a pair who only ever played each other.
+	case "self_consistency_race_mixed", "enrollment_outliers", "enrollment_ambiguous":
+		return false
+	}
+	return true
 }
 
 // VerifyCatalog runs every per-catalog gate — the self-consistency gate on

@@ -388,6 +388,79 @@ with more coverage.
 </details>
 
 <details>
+<summary><b>Who owns this account name? (no replay needed)</b></summary>
+
+Sometimes you have a name and no game. `whois` answers from the built-in
+identity map — pro name, Battle.net account, battle tag, and every alt that
+account owns on every gateway:
+
+```bash
+scfingerprint whois Queennnnnn
+```
+
+```
+✓ Queen (matched by toon)
+
+  aurora 18242965  battle tag 김명운  (KOR)
+    lllllIlIIIlIl    U.S. West
+    wooni222         U.S. West
+    IIllIIIIIIIl     U.S. East
+    lllIIllIIIIllII  U.S. East
+    lllIIllIIllIII   U.S. East  18 games last week
+    wooni22222222    Europe
+    Queennnnnn       Korea
+    Queennnnnnnnn    Asia
+    fingerprint: in the catalog as queen (confirmed, 60 games) — `scfingerprint match` can confirm this
+    liquipedia: https://liquipedia.net/starcraft/ZerO
+    source: bnet-webapi, last verified 2026-09-06
+
+  This is a name lookup, not a fingerprint. Accounts get shared, sold, lent
+  to a friend and renamed, so it is a second opinion and never evidence.
+  Confirm from a replay: scfingerprint match <replay.rep>.
+```
+
+The name you looked up is on Korea; the account they are actually playing is on
+US East.
+
+It takes whichever kind of string you happen to have: an account name, a
+progamer name (pros hold several accounts, and you get all of them), or an
+aurora id.
+
+Two things this is good for beyond curiosity. It tells you **which alt is
+actually live**, which is the difference between a thin and a full set of
+replays for a player — someone can look inactive on their main handle and have
+a hundred games on another. And it labels a lobby full of barcodes instantly,
+with no parsing at all.
+
+`scfingerprint match` also reports what the map says, next to its own verdict:
+
+```
+✓ LEAD: f518df851df18df looks like Shinee, pending more games
+
+  Why: Shinee scored 4.57, which is 2.17 clear of the next candidate (Byul, 2.40).
+       A stranger reaches this score about 1 in 13 times against a 82-player catalog.
+       Only 1 game of evidence keeps this a lead rather than strong; get 3+ games.
+
+  Identity map: agrees. f518df851df18df is Shinee's account (last verified 2026-09-06).
+  A name lookup, not evidence: it never affects the score above.
+```
+
+Two independent opinions agreeing costs you nothing extra. When they *disagree*
+it says so loudly, because that is the interesting case — a shared or sold
+account, or an entry that has gone stale — and it is a thing to go and look at
+rather than something for the tool to quietly reconcile. Pass `--no-registry`
+to turn the line off; with it or without it the score is identical.
+
+**It is not evidence, and it is not meant to be.** It is a name lookup, and
+names are the exact thing this tool exists to see past: accounts get shared,
+sold, lent to a friend and renamed, and any shipped snapshot is stale the day
+after it ships. Every entry carries where it came from and when it was last
+checked so you can judge it. To actually identify someone, point
+`scfingerprint match` at a replay.
+
+</details>
+
+<details>
 <summary><b>Browse the built-in catalog</b></summary>
 
 Who does it already know, and on how much evidence?
@@ -453,7 +526,25 @@ catalog is clean
 
 This re-runs the safety checks over every shipped entry: is each one internally
 consistent, and does any pair look suspiciously like the same person (which
-would mean a curation mistake). Exit code 1 if it finds anything.
+would mean a curation mistake). It also checks the identity map for two entries
+that are really one Battle.net account. Exit code 1 if it finds anything.
+
+In a checkout you can also check which account each entry's training replays
+actually came from, which the behavioural checks cannot see — one account
+enrolled twice looks perfectly consistent, because it is:
+
+```bash
+scfingerprint dataset verify --replay-metadata corpus/replays.jsonl
+```
+
+```
+verified 70 identities
+FINDING [enrollment_outliers] [ssak]: account 18372656 is behind 52 of 54 enrolment
+replays; the other 2 came from a different account — an alt, or someone else's games
+```
+
+Which of those two it is needs a human; the point is that nothing surfaced it
+before.
 
 </details>
 
@@ -494,6 +585,13 @@ length) and `cmd_count` (how many actions they issued).
 ladder and non-ladder replays. Run `scfingerprint dataset list` to see them all. Each entry
 records how confident the curation is, so you can ask for only the solid ones
 (see `--min-confidence` above).
+
+Alongside those fingerprints it ships an **identity map**: 129 pro names, 154
+Battle.net accounts and 626 account names across all five gateways, with 77 of
+those accounts active on more than one gateway. It is a name lookup and nothing
+more — see `scfingerprint whois` above — but it covers far more players than
+have fingerprints, which is what makes it useful for deciding whose replays to
+go and get next.
 
 ---
 
@@ -546,6 +644,37 @@ Before trusting that two accounts are one person, check
 `scf.NewCoOccurrence(manifest).Disproved(a, b)` (did they ever play each other?
 then they are not the same person).
 
+The identity map is a separate API, because it is a separate and much weaker
+kind of answer:
+
+```go
+reg, err := scf.BuiltinRegistry()
+
+// Zero-replay lookup: who owns this account name, and what else do they own?
+acc, ok := reg.LookupToon("Queennnnnn")
+accs := reg.LookupName("Queen")        // pros hold several accounts
+acc, ok = reg.LookupAurora(18242965)
+live, _ := acc.PrimaryToon()           // the alt they are actually playing on
+```
+
+You can also opt a match into carrying the map's opinion alongside the
+fingerprint's:
+
+```go
+results, err := scf.MatchMany(games, db, scf.WithRegistry(reg))
+if op := results[0].Registry; op != nil && !op.Agrees {
+    // The account name says one player, the way it was played says another.
+}
+```
+
+`WithRegistry` is opt-in and changes nothing about the scoring: with it or
+without it, `Z`, `Cosine`, `SearchFPR` and the result ordering are identical.
+The opinion is derived from the account name (`PlayerGame.Toon`, or the replay
+slot name) and reported in its own field. **Never merge it into a score.** A
+registry hit is a name lookup; when it disagrees with the fingerprint, that
+disagreement is the finding — a shared or sold account, or a stale entry — not
+something to reconcile away.
+
 Full reference: [pkg.go.dev](https://pkg.go.dev/github.com/marianogappa/scfingerprint).
 
 </details>
@@ -560,6 +689,8 @@ Full reference: [pkg.go.dev](https://pkg.go.dev/github.com/marianogappa/scfinger
 | `internal/` | implementation: features, scoring, training, evaluation, hygiene, catalog |
 | `internal/cmd/` | tooling that rebuilds the committed artifacts; not part of the public surface |
 | `internal/dataset/players/` | the built-in catalog: one JSON file per known player |
+| `internal/registry/registry.json` | the built-in identity map: name ↔ aurora id ↔ battle tag ↔ toons |
+| `internal/bnet/` | client for a running SC:R client's local web-api; used only by the refresh tool |
 | `corpus/` | the labelled replay corpus every published number traces back to (fetched from release assets) |
 | `docs/METHODOLOGY.md` | how it works, and what it cannot claim |
 
@@ -577,6 +708,7 @@ rebuilds a committed artifact or guards one:
 | `seed-dataset` | CSV → `internal/dataset/players/` |
 | `eval` | metrics against regression gates; one gate runs in CI |
 | `corpus-audit` | label hygiene, before a corpus is trusted for training or enrollment |
+| `registry-refresh` | rebuilds `internal/registry/registry.json` (see below) |
 
 Full rebuild from the committed corpus:
 
@@ -592,10 +724,67 @@ go run ./internal/cmd/seed-dataset -csv /tmp/features.csv -max-games 60
 The last step rewrites `internal/dataset/players/` and should reproduce what is
 committed byte for byte.
 
+### Refreshing the identity map
+
+Pros make new accounts constantly, so the map needs re-running rather than
+curating once. `registry-refresh` has three modes:
+
+```bash
+# Rebuild from the corpus. Offline and deterministic, so the shipped map always
+# has a reproducible floor.
+go run ./internal/cmd/registry-refresh -seed
+
+# Re-verify every account against a live client, picking up new alts.
+go run ./internal/cmd/registry-refresh -refresh -v
+
+# Find accounts the map does not know about at all.
+go run ./internal/cmd/registry-refresh -discover -unknowns /tmp/unknowns.json
+```
+
+`-refresh` and `-discover` drive the local web-api that a running SC:R client
+exposes on loopback, so they need the game **running and logged in to
+Battle.net** on the same machine. The port changes every launch and is
+discovered rather than configured. Neither mode is ever on the matching path.
+
+The interesting one is `-discover`, and it exists because of a hard limit: the
+profile route only expands alts *within* accounts you already know, and there
+is no by-aurora-id route, so an account you have never seen is unreachable.
+Private practice games are the way in — pros spar pros, so the unknown rival in
+a 1v1 practice lobby is very likely another pro:
+
+```
+anchor on a known account
+  → its non-ladder 1v1 games          (link is a bare number, not "MM-…")
+  → the rival account name we do not know
+  → download that game's .rep and fingerprint it against the catalog
+  → confident match: one profile call onboards the whole new account,
+                     with every alt it owns, on every gateway
+  → no match:        queued in -unknowns for manual naming
+```
+
+The fingerprint is what does the naming, which is the right way round: the map
+is built by identification, not trusted as a substitute for it. A single
+practice game can only ever be a lead, so the gate is the same trade the CLI
+makes when it upgrades a lead — a lead-grade family-wise rate plus a decisive
+margin over the runner-up (`-max-fpr`, `-min-margin`) — and every write records
+the anchor and game behind it so it can be audited or reverted.
+
+A run over 25 anchors found 30 unknown rivals in private 1v1s, named one, and
+queued the other 29 with their aurora id and best guess. The one it named is
+the interesting case: `f518df851df18df` had been **renamed since the game**, so
+no profile lookup could reach it — but each player uploads their own copy of a
+game, and the upload's URL carries the uploader's account id, which recovered
+aurora 15183299. The fingerprint said Shinee from that single game — z=4.57,
+2.17 clear of the runner-up — and 15183299 is Shinee's account in
+`corpus/identities.jsonl`. Neither half knew what the other was doing.
+
+A low naming rate is the expected outcome and not a defect: most people a pro
+practises against are not in the catalog at all, and the queue — not the
+registry — is where they belong until a human looks.
+
 Research harnesses that produced published one-off findings (cross-era probing,
-open-set alias discovery, catalog accuracy measurement, registry refresh) are
-not kept here. They live with the write-ups they produced, outside this
-repository.
+open-set alias discovery, catalog accuracy measurement) are not kept here. They
+live with the write-ups they produced, outside this repository.
 
 </details>
 

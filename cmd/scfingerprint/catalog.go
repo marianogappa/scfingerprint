@@ -1,16 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"sort"
 	"strings"
 	"text/tabwriter"
 
+	"github.com/marianogappa/scfingerprint"
 	"github.com/marianogappa/scfingerprint/internal/dataset"
 	"github.com/marianogappa/scfingerprint/internal/fingerprint"
+	"github.com/marianogappa/scfingerprint/internal/hygiene"
 )
 
 // catalogEntry is the machine shape of one built-in catalog player: identity
@@ -260,4 +264,110 @@ func cmdDatasetFingerprint(args []string) int {
 
 func printBlob(w io.Writer, blob string) {
 	_, _ = fmt.Fprintln(w, blob)
+}
+
+// replayAurora is the part of one corpus/replays.jsonl line that says which
+// Battle.net account a replay belonged to.
+type replayAurora struct {
+	MatchID     string `json:"matchId"`
+	File        string `json:"file"`
+	AuroraID    int64  `json:"auroraId"`
+	OppAuroraID int64  `json:"oppAuroraId"`
+}
+
+// accounts returns both players' accounts. The metadata does not say which
+// side a given catalog entry played, so a single replay only narrows the
+// entry's account to one of two — see collectAccountEvidence.
+func (r replayAurora) accounts() []int64 {
+	return []int64{r.AuroraID, r.OppAuroraID}
+}
+
+// collectAccountEvidence assembles the account-level view of the catalog: the
+// Battle.net accounts the built-in identity map attributes to each entry's
+// name, and — when replay metadata is supplied — the accounts each entry's
+// enrolment replays actually came from.
+//
+// The map half always runs, because the map is embedded. The replay half needs
+// corpus/replays.jsonl, which only a checkout has, so it is opt-in via a path
+// rather than assumed: an installed binary has no corpus.
+func collectAccountEvidence(ids []dataset.Identity, replayMetadataPath string) ([]hygiene.IdentityAccounts, error) {
+	reg, err := scfingerprint.BuiltinRegistry()
+	if err != nil {
+		return nil, err
+	}
+	byMatchID, err := loadReplayAuroras(replayMetadataPath)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]hygiene.IdentityAccounts, 0, len(ids))
+	for _, id := range ids {
+		e := hygiene.IdentityAccounts{Label: id.ID}
+		for _, acc := range reg.LookupName(id.ID) {
+			e.ByName = append(e.ByName, acc.AuroraID)
+		}
+		for _, a := range id.Aliases {
+			for _, acc := range reg.LookupName(a.Name) {
+				e.ByName = append(e.ByName, acc.AuroraID)
+			}
+			if acc, ok := reg.LookupToon(a.Name); ok {
+				e.ByName = append(e.ByName, acc.AuroraID)
+			}
+		}
+		// Every replay names both players and does not say which side this
+		// entry was, so the account is whichever one keeps recurring while
+		// the opponents change.
+		perReplay := make([][]int64, 0, len(id.ReplayManifest))
+		for _, rel := range id.ReplayManifest {
+			if accounts, ok := lookupReplayAccounts(byMatchID, rel); ok {
+				perReplay = append(perReplay, accounts)
+			}
+		}
+		e.ByReplays, e.ReplayCount, e.ReplaysOnAccount = hygiene.DominantAccount(perReplay)
+		out = append(out, e)
+	}
+	return out, nil
+}
+
+// loadReplayAuroras indexes replay metadata by both its file path and its
+// match ID, because manifests reference replays either way and some live in
+// subdirectories where the basename alone is not the match ID.
+//
+// An empty path means the caller has no corpus, which is not an error — the
+// account-by-name gates still run.
+func loadReplayAuroras(path string) (map[string][]int64, error) {
+	if path == "" {
+		return nil, nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading replay metadata: %w", err)
+	}
+	out := map[string][]int64{}
+	for i, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		var r replayAurora
+		if err := json.Unmarshal([]byte(line), &r); err != nil {
+			return nil, fmt.Errorf("parsing %s line %d: %w", path, i+1, err)
+		}
+		if r.MatchID != "" {
+			out[r.MatchID] = r.accounts()
+		}
+		if r.File != "" {
+			out[r.File] = r.accounts()
+		}
+	}
+	return out, nil
+}
+
+// lookupReplayAccounts resolves one manifest entry to both of its players'
+// accounts, trying the path as written and then the bare match ID.
+func lookupReplayAccounts(index map[string][]int64, manifestPath string) ([]int64, bool) {
+	if accounts, ok := index[manifestPath]; ok {
+		return accounts, true
+	}
+	accounts, ok := index[strings.TrimSuffix(path.Base(manifestPath), ".rep")]
+	return accounts, ok
 }

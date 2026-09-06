@@ -234,6 +234,7 @@ func renderMatchReport(w io.Writer, pal palette, verb int, bar string, r playerR
 			pal.bold, pal.tier(r.Verdict), r.Verdict, pal.reset, gamesPhrase(r.Matches[0].EvidenceN))
 	}
 	writeBlock(w, pal, "Why:", matchWhyLines(r))
+	renderRegistryLine(w, pal, verb, r)
 	if pass && r.Matches[0].Liquipedia != "" {
 		_, _ = fmt.Fprintf(w, "\n  Liquipedia: %s%s%s\n", pal.cyan, r.Matches[0].Liquipedia, pal.reset)
 	}
@@ -261,6 +262,41 @@ func renderMatchReport(w io.Writer, pal palette, verb int, bar string, r playerR
 		}
 	}
 	_, _ = fmt.Fprintln(w)
+}
+
+// renderRegistryLine reports what the identity map says about this account
+// name, next to the fingerprint's verdict and never mixed into it.
+//
+// Agreement is worth one quiet line. Disagreement is the finding: the account
+// name says one player and the way the game was played says another, which
+// points at a shared or sold account or a stale registry entry. Silence when
+// the account is simply not in the map — most accounts are not.
+func renderRegistryLine(w io.Writer, pal palette, verb int, r playerReport) {
+	if len(r.Matches) == 0 {
+		return
+	}
+	op := r.Matches[0].Registry
+	if op == nil {
+		if verb >= 1 {
+			_, _ = fmt.Fprintf(w, "\n  %sIdentity map: no entry for the account name %q.%s\n", pal.dim, r.Player, pal.reset)
+		}
+		return
+	}
+
+	stale := fmt.Sprintf("%s, last verified %s", op.Source, op.LastVerified)
+	switch {
+	case op.Agrees:
+		_, _ = fmt.Fprintf(w, "\n  %sIdentity map: agrees.%s %s is %s's account (%s).\n",
+			pal.green, pal.reset, op.Toon, pal.name(op.Name), stale)
+	default:
+		_, _ = fmt.Fprintf(w, "\n  %s%sIdentity map: DISAGREES.%s %s is registered to %s, not %s (%s).\n",
+			pal.bold, pal.yellow, pal.reset, op.Toon, pal.name(op.Name), pal.name(r.Matches[0].Label), stale)
+		_, _ = fmt.Fprintf(w, "  %sA shared or sold account, or a stale entry — worth a look either way.%s\n", pal.dim, pal.reset)
+	}
+	if op.Ambiguous {
+		_, _ = fmt.Fprintf(w, "  %sThese games span more than one registered account; only one is shown.%s\n", pal.dim, pal.reset)
+	}
+	_, _ = fmt.Fprintf(w, "  %sA name lookup, not evidence: it never affects the score above.%s\n", pal.dim, pal.reset)
 }
 
 // matchWhyLines justifies the call so the opinion is auditable rather than
