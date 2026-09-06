@@ -1,0 +1,6 @@
+{
+ "_comment": "Aurora IDs mapped to a pro by CWAL that must not be enrolled under that name, with the evidence. Applied by internal/cmd/seed-dataset.",
+ "Blade": {
+  "24020369": "carries no toon and fingerprints as Paralyze (similarity 0.951); enrolling it makes Blade a duplicate of Paralyze"
+ }
+}

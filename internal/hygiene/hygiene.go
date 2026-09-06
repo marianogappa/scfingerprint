@@ -12,6 +12,7 @@ import (
 
 	"github.com/marianogappa/scfingerprint/internal/fingerprint"
 	"github.com/marianogappa/scfingerprint/internal/scoring"
+	"github.com/marianogappa/scfingerprint/internal/training"
 )
 
 // Thresholds are the gate operating points, in whitened-cosine space where
@@ -51,6 +52,42 @@ func SelfConsistencyGate(fp *fingerprint.Fingerprint, s *scoring.Scorer, th Thre
 		return score, fmt.Errorf("hygiene: self-consistency %.3f below floor %.3f — likely a multi-person enrollment", score, th.MinSelfConsistency)
 	}
 	return score, nil
+}
+
+// SelfConsistencyGateRaceAware enforces the self-consistency floor on one
+// enrollment, correcting for race mixing, and returns the full audit either
+// way. Prefer it over SelfConsistencyGate wherever the enrollment's games are
+// still to hand: a pro who splits a season between two races has two style
+// clusters, so the mixed measure reads them as two humans and rejects a clean
+// enrollment. The race-aware measure separates "several humans behind one
+// name", which it still rejects, from "one human who plays several races",
+// which the fingerprint format already stores as per-race sub-means.
+//
+// The correction applies only when at least two race strata are big enough to
+// score. With one stratum the race-aware mean is not a correction — it is the
+// mixed measure over a subset of the games, so it just weakens the evidence.
+func SelfConsistencyGateRaceAware(ss []training.Sample, s *scoring.Scorer, th Thresholds) (LabelAudit, error) {
+	a, err := AuditSamples(ss, s)
+	if err != nil {
+		return a, fmt.Errorf("hygiene: self-consistency unavailable: %w", err)
+	}
+	score, measure := a.Mixed, "self-consistency"
+	if len(a.Strata) >= 2 {
+		score, measure = a.RaceAware, "race-aware self-consistency"
+	}
+	if score < th.MinSelfConsistency {
+		return a, fmt.Errorf("hygiene: %s %.3f below floor %.3f — likely a multi-person enrollment", measure, score, th.MinSelfConsistency)
+	}
+	return a, nil
+}
+
+// GatedSelfConsistency reports the measure SelfConsistencyGateRaceAware
+// judged this audit on, so callers record the number the gate actually used.
+func (a LabelAudit) GatedSelfConsistency() float64 {
+	if len(a.Strata) >= 2 {
+		return a.RaceAware
+	}
+	return a.Mixed
 }
 
 // MergeVerdict is the outcome of validating a proposed identity merge.
@@ -151,12 +188,40 @@ func ScanDuplicates(fps []*fingerprint.Fingerprint, s *scoring.Scorer, th Thresh
 	return dups, nil
 }
 
+// scoredRaces lists the races an enrollment has enough games in for a
+// per-race consistency measure to mean anything.
+func scoredRaces(fp *fingerprint.Fingerprint) []string {
+	var out []string
+	for race, n := range fp.RaceCounts() {
+		if n >= MinStratumGames {
+			out = append(out, race)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+// multiRace reports whether an enrollment splits across races enough that its
+// mixed self-consistency is depressed by race switching rather than by
+// contamination.
+func multiRace(fp *fingerprint.Fingerprint) bool {
+	return len(scoredRaces(fp)) >= 2
+}
+
 // Finding is one catalog-hygiene violation.
 type Finding struct {
-	Kind    string   // "self_consistency", "self_consistency_unavailable", "duplicate"
+	Kind    string   // "self_consistency", "self_consistency_race_mixed", "self_consistency_unavailable", "duplicate"
 	Labels  []string // the enrollment(s) involved
 	Score   float64  // the offending similarity/consistency value, when applicable
 	Message string
+}
+
+// Blocking reports whether a finding should fail a catalog check. A
+// race-mixed self-consistency shortfall is reported for review but does not
+// block: the fingerprint format cannot settle it either way, so treating it
+// as contamination would reject every multi-race pro in the catalog.
+func (f Finding) Blocking() bool {
+	return f.Kind != "self_consistency_race_mixed"
 }
 
 // VerifyCatalog runs every per-catalog gate — the self-consistency gate on
@@ -173,6 +238,19 @@ func VerifyCatalog(fps []*fingerprint.Fingerprint, s *scoring.Scorer, th Thresho
 				Kind:    "self_consistency_unavailable",
 				Labels:  []string{fp.Meta.Label},
 				Message: err.Error(),
+			})
+		case score < th.MinSelfConsistency && multiRace(fp):
+			// A fingerprint's chronological blocks are not race-tagged, so
+			// this measure cannot be recomputed per race from the shipped
+			// format — and for a player who splits a season across races it
+			// reads low for that reason alone. Report it, but do not call it
+			// contamination: the enrollment gate already judged this identity
+			// on the race-aware measure, which needs the per-game races.
+			findings = append(findings, Finding{
+				Kind:    "self_consistency_race_mixed",
+				Labels:  []string{fp.Meta.Label},
+				Score:   score,
+				Message: fmt.Sprintf("mixed self-consistency %.3f below floor %.3f, but the enrollment spans %d races — not decidable from the fingerprint alone; re-check with corpus-audit", score, th.MinSelfConsistency, len(scoredRaces(fp))),
 			})
 		case score < th.MinSelfConsistency:
 			findings = append(findings, Finding{

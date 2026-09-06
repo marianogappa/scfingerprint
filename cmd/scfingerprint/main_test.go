@@ -188,8 +188,17 @@ func TestMatchStreamsAreSeparated(t *testing.T) {
 			t.Fatalf("report for %q is missing the file it came from", r.Player)
 		}
 	}
-	if !strings.Contains(stderr, "MATCH") {
-		t.Fatalf("stderr has no determination line:\n%s", stderr)
+	// One determination line per player report, whatever the verdict —
+	// asserting a particular verdict would couple this test to the catalog's
+	// contents, which change every time the dataset is reseeded.
+	determinations := 0
+	for _, line := range strings.Split(stderr, "\n") {
+		if strings.HasPrefix(line, "\u2713 ") || strings.HasPrefix(line, "\u2717 ") {
+			determinations++
+		}
+	}
+	if determinations != len(reports) {
+		t.Fatalf("stderr has %d determination lines, want %d (one per report):\n%s", determinations, len(reports), stderr)
 	}
 	if strings.Contains(stderr, "\x1b[") {
 		t.Fatalf("stderr has colour codes despite not being a terminal:\n%s", stderr)

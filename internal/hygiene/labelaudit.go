@@ -50,59 +50,65 @@ func AuditLabels(samples []training.Sample, s *scoring.Scorer, minGames int) ([]
 	}
 	sort.Strings(labels)
 
-	halves := func(ss []training.Sample) (float64, error) {
-		mid := len(ss) / 2
-		c1, err := centroidOf(ss[:mid], s)
+	audits := make([]LabelAudit, 0, len(labels))
+	for _, l := range labels {
+		a, err := AuditSamples(byLabel[l], s)
+		if err != nil {
+			return nil, fmt.Errorf("hygiene: auditing %q: %w", l, err)
+		}
+		a.Label = l
+		audits = append(audits, a)
+	}
+	return audits, nil
+}
+
+// AuditSamples computes one identity's self-consistency, both mixed and
+// race-aware, from its games. It is the per-label half of AuditLabels,
+// exported so an enrollment can be gated on the same measure a corpus audit
+// reports. Samples must be in chronological order. Label is left empty.
+func AuditSamples(ss []training.Sample, s *scoring.Scorer) (LabelAudit, error) {
+	halves := func(g []training.Sample) (float64, error) {
+		mid := len(g) / 2
+		c1, err := centroidOf(g[:mid], s)
 		if err != nil {
 			return 0, err
 		}
-		c2, err := centroidOf(ss[mid:], s)
+		c2, err := centroidOf(g[mid:], s)
 		if err != nil {
 			return 0, err
 		}
 		return cosine(c1, c2), nil
 	}
 
-	audits := make([]LabelAudit, 0, len(labels))
-	for _, l := range labels {
-		ss := byLabel[l]
-		mixed, err := halves(ss)
-		if err != nil {
-			return nil, fmt.Errorf("hygiene: auditing %q: %w", l, err)
-		}
-
-		byRace := map[string][]training.Sample{}
-		for _, smp := range ss {
-			byRace[smp.Race] = append(byRace[smp.Race], smp)
-		}
-		strata := map[string]float64{}
-		weightedSum, totalWeight := 0.0, 0
-		for race, g := range byRace {
-			if len(g) < MinStratumGames {
-				continue
-			}
-			sc, err := halves(g)
-			if err != nil {
-				return nil, fmt.Errorf("hygiene: auditing %q race %q: %w", l, race, err)
-			}
-			strata[race] = sc
-			weightedSum += sc * float64(len(g))
-			totalWeight += len(g)
-		}
-
-		raceAware := mixed
-		if totalWeight > 0 {
-			raceAware = weightedSum / float64(totalWeight)
-		}
-		audits = append(audits, LabelAudit{
-			Label:     l,
-			Games:     len(ss),
-			Mixed:     mixed,
-			RaceAware: raceAware,
-			Strata:    strata,
-		})
+	mixed, err := halves(ss)
+	if err != nil {
+		return LabelAudit{}, err
 	}
-	return audits, nil
+
+	byRace := map[string][]training.Sample{}
+	for _, smp := range ss {
+		byRace[smp.Race] = append(byRace[smp.Race], smp)
+	}
+	strata := map[string]float64{}
+	weightedSum, totalWeight := 0.0, 0
+	for race, g := range byRace {
+		if len(g) < MinStratumGames {
+			continue
+		}
+		sc, err := halves(g)
+		if err != nil {
+			return LabelAudit{}, fmt.Errorf("race %q: %w", race, err)
+		}
+		strata[race] = sc
+		weightedSum += sc * float64(len(g))
+		totalWeight += len(g)
+	}
+
+	raceAware := mixed
+	if totalWeight > 0 {
+		raceAware = weightedSum / float64(totalWeight)
+	}
+	return LabelAudit{Games: len(ss), Mixed: mixed, RaceAware: raceAware, Strata: strata}, nil
 }
 
 func centroidOf(ss []training.Sample, s *scoring.Scorer) ([]float64, error) {

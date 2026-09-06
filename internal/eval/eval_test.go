@@ -1,12 +1,16 @@
 package eval
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/marianogappa/scfingerprint/internal/features"
 	"github.com/marianogappa/scfingerprint/internal/synthtest"
+	"github.com/marianogappa/scfingerprint/internal/training"
 )
 
 // TestRegressionGates is the CI regression gate: the full pipeline
@@ -118,5 +122,35 @@ func TestEvaluateOptionValidation(t *testing.T) {
 	opts.EnrollFrac = 1.5
 	if _, err := Evaluate(samples, scorer, opts); err == nil {
 		t.Fatal("expected error for EnrollFrac out of range")
+	}
+}
+
+// TestCapPerPlayerKeepsMostRecent covers the enrollment cap that prices a
+// catalog-wide game cap: it must keep each player's newest games, leave
+// players already under the cap alone, and preserve input order so the
+// samples stay aligned with a parallel whitened slice.
+func TestCapPerPlayerKeepsMostRecent(t *testing.T) {
+	base := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	var samples []training.Sample
+	for i := 0; i < 5; i++ {
+		samples = append(samples, training.Sample{
+			File: fmt.Sprintf("a%d", i), Player: "a", StartTime: base.AddDate(0, 0, i),
+		})
+	}
+	for i := 0; i < 2; i++ {
+		samples = append(samples, training.Sample{
+			File: fmt.Sprintf("b%d", i), Player: "b", StartTime: base.AddDate(0, 0, i),
+		})
+	}
+
+	got := capPerPlayer(samples, 3)
+
+	var files []string
+	for _, s := range got {
+		files = append(files, s.File)
+	}
+	want := []string{"a2", "a3", "a4", "b0", "b1"}
+	if !reflect.DeepEqual(files, want) {
+		t.Fatalf("capPerPlayer = %v, want %v", files, want)
 	}
 }

@@ -120,12 +120,22 @@ From the research spike (~2,900 1v1 ladder replays across 23 identities, plus
   two-person enrollment (self-consistency 0.44 vs the genuine ~0.96) produced
   an entire corpus's false-positive tail. That is why every enrollment now
   passes a self-consistency gate and the dataset ships with hygiene tooling.
+- Self-consistency is measured **per race** when an enrollment spans two or
+  more races with enough games each. A pro who splits a season between races
+  has two style clusters, so the mixed measure reads them as two humans: Shine
+  scores 0.801 mixed but 0.969 race-aware, and enrolling on the mixed number
+  alone would have rejected a clean identity. Contamination fails both — an
+  account whose games do not cohere *within* a single race stays out.
 
 ## Honest limitations
 
-- **Enrollment needs games.** Fingerprints stabilize around ~30+ enrollment
-  games. Below that, expect noisier scores; the format tracks its own game
-  count so you can judge.
+- **Enrollment needs games, but not many.** Fingerprints stabilize around ~30+
+  enrollment games. Below that, expect noisier scores; the format tracks its
+  own game count so you can judge. Above it they stop moving: sweeping an
+  enrollment cap from 20 games to no cap at all over 230 labels leaves n=3 EER
+  flat at 0.0109 and n=1 EER within 0.0002, so the catalog caps enrollment at
+  60 games per player and spends the corpus budget on breadth instead. Rerun
+  it with `eval -max-enroll-games`.
 - **Short games underperform.** Games under ~5 minutes carry less signal;
   sub-4-minute games are measurably worse (a rush that ends at 3:30 barely
   exercises anyone's habits).
@@ -169,8 +179,8 @@ claim about a person, remember:
 
 ## Corpus
 
-The labeled replay corpus lives under [`corpus/`](../corpus/) — 9,416 replays,
-~771 MB. The replay files are **not in git**: at that size they exhaust Git
+The labeled replay corpus lives under [`corpus/`](../corpus/) — 10,684 replays,
+~880 MB. The replay files are **not in git**: at that size they exhaust Git
 LFS's free tier, so they are published as GitHub release assets under their own
 `corpus-vN` tags. A clone contains no replay data at all. To download it:
 
@@ -189,7 +199,7 @@ one the published numbers were computed on.
 
 Most of it — 7,935 replays across 231 players — is filtered from a
 ~23,951-replay harvest (CWAL.gg, 2025–2026) to players with ≥20 games, capped
-at 50 most-recent per player. The remainder is 343 non-ladder replays and 1,138
+at 50 most-recent per player. The remainder is 343 non-ladder replays and 2,406
 harvest replays backfilled so that every fingerprint in the catalog is
 re-derivable from this repository alone. See
 [corpus/README.md](../corpus/README.md) for provenance and verification

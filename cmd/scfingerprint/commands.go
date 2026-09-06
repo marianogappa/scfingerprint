@@ -416,8 +416,15 @@ func cmdDatasetVerify(args []string) int {
 		return fail(err)
 	}
 
+	blocking := 0
+	for _, f := range findings {
+		if f.Blocking() {
+			blocking++
+		}
+	}
+
 	fmt.Fprintf(os.Stderr, "verified %d identities\n", db.Len())
-	if len(findings) == 0 {
+	if blocking == 0 {
 		fmt.Fprintln(os.Stderr, "catalog is clean")
 	}
 	for _, f := range findings {
@@ -433,7 +440,7 @@ func cmdDatasetVerify(args []string) int {
 		}
 		printJSON(findings)
 	}
-	if len(findings) > 0 {
+	if blocking > 0 {
 		return exitNoMatch
 	}
 	return exitOK

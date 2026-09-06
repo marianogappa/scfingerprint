@@ -230,7 +230,7 @@ Exit code is 0 for a confident match (`--min-verdict` picks the bar, as with
 <details>
 <summary><b>Teach it a new player</b></summary>
 
-The built-in list has 70 players. To add your own, build a fingerprint file from
+The built-in list has 82 players. To add your own, build a fingerprint file from
 their replays.
 
 ```bash
@@ -397,12 +397,14 @@ scfingerprint dataset list
 ```
 
 ```
-70 players in the built-in catalog: 27 confirmed, 41 high, 2 candidate
+82 players in the built-in catalog: 71 confirmed, 11 high, 0 candidate
 
-  PLAYER   RACES        CONFIDENCE  GAMES  REPLAYS  LIQUIPEDIA
-  AAAA     Terran (44)  confirmed   44     44
-  Alen     Zerg (33)    high        33     33       https://liquipedia.net/starcraft/Alen
-  Ample    Terran (22)  high        22     22       https://liquipedia.net/starcraft/Ample
+  PLAYER   RACES                     CONFIDENCE  GAMES  REPLAYS  LIQUIPEDIA
+  AAAA     Terran (60)               confirmed   60     60
+  Action   Zerg (59)                 confirmed   59     59
+  Alen     Zerg (60)                 confirmed   60     60       https://liquipedia.net/starcraft/Alen
+  Ample    Terran (60)               confirmed   60     60       https://liquipedia.net/starcraft/Ample
+  Artosis  Terran (59), Protoss (1)  confirmed   60     60       https://liquipedia.net/starcraft/Artosis
   ...
 ```
 
@@ -488,8 +490,8 @@ length) and `cmd_count` (how many actions they issued).
 
 ## Who it already knows
 
-70 players, mostly Korean pros, built from a labelled corpus of about 7,900
-ladder replays. Run `scfingerprint dataset list` to see them all. Each entry
+82 players, mostly Korean pros, built from a labelled corpus of about 9,500
+ladder and non-ladder replays. Run `scfingerprint dataset list` to see them all. Each entry
 records how confident the curation is, so you can ask for only the solid ones
 (see `--min-confidence` above).
 
