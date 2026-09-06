@@ -213,3 +213,13 @@ deterministic (same inputs → byte-identical model artifact), and the
 evaluation harness (`internal/eval/`, with CI regression gates) recomputes EER/TPR
 tables from any labeled corpus. See the [README](../README.md) for the
 package map.
+
+The catalog is re-derivable on the same terms. Every replay behind a shipped
+fingerprint has a hash in `corpus-manifest.json` and a `replays.jsonl` row
+naming the account that played it, which is what lets `extract-corpus` label it
+again; `TestCorpusBacksEveryFingerprint` fails if either goes missing. Row order
+is a total order over (account, start time, replay), so re-running extraction
+over an unchanged corpus reproduces the fingerprint bytes and not merely the
+same identity — the non-ladder replays share one no-timestamp sentinel, and
+without the final tiebreak their games landed in different chronological
+blocks on each run.

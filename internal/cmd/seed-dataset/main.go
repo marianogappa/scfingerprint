@@ -113,6 +113,7 @@ func main() {
 		if len(groups) == 0 {
 			continue
 		}
+		groups, groupIDs = anchorLargestFirst(groups, groupIDs)
 
 		var fp *fingerprint.Fingerprint
 		var manifest []string
@@ -140,7 +141,7 @@ func main() {
 					continue
 				}
 				if !v.OK {
-					log.Printf("SKIP merge %s group %s: %s", proName, groupIDs[i], v.Reason)
+					log.Printf("SKIP merge %s group %s (%d games discarded): %s", proName, groupIDs[i], len(groups[i]), v.Reason)
 					continue
 				}
 				log.Printf("MERGE %s group %s: cross=%.3f selfCon=%.3f", proName, groupIDs[i], v.CrossSimilarity, v.MergedSelfConsistency)
@@ -157,6 +158,10 @@ func main() {
 				allToons = append(allToons, collectToons(groups[i])...)
 				mergedSamples = append(mergedSamples, groups[i]...)
 			}
+			// A per-group label ("Sai_18665802") is scaffolding for merge
+			// validation. It leaks to the user as the match label whenever
+			// every merge is rejected and one group becomes the fingerprint.
+			merged.Meta.Label = proName
 			fp = merged
 			manifest = mergedManifest
 			aliasNames = allToons
@@ -314,6 +319,27 @@ func capRecent(byPlayer map[string][]training.Sample, auroraIDs []string, max in
 		kept[aid] = ss
 	}
 	return kept
+}
+
+// anchorLargestFirst puts the account with the most games first, keeping the
+// rest in mapping order. A rejected merge leaves the anchor group as the whole
+// fingerprint, so the anchor has to be the best-evidenced account rather than
+// whichever aurora ID the mapping happens to list first. Sai's two accounts
+// fingerprint as different people (cross-similarity 0.00), and list order alone
+// enrolled the 20-game one over the 58-game one.
+func anchorLargestFirst(groups [][]training.Sample, groupIDs []string) ([][]training.Sample, []string) {
+	order := make([]int, len(groups))
+	for i := range order {
+		order[i] = i
+	}
+	sort.SliceStable(order, func(a, b int) bool { return len(groups[order[a]]) > len(groups[order[b]]) })
+
+	outGroups := make([][]training.Sample, len(groups))
+	outIDs := make([]string, len(groupIDs))
+	for i, idx := range order {
+		outGroups[i], outIDs[i] = groups[idx], groupIDs[idx]
+	}
+	return outGroups, outIDs
 }
 
 // loadProExclusions reads the curated {pro: {auroraID: reason}} map of
