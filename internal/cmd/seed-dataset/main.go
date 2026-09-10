@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/marianogappa/scfingerprint/internal/dataset"
@@ -25,10 +26,34 @@ import (
 	"github.com/marianogappa/scfingerprint/internal/training"
 )
 
+// nullMinGames is the fewest games an account needs before its centroid is a
+// meaningful impostor; nullMinAccounts is the fewest impostors needed before a
+// 95th percentile is worth trusting.
+const (
+	nullMinGames    = 8
+	nullMinAccounts = 30
+)
+
+// enrollment is one identity on its way into the dataset, carrying the
+// provenance needed to measure its null before it is written out.
+type enrollment struct {
+	id         string
+	fp         *fingerprint.Fingerprint
+	confidence string
+	aliases    []dataset.Alias
+	manifest   []string
+	notes      string
+	games      int
+	selfCon    float64
+	auroraIDs  map[string]bool // the accounts this identity was built from
+	nullP95    float64
+}
+
 func main() {
 	csvPath := flag.String("csv", "", "labeled feature CSV (required)")
 	prosPath := flag.String("pros", "corpus/pros_merged.json", "pro name → aurora ID mapping")
 	aliasPath := flag.String("pro-aliases", "corpus/pro_aliases.json", "curated extra display names per pro (ring names that are not toons)")
+	registryPath := flag.String("registry", "internal/registry/registry.json", "identity map, so a pro's own alts are not counted as impostors when measuring their null")
 	exclusionsPath := flag.String("pro-exclusions", "corpus/pro_exclusions.json", "aurora IDs that must not be enrolled under a given pro name")
 	outDir := flag.String("out", "dataset/players", "output directory for identity JSON files")
 	minGames := flag.Int("min-games", 20, "minimum games per identity")
@@ -78,6 +103,12 @@ func main() {
 		proMap[name] = kept
 	}
 
+	registryAuroras, err := loadRegistryAuroras(*registryPath)
+	if err != nil {
+		log.Printf("WARN: %v — nulls will treat a pro's unlisted alts as impostors", err)
+	}
+	log.Printf("registry knows accounts for %d names", len(registryAuroras))
+
 	scorer, err := scoring.NewFromEmbedded()
 	if err != nil {
 		log.Fatal(err)
@@ -85,17 +116,6 @@ func main() {
 
 	co := hygiene.BuildCoOccurrence(hygiene.ManifestFromSamples(samples))
 	th := hygiene.DefaultThresholds()
-
-	type enrollment struct {
-		id         string
-		fp         *fingerprint.Fingerprint
-		confidence string
-		aliases    []dataset.Alias
-		manifest   []string
-		notes      string
-		games      int
-		selfCon    float64
-	}
 
 	var enrollments []enrollment
 	var skippedSelfCon int
@@ -189,7 +209,12 @@ func main() {
 		}
 
 		aliases := buildAliases(proName, append(append([]string{}, proAliases[proName]...), aliasNames...))
+		owned := map[string]bool{}
+		for _, aid := range proMap[proName] {
+			owned[aid] = true
+		}
 		enrollments = append(enrollments, enrollment{
+			auroraIDs:  owned,
 			id:         strings.ToLower(proName),
 			fp:         fp,
 			confidence: conf,
@@ -206,6 +231,21 @@ func main() {
 	})
 
 	log.Printf("enrolled %d identities (%d skipped self-consistency)", len(enrollments), skippedSelfCon)
+
+	// Measure each identity's null: how it scores against accounts that are
+	// not this player. A crowded identity scores respectably against
+	// strangers, and its claim bar has to rise to match — otherwise it
+	// collects everyone who merely plays like it.
+	// A pro's own alts must not count as impostors: scoring one against the
+	// pro inflates their null and can push the bar above a genuine match.
+	// pros_merged is not enough — the registry routinely knows accounts it
+	// does not (that is how Soo's own alt was inflating Soo's bar).
+	for i := range enrollments {
+		for _, aid := range registryAuroras[strings.ToLower(enrollments[i].id)] {
+			enrollments[i].auroraIDs[aid] = true
+		}
+	}
+	measureNulls(enrollments, byPlayer, scorer)
 
 	fps := make([]*fingerprint.Fingerprint, len(enrollments))
 	for i, e := range enrollments {
@@ -238,6 +278,7 @@ func main() {
 			Confidence:     e.confidence,
 			Aliases:        e.aliases,
 			ReplayManifest: e.manifest,
+			NullP95:        math.Round(e.nullP95*1000) / 1000,
 			Notes:          e.notes,
 		}
 		data, err := json.MarshalIndent(id, "", " ")
@@ -248,7 +289,8 @@ func main() {
 		if err := os.WriteFile(path, append(data, '\n'), 0o644); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Fprintf(os.Stderr, "  %s: %d games, selfCon=%.3f, %s\n", e.id, e.games, e.selfCon, e.confidence)
+		fmt.Fprintf(os.Stderr, "  %s: %d games, selfCon=%.3f, nullP95=%.2f (bar %.2f), %s\n",
+			e.id, e.games, e.selfCon, e.nullP95, id.IdentityBar(), e.confidence)
 	}
 	log.Printf("wrote %d identity files to %s", len(enrollments), *outDir)
 }
@@ -442,4 +484,82 @@ func buildAliases(proName string, toons []string) []dataset.Alias {
 		}
 	}
 	return aliases
+}
+
+// measureNulls fills each enrollment's nullP95: the 95th percentile of its
+// fingerprint's score against every account that is not this player. Accounts
+// belonging to the identity are excluded by aurora id, so a pro's own smurfs
+// never count as impostors and never inflate the bar.
+func measureNulls(enrollments []enrollment, byPlayer map[string][]training.Sample, scorer *scoring.Scorer) {
+	accounts := make([]string, 0, len(byPlayer))
+	for a, v := range byPlayer {
+		// aurora 0 is the unidentified-opponent bucket: one label over
+		// thousands of humans, so its centroid is meaningless as an impostor.
+		if a != "0" && len(v) >= nullMinGames {
+			accounts = append(accounts, a)
+		}
+	}
+	sort.Strings(accounts)
+
+	whitened := map[string][][]float64{}
+	for _, a := range accounts {
+		for _, s := range byPlayer[a] {
+			w, err := scorer.Transform(s.Vector)
+			if err == nil {
+				whitened[a] = append(whitened[a], w)
+			}
+		}
+	}
+
+	for i := range enrollments {
+		e := &enrollments[i]
+		target, err := e.fp.Projected(scorer)
+		if err != nil {
+			continue
+		}
+		var zs []float64
+		for _, a := range accounts {
+			if e.auroraIDs[a] || len(whitened[a]) == 0 {
+				continue
+			}
+			sc, err := scorer.Score(whitened[a], target)
+			if err != nil {
+				continue
+			}
+			zs = append(zs, sc.Z)
+		}
+		if len(zs) < nullMinAccounts {
+			continue // too few impostors to estimate; leave 0 and use the default bar
+		}
+		sort.Float64s(zs)
+		e.nullP95 = zs[int(float64(len(zs))*0.95)]
+	}
+}
+
+// loadRegistryAuroras maps a lowercased pro name to every aurora id the
+// identity map attributes to them, as decimal strings to match the CSV's
+// player labels.
+func loadRegistryAuroras(path string) (map[string][]string, error) {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading registry %s: %w", path, err)
+	}
+	var reg struct {
+		Accounts []struct {
+			Name     string `json:"name"`
+			AuroraID int64  `json:"aurora_id"`
+		} `json:"accounts"`
+	}
+	if err := json.Unmarshal(raw, &reg); err != nil {
+		return nil, fmt.Errorf("parsing registry %s: %w", path, err)
+	}
+	out := map[string][]string{}
+	for _, a := range reg.Accounts {
+		if a.Name == "" || a.AuroraID == 0 {
+			continue
+		}
+		k := strings.ToLower(a.Name)
+		out[k] = append(out[k], strconv.FormatInt(a.AuroraID, 10))
+	}
+	return out, nil
 }

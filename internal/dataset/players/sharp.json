@@ -62,5 +62,6 @@
   "replays/localapi/b9fd5dccc592cf374545dbc157df6da7.rep",
   "replays/localapi/f34849482106eed4572c245223b88e5e.rep"
  ],
+ "null_p95": 1.474,
  "notes": "enrolled from cwal-harvest corpus"
 }
