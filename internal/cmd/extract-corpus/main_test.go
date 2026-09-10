@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"sort"
 	"testing"
 
@@ -196,7 +198,7 @@ func TestResolveRowsMirrorSlot1(t *testing.T) {
 		"mirror.rep":    {pfs: pfsMirror},
 	}
 
-	results, stats := resolveRows(jobs, parsed)
+	results, stats := resolveRows(jobs, parsed, nil)
 
 	if stats.byRace != 1 {
 		t.Errorf("byRace = %d, want 1", stats.byRace)
@@ -218,6 +220,60 @@ func TestResolveRowsMirrorSlot1(t *testing.T) {
 	}
 }
 
+// A mirror row whose account plays under a name its own metadata rows never
+// teach is still resolvable when the curated identities file lists that name as
+// one of the account's handles.
+func TestResolveRowsSeededHandleResolvesMirror(t *testing.T) {
+	pfsMirror := []features.PlayerFeatures{
+		{Name: "Opponent", Race: "Protoss", Vector: []float64{0}},
+		{Name: "Stork", Race: "Protoss", Vector: []float64{1}},
+	}
+
+	jobs := []fileJob{
+		{file: "pvp.rep", rows: []replayRow{
+			{File: "pvp.rep", AuroraID: 500, Race: "P", Matchup: "PvP"},
+		}},
+	}
+	parsed := map[string]*parseResult{
+		"pvp.rep": {pfs: pfsMirror},
+	}
+	seeded := map[int64]map[string]bool{500: {"Stork": true}}
+
+	results, stats := resolveRows(jobs, parsed, seeded)
+
+	if stats.byName != 1 || stats.noMatch != 0 {
+		t.Fatalf("stats = %+v, want byName 1, noMatch 0", stats)
+	}
+	if len(results) != 1 || results[0].vector[0] != 1 {
+		t.Fatalf("results = %+v, want the seeded handle's player (vector [1])", results)
+	}
+}
+
+func TestIdentityHandles(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "identities.jsonl")
+	lines := `{"auroraId":10267282,"battleTag":"x","handles":[{"toon":"llIIIIllIIlIlI"},{"toon":"Stork"}]}
+{"auroraId":12355047,"battleTag":"","handles":[]}
+{"auroraId":42,"handles":[{"toon":""}]}`
+	if err := os.WriteFile(path, []byte(lines), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	ns, err := identityHandles(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !ns[10267282]["Stork"] || !ns[10267282]["llIIIIllIIlIlI"] {
+		t.Errorf("handles for 10267282 = %v, want both toons", ns[10267282])
+	}
+	if len(ns[12355047]) != 0 {
+		t.Errorf("account with no handles should have no names, got %v", ns[12355047])
+	}
+	if len(ns[42]) != 0 {
+		t.Errorf("empty toon must not be seeded, got %v", ns[42])
+	}
+}
+
 // A mirror game where no name can be learned (no toon, all games are mirrors)
 // must be dropped rather than guessed.
 func TestResolveRowsMirrorNoLearnableNameIsDropped(t *testing.T) {
@@ -235,7 +291,7 @@ func TestResolveRowsMirrorNoLearnableNameIsDropped(t *testing.T) {
 		"zvz.rep": {pfs: pfsMirror},
 	}
 
-	results, stats := resolveRows(jobs, parsed)
+	results, stats := resolveRows(jobs, parsed, nil)
 
 	if len(results) != 0 {
 		t.Fatalf("expected 0 results for unlearnable mirror, got %d", len(results))
@@ -269,7 +325,7 @@ func TestResolveRowsToonFeedsNameSet(t *testing.T) {
 		"tvt.rep": {pfs: pfsMirror},
 	}
 
-	results, stats := resolveRows(jobs, parsed)
+	results, stats := resolveRows(jobs, parsed, nil)
 
 	if stats.byToon != 1 {
 		t.Errorf("byToon = %d, want 1", stats.byToon)

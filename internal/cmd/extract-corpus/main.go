@@ -79,6 +79,7 @@ func main() {
 	minGameMin := flag.Float64("min-game-min", 0, "directory-mode: skip games shorter than this many minutes")
 	only1v1 := flag.Bool("only-1v1", false, "directory-mode: keep only games with exactly 2 eligible human players")
 	metadata := flag.String("metadata", "corpus/replays.jsonl", "path to replays.jsonl")
+	identities := flag.String("identities", "corpus/identities.jsonl", "path to identities.jsonl; curated handles seed the per-account name sets that resolve mirror games (empty to disable)")
 	replaysDir := flag.String("replays-dir", "corpus", "base directory containing replays/ subdirectory")
 	out := flag.String("out", "", "output CSV path (default: stdout)")
 	workers := flag.Int("workers", runtime.NumCPU(), "parallel extraction workers")
@@ -158,7 +159,16 @@ func main() {
 	}
 	wg.Wait()
 
-	results, stats := resolveRows(jobs, parsed)
+	var nameSet map[int64]map[string]bool
+	if *identities != "" {
+		nameSet, err = identityHandles(*identities)
+		if err != nil {
+			log.Fatalf("reading identities: %v", err)
+		}
+		log.Printf("seeded name sets for %d accounts from %s", len(nameSet), *identities)
+	}
+
+	results, stats := resolveRows(jobs, parsed, nameSet)
 
 	sort.Slice(results, func(i, j int) bool { return lessRow(results[i], results[j]) })
 
@@ -171,12 +181,14 @@ func main() {
 
 // resolveRows resolves each metadata row to the correct in-replay player in two
 // passes. Pass 1 resolves rows where the toon matches or the account's race is
-// unique in the game (non-mirror), and learns each account's in-replay name set.
-// Pass 2 resolves mirror games by checking whether exactly one player's name
-// appears in the account's learned name set. Rows that remain ambiguous are
-// dropped rather than guessed.
-func resolveRows(jobs []fileJob, parsed map[string]*parseResult) ([]csvRow, resolveStats) {
-	nameSet := map[int64]map[string]bool{}
+// unique in the game (non-mirror), and learns each account's in-replay name set
+// on top of the seeded curated handles. Pass 2 resolves mirror games by
+// checking whether exactly one player's name appears in the account's name set.
+// Rows that remain ambiguous are dropped rather than guessed.
+func resolveRows(jobs []fileJob, parsed map[string]*parseResult, nameSet map[int64]map[string]bool) ([]csvRow, resolveStats) {
+	if nameSet == nil {
+		nameSet = map[int64]map[string]bool{}
+	}
 	var results []csvRow
 	var pending []pendingRow
 	var stats resolveStats
@@ -213,6 +225,40 @@ func resolveRows(jobs []fileJob, parsed map[string]*parseResult) ([]csvRow, reso
 	}
 
 	return results, stats
+}
+
+// identityHandles seeds per-account name sets from the curated identities file:
+// each handle's toon is a name the account is known to play under, which
+// resolves mirror games the account's own metadata rows cannot (a game recorded
+// without a toon, played under an alt the rest of the corpus never labels).
+func identityHandles(path string) (map[int64]map[string]bool, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	type handle struct {
+		Toon string `json:"toon"`
+	}
+	type identity struct {
+		AuroraID int64    `json:"auroraId"`
+		Handles  []handle `json:"handles"`
+	}
+	ns := map[int64]map[string]bool{}
+	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+		if line == "" {
+			continue
+		}
+		var id identity
+		if err := json.Unmarshal([]byte(line), &id); err != nil {
+			return nil, fmt.Errorf("parsing identities line: %w", err)
+		}
+		for _, h := range id.Handles {
+			if h.Toon != "" {
+				addToNameSet(ns, id.AuroraID, h.Toon)
+			}
+		}
+	}
+	return ns, nil
 }
 
 func addToNameSet(ns map[int64]map[string]bool, id int64, name string) {
