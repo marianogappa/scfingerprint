@@ -3,6 +3,8 @@ package main
 import (
 	"sort"
 	"testing"
+
+	"github.com/marianogappa/scfingerprint/internal/features"
 )
 
 // The harvest records a game twice when a player is picked up by more than one
@@ -66,6 +68,222 @@ func TestLessRowOrdersByPlayerThenTime(t *testing.T) {
 	for i := range want {
 		if got[i] != want[i] {
 			t.Fatalf("order = %v, want %v", got, want)
+		}
+	}
+}
+
+func TestMatchByToon(t *testing.T) {
+	pfs := []features.PlayerFeatures{
+		{Name: "Alice", Race: "Terran"},
+		{Name: "Bob", Race: "Terran"},
+	}
+
+	tests := []struct {
+		name     string
+		toon     string
+		wantName string
+		wantOK   bool
+	}{
+		{"exact match", "Bob", "Bob", true},
+		{"case insensitive", "bob", "Bob", true},
+		{"no match", "Charlie", "", false},
+		{"empty toon", "", "", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pf, ok := matchByToon(tt.toon, pfs)
+			if ok != tt.wantOK {
+				t.Fatalf("ok = %v, want %v", ok, tt.wantOK)
+			}
+			if ok && pf.Name != tt.wantName {
+				t.Errorf("name = %q, want %q", pf.Name, tt.wantName)
+			}
+		})
+	}
+}
+
+func TestMatchByUniqueRace(t *testing.T) {
+	nonMirror := []features.PlayerFeatures{
+		{Name: "Alice", Race: "Terran"},
+		{Name: "Bob", Race: "Zerg"},
+	}
+	mirror := []features.PlayerFeatures{
+		{Name: "Alice", Race: "Terran"},
+		{Name: "Bob", Race: "Terran"},
+	}
+
+	tests := []struct {
+		name     string
+		race     string
+		pfs      []features.PlayerFeatures
+		wantName string
+		wantOK   bool
+	}{
+		{"non-mirror resolves", "T", nonMirror, "Alice", true},
+		{"mirror is ambiguous", "T", mirror, "", false},
+		{"unknown race letter", "X", nonMirror, "", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pf, ok := matchByUniqueRace(tt.race, tt.pfs)
+			if ok != tt.wantOK {
+				t.Fatalf("ok = %v, want %v", ok, tt.wantOK)
+			}
+			if ok && pf.Name != tt.wantName {
+				t.Errorf("name = %q, want %q", pf.Name, tt.wantName)
+			}
+		})
+	}
+}
+
+func TestMatchByNameSet(t *testing.T) {
+	pfs := []features.PlayerFeatures{
+		{Name: "Alice", Race: "Terran"},
+		{Name: "Bob", Race: "Terran"},
+	}
+
+	tests := []struct {
+		name     string
+		names    map[string]bool
+		wantName string
+		wantOK   bool
+	}{
+		{"single match", map[string]bool{"Bob": true}, "Bob", true},
+		{"both match", map[string]bool{"Alice": true, "Bob": true}, "", false},
+		{"no match", map[string]bool{"Charlie": true}, "", false},
+		{"nil set", nil, "", false},
+		{"empty set", map[string]bool{}, "", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pf, ok := matchByNameSet(tt.names, pfs)
+			if ok != tt.wantOK {
+				t.Fatalf("ok = %v, want %v", ok, tt.wantOK)
+			}
+			if ok && pf.Name != tt.wantName {
+				t.Errorf("name = %q, want %q", pf.Name, tt.wantName)
+			}
+		})
+	}
+}
+
+// A TvT replay where the account is in slot 1 must attribute to slot 1, not
+// slot 0. The name set is learned from a non-mirror game in pass 1 and used to
+// resolve the mirror in pass 2.
+func TestResolveRowsMirrorSlot1(t *testing.T) {
+	pfsNonMirror := []features.PlayerFeatures{
+		{Name: "Opponent", Race: "Zerg", Vector: []float64{0}},
+		{Name: "Soulkey", Race: "Terran", Vector: []float64{1}},
+	}
+	pfsMirror := []features.PlayerFeatures{
+		{Name: "Flash", Race: "Terran", Vector: []float64{2}},
+		{Name: "Soulkey", Race: "Terran", Vector: []float64{3}},
+	}
+
+	jobs := []fileJob{
+		{file: "nonmirror.rep", rows: []replayRow{
+			{File: "nonmirror.rep", AuroraID: 100, Race: "T", Matchup: "TvZ"},
+		}},
+		{file: "mirror.rep", rows: []replayRow{
+			{File: "mirror.rep", AuroraID: 100, Race: "T", Matchup: "TvT"},
+		}},
+	}
+	parsed := map[string]*parseResult{
+		"nonmirror.rep": {pfs: pfsNonMirror},
+		"mirror.rep":    {pfs: pfsMirror},
+	}
+
+	results, stats := resolveRows(jobs, parsed)
+
+	if stats.byRace != 1 {
+		t.Errorf("byRace = %d, want 1", stats.byRace)
+	}
+	if stats.byName != 1 {
+		t.Errorf("byName = %d, want 1", stats.byName)
+	}
+	if stats.noMatch != 0 {
+		t.Errorf("noMatch = %d, want 0", stats.noMatch)
+	}
+	if len(results) != 2 {
+		t.Fatalf("len(results) = %d, want 2", len(results))
+	}
+
+	for _, r := range results {
+		if r.file == "mirror.rep" && r.vector[0] != 3 {
+			t.Errorf("mirror game got vector %v, want [3] (slot 1 = Soulkey)", r.vector)
+		}
+	}
+}
+
+// A mirror game where no name can be learned (no toon, all games are mirrors)
+// must be dropped rather than guessed.
+func TestResolveRowsMirrorNoLearnableNameIsDropped(t *testing.T) {
+	pfsMirror := []features.PlayerFeatures{
+		{Name: "Alpha", Race: "Zerg", Vector: []float64{0}},
+		{Name: "Beta", Race: "Zerg", Vector: []float64{1}},
+	}
+
+	jobs := []fileJob{
+		{file: "zvz.rep", rows: []replayRow{
+			{File: "zvz.rep", AuroraID: 200, Race: "Z", Matchup: "ZvZ"},
+		}},
+	}
+	parsed := map[string]*parseResult{
+		"zvz.rep": {pfs: pfsMirror},
+	}
+
+	results, stats := resolveRows(jobs, parsed)
+
+	if len(results) != 0 {
+		t.Fatalf("expected 0 results for unlearnable mirror, got %d", len(results))
+	}
+	if stats.noMatch != 1 {
+		t.Errorf("noMatch = %d, want 1", stats.noMatch)
+	}
+}
+
+// Toon resolution takes priority and feeds the name set that resolves mirrors.
+func TestResolveRowsToonFeedsNameSet(t *testing.T) {
+	pfsToon := []features.PlayerFeatures{
+		{Name: "Flash", Race: "Terran", Vector: []float64{0}},
+		{Name: "Stork", Race: "Protoss", Vector: []float64{1}},
+	}
+	pfsMirror := []features.PlayerFeatures{
+		{Name: "Flash", Race: "Terran", Vector: []float64{2}},
+		{Name: "Light", Race: "Terran", Vector: []float64{3}},
+	}
+
+	jobs := []fileJob{
+		{file: "tvp.rep", rows: []replayRow{
+			{File: "tvp.rep", AuroraID: 300, Toon: "Flash", Race: "T", Matchup: "TvP"},
+		}},
+		{file: "tvt.rep", rows: []replayRow{
+			{File: "tvt.rep", AuroraID: 300, Race: "T", Matchup: "TvT"},
+		}},
+	}
+	parsed := map[string]*parseResult{
+		"tvp.rep": {pfs: pfsToon},
+		"tvt.rep": {pfs: pfsMirror},
+	}
+
+	results, stats := resolveRows(jobs, parsed)
+
+	if stats.byToon != 1 {
+		t.Errorf("byToon = %d, want 1", stats.byToon)
+	}
+	if stats.byName != 1 {
+		t.Errorf("byName = %d, want 1", stats.byName)
+	}
+	if len(results) != 2 {
+		t.Fatalf("len(results) = %d, want 2", len(results))
+	}
+
+	for _, r := range results {
+		if r.file == "tvt.rep" && r.vector[0] != 2 {
+			t.Errorf("mirror game got vector %v, want [2] (Flash)", r.vector)
 		}
 	}
 }
