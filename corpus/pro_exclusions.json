@@ -2,5 +2,8 @@
  "_comment": "Aurora IDs mapped to a pro by CWAL that must not be enrolled under that name, with the evidence. Applied by internal/cmd/seed-dataset.",
  "Blade": {
   "24020369": "carries no toon and fingerprints as Paralyze (similarity 0.951); enrolling it makes Blade a duplicate of Paralyze"
+ },
+ "Killer": {
+  "12273860": "corrected mirror attribution (#65) drops the shipped block self-consistency to 0.832, below the 0.850 verify floor, though the per-sample gated measure reads 0.913; re-enroll when the account has more games"
  }
 }
