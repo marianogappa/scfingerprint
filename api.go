@@ -59,16 +59,18 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 			continue
 		}
 		results = append(results, MatchResult{
-			Label:            fp.Meta.Label,
-			Registry:         opinion.forLabel(fp.Meta.Label),
-			Liquipedia:       db.links[i],
-			Z:                sc.Z,
-			Cosine:           sc.Cosine,
-			EvidenceN:        sc.EvidenceN,
-			OperatingPoints:  sc.OperatingPoints,
-			SearchFPR:        searchFPR(sc.OperatingPoints, catalogSize),
-			CatalogSize:      catalogSize,
-			ModelIsSynthetic: synthetic,
+			Label:             fp.Meta.Label,
+			Registry:          opinion.forLabel(fp.Meta.Label),
+			Liquipedia:        db.links[i],
+			Z:                 sc.Z,
+			Cosine:            sc.Cosine,
+			EvidenceN:         sc.EvidenceN,
+			OperatingPoints:   sc.OperatingPoints,
+			SearchFPR:         searchFPR(sc.OperatingPoints, catalogSize),
+			IdentityBar:       db.bars[i],
+			ClearsIdentityBar: db.bars[i] <= 0 || sc.Z >= db.bars[i],
+			CatalogSize:       catalogSize,
+			ModelIsSynthetic:  synthetic,
 		})
 	}
 	sort.SliceStable(results, func(i, j int) bool { return results[i].Z > results[j].Z })

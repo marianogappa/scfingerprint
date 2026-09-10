@@ -60,6 +60,15 @@ type Identity struct {
 	// can be regenerated on feature-version bumps.
 	ReplayManifest []string `json:"replay_manifest,omitempty"`
 
+	// NullP95 is the 95th percentile of this fingerprint's score against
+	// accounts that are NOT this player, measured over the corpus at
+	// enrollment. It says how crowded the player's corner of style space is:
+	// a distinctive player sits near 1.8, while one whose style is modal for
+	// their race runs higher and will score respectably against strangers.
+	// Claims are judged against this, not against a single global bar — see
+	// [IdentityBar]. Zero means "not measured", and the global bar applies.
+	NullP95 float64 `json:"null_p95,omitempty"`
+
 	// Notes is free-text curation context.
 	Notes string `json:"notes,omitempty"`
 
@@ -205,4 +214,28 @@ func meetsConfidence(actual, minimum string) bool {
 		ConfidenceCandidate: 1,
 	}
 	return rank[actual] >= rank[minimum]
+}
+
+// NullMargin is how far above an identity's own null distribution a score must
+// sit before it counts as that player rather than as someone who merely plays
+// like them. Calibrated on the corpus: it puts a distinctive identity's bar at
+// about 4.3 — below the flat operating point, so nothing distinctive gets less
+// sensitive — while a crowded one such as Shuttle lands near 5.2, which is
+// where its false claims sat.
+const NullMargin = 2.5
+
+// defaultNullP95 stands in for identities enrolled before NullP95 was
+// measured. It is the corpus median, so an unmeasured identity behaves like a
+// typical one instead of silently claiming everything.
+const defaultNullP95 = 1.82
+
+// IdentityBar is the z an observation must clear to be claimed as this
+// identity. It is the identity's own null plus [NullMargin], so the bar rises
+// only for players whose style is genuinely crowded.
+func (i Identity) IdentityBar() float64 {
+	p95 := i.NullP95
+	if p95 <= 0 {
+		p95 = defaultNullP95
+	}
+	return p95 + NullMargin
 }

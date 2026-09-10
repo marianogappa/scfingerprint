@@ -70,15 +70,27 @@ type PlayerVector struct {
 
 // MatchResult is one candidate identity returned by Match or MatchMany.
 type MatchResult struct {
-	Label            string          `json:"label"`                // the fingerprint's label
-	Liquipedia       string          `json:"liquipedia,omitempty"` // the player's Liquipedia profile URL, when known
-	Z                float64         `json:"z"`                    // calibrated z-score, comparable across evidence counts
-	Cosine           float64         `json:"cosine"`               // raw cosine similarity
-	EvidenceN        int             `json:"evidence_n"`           // number of games in the probe
-	OperatingPoints  map[string]bool `json:"operating_points"`     // named per-comparison thresholds cleared
-	SearchFPR        float64         `json:"search_fpr"`           // family-wise FPR across the whole catalog (see below)
-	CatalogSize      int             `json:"catalog_size"`         // N used for the search-level correction
-	ModelIsSynthetic bool            `json:"model_is_synthetic"`   // true when the backing model was trained on synthetic data
+	Label           string          `json:"label"`                // the fingerprint's label
+	Liquipedia      string          `json:"liquipedia,omitempty"` // the player's Liquipedia profile URL, when known
+	Z               float64         `json:"z"`                    // calibrated z-score, comparable across evidence counts
+	Cosine          float64         `json:"cosine"`               // raw cosine similarity
+	EvidenceN       int             `json:"evidence_n"`           // number of games in the probe
+	OperatingPoints map[string]bool `json:"operating_points"`     // named per-comparison thresholds cleared
+	SearchFPR       float64         `json:"search_fpr"`           // family-wise FPR across the whole catalog (see below)
+
+	// IdentityBar is the z this particular identity must be cleared by
+	// before the match counts as a claim, and ClearsIdentityBar says whether
+	// it was. Identities differ in how crowded their corner of style space
+	// is: a distinctive player is claimed from about 4.3, while one whose
+	// style is modal for their race needs more before a high score means
+	// them rather than someone who merely plays like them. The bar is
+	// measured per identity at enrollment, never inferred from this probe,
+	// and it does not touch Z, Cosine or SearchFPR. IdentityBar is 0 for
+	// fingerprints added by hand, which are judged on SearchFPR alone.
+	IdentityBar       float64 `json:"identity_bar,omitempty"`
+	ClearsIdentityBar bool    `json:"clears_identity_bar"`
+	CatalogSize       int     `json:"catalog_size"`       // N used for the search-level correction
+	ModelIsSynthetic  bool    `json:"model_is_synthetic"` // true when the backing model was trained on synthetic data
 
 	// Registry is what the built-in identity map says about the observed
 	// player, present only when [WithRegistry] was passed. It is a name

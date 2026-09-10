@@ -210,6 +210,11 @@ func reportVerdict(matches []scfingerprint.MatchResult, minZ float64) string {
 		return verdictWeak
 	case top.EvidenceN < 3:
 		return verdictLead
+	// A player whose style is crowded scores respectably against strangers,
+	// so a score that does not clear their own measured bar is a lead at
+	// best however good the family-wise FPR looks.
+	case !top.ClearsIdentityBar:
+		return verdictLead
 	case top.SearchFPR <= fprStrong || margin >= marginStrong:
 		return verdictStrong
 	default:

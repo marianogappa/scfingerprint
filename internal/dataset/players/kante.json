@@ -61,5 +61,6 @@
   "replays/MM-69516C72-9FD8-11F1-866E-FA167B5461B6.rep",
   "replays/MM-16C6569A-9FDB-11F1-866E-FA167B5461B6.rep"
  ],
+ "null_p95": 1.471,
  "notes": "enrolled from cwal-harvest corpus"
 }
