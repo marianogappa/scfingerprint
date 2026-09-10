@@ -1,13 +1,13 @@
 {
-  "release_tag": "corpus-v3",
+  "release_tag": "corpus-v4",
   "generated": "2026-09-10",
-  "raw_bytes": 926686378,
+  "raw_bytes": 935505179,
   "assets": [
     {
-      "name": "replays-corpus-v3.tar.zst",
-      "sha256": "0ce7efa5541753f44f8706d2064d2154f6e7f127db330da6062e17851ce9271c",
-      "bytes": 355873361,
-      "files": 10724
+      "name": "replays-corpus-v4.tar.zst",
+      "sha256": "72f3013fbe34ccc870cd2932638210acdd043c0f48787c3bdb494f9920c29d38",
+      "bytes": 359304956,
+      "files": 10823
     }
   ]
 }
