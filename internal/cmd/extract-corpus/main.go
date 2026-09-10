@@ -53,6 +53,27 @@ type csvRow struct {
 	vector      []float64
 }
 
+type fileJob struct {
+	file string
+	rows []replayRow
+}
+
+type parseResult struct {
+	pfs []features.PlayerFeatures
+}
+
+type pendingRow struct {
+	row replayRow
+	pfs []features.PlayerFeatures
+}
+
+type resolveStats struct {
+	byToon  int
+	byRace  int
+	byName  int
+	noMatch int
+}
+
 func main() {
 	dir := flag.String("dir", "", "directory-mode: walk this tree of .rep files and label rows by in-replay player name")
 	minGameMin := flag.Float64("min-game-min", 0, "directory-mode: skip games shorter than this many minutes")
@@ -94,21 +115,16 @@ func main() {
 
 	featNames := featNamesTop
 
-	type job struct {
-		file string
-		rows []replayRow
-	}
-	jobs := make([]job, 0, len(byFile))
+	jobs := make([]fileJob, 0, len(byFile))
 	for file, rs := range byFile {
-		jobs = append(jobs, job{file: file, rows: rs})
+		jobs = append(jobs, fileJob{file: file, rows: rs})
 	}
 	sort.Slice(jobs, func(i, j int) bool { return jobs[i].file < jobs[j].file })
 
+	parsed := make(map[string]*parseResult, len(jobs))
 	var (
-		mu      sync.Mutex
-		results []csvRow
-		noMatch int
-		errCnt  int
+		mu     sync.Mutex
+		errCnt int
 	)
 
 	sem := make(chan struct{}, *workers)
@@ -116,7 +132,7 @@ func main() {
 	for idx, j := range jobs {
 		wg.Add(1)
 		sem <- struct{}{}
-		go func(idx int, j job) {
+		go func(idx int, j fileJob) {
 			defer wg.Done()
 			defer func() { <-sem }()
 
@@ -131,58 +147,8 @@ func main() {
 				}
 				return
 			}
-
-			pfByName := map[string]features.PlayerFeatures{}
-			for _, pf := range pfs {
-				pfByName[pf.Name] = pf
-			}
-
-			var local []csvRow
-			var localNoMatch int
-			for _, row := range j.rows {
-				pf, ok := pfByName[row.Toon]
-				if !ok {
-					for _, c := range pfs {
-						if strings.EqualFold(c.Name, row.Toon) {
-							pf = c
-							ok = true
-							break
-						}
-					}
-				}
-				if !ok {
-					raceMap := map[string]string{"P": "Protoss", "T": "Terran", "Z": "Zerg"}
-					want := raceMap[row.Race]
-					for _, c := range pfs {
-						if c.Race == want {
-							pf = c
-							ok = true
-							break
-						}
-					}
-				}
-				if !ok {
-					localNoMatch++
-					continue
-				}
-
-				ts := time.Unix(row.Timestamp/1000, 0).UTC()
-				local = append(local, csvRow{
-					file:        row.File,
-					player:      strconv.FormatInt(row.AuroraID, 10),
-					race:        row.Race,
-					matchup:     row.Matchup,
-					mapName:     row.Map,
-					startTime:   ts.Format("2006-01-02T15:04:05"),
-					durationMin: float64(row.Duration) / 60.0,
-					numHumans:   2,
-					vector:      pf.Vector,
-				})
-			}
-
 			mu.Lock()
-			results = append(results, local...)
-			noMatch += localNoMatch
+			parsed[j.file] = &parseResult{pfs: pfs}
 			mu.Unlock()
 
 			if (idx+1)%500 == 0 {
@@ -192,12 +158,138 @@ func main() {
 	}
 	wg.Wait()
 
+	results, stats := resolveRows(jobs, parsed)
+
 	sort.Slice(results, func(i, j int) bool { return lessRow(results[i], results[j]) })
 
-	log.Printf("extracted %d rows (%d no-match, %d extract-errors)", len(results), noMatch, errCnt)
+	log.Printf("extracted %d rows (%d by-toon, %d by-race, %d by-name-set, %d unresolvable, %d extract-errors)",
+		len(results), stats.byToon, stats.byRace, stats.byName, stats.noMatch, errCnt)
 
 	writeCSV(*out, results, featNames)
 	log.Printf("done")
+}
+
+// resolveRows resolves each metadata row to the correct in-replay player in two
+// passes. Pass 1 resolves rows where the toon matches or the account's race is
+// unique in the game (non-mirror), and learns each account's in-replay name set.
+// Pass 2 resolves mirror games by checking whether exactly one player's name
+// appears in the account's learned name set. Rows that remain ambiguous are
+// dropped rather than guessed.
+func resolveRows(jobs []fileJob, parsed map[string]*parseResult) ([]csvRow, resolveStats) {
+	nameSet := map[int64]map[string]bool{}
+	var results []csvRow
+	var pending []pendingRow
+	var stats resolveStats
+
+	for _, j := range jobs {
+		pr := parsed[j.file]
+		if pr == nil {
+			continue
+		}
+		for _, row := range j.rows {
+			if pf, ok := matchByToon(row.Toon, pr.pfs); ok {
+				addToNameSet(nameSet, row.AuroraID, pf.Name)
+				results = append(results, makeCSVRow(row, pf))
+				stats.byToon++
+				continue
+			}
+			if pf, ok := matchByUniqueRace(row.Race, pr.pfs); ok {
+				addToNameSet(nameSet, row.AuroraID, pf.Name)
+				results = append(results, makeCSVRow(row, pf))
+				stats.byRace++
+				continue
+			}
+			pending = append(pending, pendingRow{row: row, pfs: pr.pfs})
+		}
+	}
+
+	for _, p := range pending {
+		if pf, ok := matchByNameSet(nameSet[p.row.AuroraID], p.pfs); ok {
+			results = append(results, makeCSVRow(p.row, pf))
+			stats.byName++
+			continue
+		}
+		stats.noMatch++
+	}
+
+	return results, stats
+}
+
+func addToNameSet(ns map[int64]map[string]bool, id int64, name string) {
+	if ns[id] == nil {
+		ns[id] = map[string]bool{}
+	}
+	ns[id][name] = true
+}
+
+func matchByToon(toon string, pfs []features.PlayerFeatures) (features.PlayerFeatures, bool) {
+	if toon == "" {
+		return features.PlayerFeatures{}, false
+	}
+	for _, pf := range pfs {
+		if pf.Name == toon {
+			return pf, true
+		}
+	}
+	for _, pf := range pfs {
+		if strings.EqualFold(pf.Name, toon) {
+			return pf, true
+		}
+	}
+	return features.PlayerFeatures{}, false
+}
+
+func matchByUniqueRace(race string, pfs []features.PlayerFeatures) (features.PlayerFeatures, bool) {
+	raceMap := map[string]string{"P": "Protoss", "T": "Terran", "Z": "Zerg"}
+	want, ok := raceMap[race]
+	if !ok {
+		return features.PlayerFeatures{}, false
+	}
+	var matched features.PlayerFeatures
+	var count int
+	for _, pf := range pfs {
+		if pf.Race == want {
+			matched = pf
+			count++
+		}
+	}
+	if count == 1 {
+		return matched, true
+	}
+	return features.PlayerFeatures{}, false
+}
+
+func matchByNameSet(names map[string]bool, pfs []features.PlayerFeatures) (features.PlayerFeatures, bool) {
+	if len(names) == 0 {
+		return features.PlayerFeatures{}, false
+	}
+	var matched features.PlayerFeatures
+	var count int
+	for _, pf := range pfs {
+		if names[pf.Name] {
+			matched = pf
+			count++
+		}
+	}
+	if count == 1 {
+		return matched, true
+	}
+	return features.PlayerFeatures{}, false
+}
+
+func makeCSVRow(row replayRow, pf features.PlayerFeatures) csvRow {
+	ts := time.Unix(row.Timestamp/1000, 0).UTC()
+	return csvRow{
+		file:        row.File,
+		player:      strconv.FormatInt(row.AuroraID, 10),
+		race:        row.Race,
+		matchup:     row.Matchup,
+		mapName:     row.Map,
+		startTime:   ts.Format("2006-01-02T15:04:05"),
+		durationMin: float64(row.Duration) / 60.0,
+		numHumans:   2,
+		vector:      pf.Vector,
+	}
 }
 
 // writeCSV writes the metadata header plus one row per player-game.
