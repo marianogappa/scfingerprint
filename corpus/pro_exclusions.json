@@ -3,6 +3,9 @@
  "Blade": {
   "24020369": "carries no toon and fingerprints as Paralyze (similarity 0.951); enrolling it makes Blade a duplicate of Paralyze"
  },
+ "Byul": {
+  "786567149": "not Byul: merge centroid cross-similarity 0.615 against the anchor, below the 0.850 genuine floor, and pairprobe reads 3.55/3.19 where the same-human 5th percentile is 5.41. It fingerprints closer to Shinee (z 4.76, gap 1.58) but that attribution is unresolved — this entry only asserts it is not Byul. Keeping it in the group spent 24 of Byul's 60-game budget on games that were then discarded."
+ },
  "Killer": {
   "12273860": "corrected mirror attribution (#65) drops the shipped block self-consistency to 0.832, below the 0.850 verify floor, though the per-sample gated measure reads 0.913; re-enroll when the account has more games"
  }
