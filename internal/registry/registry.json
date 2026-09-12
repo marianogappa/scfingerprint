@@ -287,7 +287,7 @@
      "games_last_week": 15
     },
     {
-     "toon": "\u0026-Barracks",
+     "toon": "&-Barracks",
      "gateway": 30
     },
     {
@@ -1099,9 +1099,22 @@
    "name": "FlaSh",
    "aurora_id": 18505773,
    "battle_tag": "flash",
-   "toons": [],
-   "source": "cwal-default-list@2026-08-08",
-   "last_verified": "2026-08-08"
+   "toons": [
+    {
+     "toon": "FlaShwkDwkDMAN",
+     "gateway": 30
+    },
+    {
+     "toon": "C9_FlaSh!!",
+     "gateway": 30
+    },
+    {
+     "toon": "C9_FlaSh",
+     "gateway": 30
+    }
+   ],
+   "source": "local-web-api@2026-09-12",
+   "last_verified": "2026-09-12"
   },
   {
    "name": "FlaSh",
@@ -2090,7 +2103,7 @@
      "gateway": 20
     },
     {
-     "toon": "\u0026-Gryffin",
+     "toon": "&-Gryffin",
      "gateway": 30
     },
     {
@@ -2529,11 +2542,11 @@
      "gateway": 20
     },
     {
-     "toon": "\u0026-QuickIy",
+     "toon": "&-QuickIy",
      "gateway": 30
     },
     {
-     "toon": "\u0026-Quickly",
+     "toon": "&-Quickly",
      "gateway": 30
     },
     {
@@ -2744,7 +2757,7 @@
    "country": "KOR",
    "toons": [
     {
-     "toon": "\u0026-saber",
+     "toon": "&-saber",
      "gateway": 30
     },
     {
