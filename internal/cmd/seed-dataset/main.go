@@ -220,7 +220,7 @@ func main() {
 			confidence: conf,
 			aliases:    aliases,
 			manifest:   manifest,
-			notes:      "enrolled from cwal-harvest corpus",
+			notes:      provenanceNote(manifest, enrolled),
 			games:      fp.N(),
 			selfCon:    selfCon,
 		})
@@ -562,4 +562,46 @@ func loadRegistryAuroras(path string) (map[string][]string, error) {
 		out[k] = append(out[k], strconv.FormatInt(a.AuroraID, 10))
 	}
 	return out, nil
+}
+
+// archivePrefix marks a replay that came from a community archive rather than
+// the CWAL harvest. Those games are attributed to the player by fingerprint and
+// in-replay name, not by a Blizzard match record, so the catalog says so.
+const archivePrefix = "ARCHIVE-"
+
+// provenanceNote describes where an identity's training games came from, so a
+// reader of the catalog is not told "cwal-harvest" about replays that were
+// never in it.
+func provenanceNote(manifest []string, enrolled []training.Sample) string {
+	span := ""
+	if len(enrolled) > 0 {
+		lo, hi := enrolled[0].StartTime, enrolled[0].StartTime
+		for _, s := range enrolled {
+			if s.StartTime.Before(lo) {
+				lo = s.StartTime
+			}
+			if s.StartTime.After(hi) {
+				hi = s.StartTime
+			}
+		}
+		if !lo.IsZero() {
+			span = fmt.Sprintf(", games from %s to %s", lo.Format("2006-01"), hi.Format("2006-01"))
+		}
+	}
+	archive := 0
+	for _, m := range manifest {
+		if strings.HasPrefix(strings.TrimPrefix(m, "replays/"), archivePrefix) {
+			archive++
+		}
+	}
+	switch {
+	case archive == 0:
+		return "enrolled from cwal-harvest corpus"
+	case archive == len(manifest):
+		return "enrolled from community replay archives" + span +
+			"; games attributed by fingerprint and in-replay name, not by a Blizzard match record. " +
+			"Cross-era matching is unverified: this fingerprint is built from games far older than the model's calibration corpus"
+	default:
+		return fmt.Sprintf("enrolled from cwal-harvest corpus, plus %d of %d games from community replay archives%s", archive, len(manifest), span)
+	}
 }
