@@ -10,6 +10,7 @@ import (
 	"text/tabwriter"
 
 	scfingerprint "github.com/marianogappa/scfingerprint"
+	"github.com/marianogappa/scfingerprint/internal/verdict"
 )
 
 // The output contract: stdout carries structured output (JSON) and nothing
@@ -22,10 +23,10 @@ import (
 // Verdict tiers, ordered. The exit code and the human ✓/✗ determination both
 // key on the same tier, so they can never disagree.
 const (
-	verdictNone   = "none"
-	verdictWeak   = "weak"
-	verdictLead   = "lead"
-	verdictStrong = "strong"
+	verdictNone   = verdict.None
+	verdictWeak   = verdict.Weak
+	verdictLead   = verdict.Lead
+	verdictStrong = verdict.Strong
 )
 
 var verdictRank = map[string]int{
@@ -35,20 +36,8 @@ var verdictRank = map[string]int{
 	verdictStrong: 3,
 }
 
-// sameVerdict makes the opinionated call for a 1:1 comparison, on the
-// stricter per-comparison bars: strong needs both a 1 in 1,000 grade rate and
-// 3+ games.
 func sameVerdict(fpr float64, evidenceN int) string {
-	switch {
-	case fpr > fprLead1v1:
-		return verdictWeak
-	case evidenceN < 3:
-		return verdictLead
-	case fpr <= fprStrong1v1:
-		return verdictStrong
-	default:
-		return verdictLead
-	}
+	return verdict.Same(fpr, evidenceN)
 }
 
 // parseMinVerdict validates a --min-verdict value. "any" is the loosest bar:
@@ -334,7 +323,7 @@ func matchTierLine(r playerReport) string {
 	switch r.Verdict {
 	case verdictStrong:
 		switch {
-		case top.SearchFPR <= fprStrong:
+		case top.SearchFPR <= verdict.FPRStrong:
 			return fmt.Sprintf("%d games agreeing at that rate is what makes this strong. Still confirm by hand before acting on it.", top.EvidenceN)
 		case len(r.Matches) > 1:
 			return fmt.Sprintf("%d games agreeing while pulling %.2f z clear of the field is what makes this strong. Still confirm by hand before acting on it.",
@@ -346,7 +335,7 @@ func matchTierLine(r playerReport) string {
 		if top.EvidenceN < 3 {
 			return fmt.Sprintf("Only %s keeps this a lead rather than strong; get 3+ games.", gamesPhrase(top.EvidenceN))
 		}
-		if len(r.Matches) > 1 && top.Z-r.Matches[1].Z < marginStrong {
+		if len(r.Matches) > 1 && top.Z-r.Matches[1].Z < verdict.MarginStrong {
 			return "The thin margin over the runner-up keeps this a lead; a real identification pulls away from the field."
 		}
 		return "Worth following up with more games before treating it as an identification."

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>scfingerprint</title>
+<meta name="description" content="Identify StarCraft: Brood War players by how they play. Replays never leave your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>scfingerprint</h1>
+    <p class="tagline">Tells Brood War players apart by <em>how</em> they play: hotkeys, habits, rhythm. Names don't count.</p>
+    <p class="privacy">Your replays are analysed in this browser tab. Nothing is uploaded.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="loading" class="card loading">
+    <div class="spinner"></div>
+    <span>Loading the model (about 2.5 MB)…</span>
+  </div>
+
+  <div id="app" hidden>
+    <nav class="tabs" role="tablist">
+      <button role="tab" class="tab" data-tab="identify" aria-selected="true">Who is this?</button>
+      <button role="tab" class="tab" data-tab="same" aria-selected="false">Same player?</button>
+    </nav>
+
+    <section id="tab-identify" class="panel">
+      <p class="lead-in">Add replays of <strong>one player</strong>. We'll check whether they play like anyone in the catalog of <span class="catalog-size"></span> known players.</p>
+      <div id="set-identify"></div>
+      <div class="actions">
+        <button id="run-identify" class="primary" disabled>Check the catalog</button>
+        <span id="need-identify" class="need"></span>
+      </div>
+      <div id="result-identify" aria-live="polite"></div>
+    </section>
+
+    <section id="tab-same" class="panel" hidden>
+      <p class="lead-in">Add two sets of replays: for example a player's known games, and games you suspect someone else played. We'll say whether both sets were played by the same person, and check each set against the catalog.</p>
+      <div class="two-col">
+        <div id="set-a"></div>
+        <div id="set-b"></div>
+      </div>
+      <div class="actions">
+        <button id="run-same" class="primary" disabled>Compare</button>
+        <span id="need-same" class="need"></span>
+      </div>
+      <div id="result-same" aria-live="polite"></div>
+    </section>
+
+    <details class="card about">
+      <summary>How reliable is this?</summary>
+      <ul>
+        <li>It needs at least <strong class="min-games"></strong> different 1v1 games per player. One game is too little: plenty of people look like a pro in a single game.</li>
+        <li>It only names a player when the evidence is strong. A near miss is reported as inconclusive, with no name attached.</li>
+        <li>"Not in the catalog" means the player isn't one of the <span class="catalog-size"></span> catalogued players. It says nothing about how good they are.</li>
+        <li>Ladder maps and the player's main race work best. Team games and very short games are ignored.</li>
+        <li>Treat a result as strong evidence, not proof. Confirm by hand before accusing anyone.</li>
+      </ul>
+      <p class="fine">Model <code id="model-tag"></code> · feature version <code id="feature-version"></code></p>
+      <details class="catalog">
+        <summary>Who's in the catalog?</summary>
+        <p id="catalog-list"></p>
+      </details>
+    </details>
+  </div>
+
+  <div id="fatal" class="card bad" hidden></div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <a href="https://github.com/marianogappa/scfingerprint">scfingerprint on GitHub</a>
+    <a href="https://github.com/marianogappa/scfingerprint/blob/main/docs/METHODOLOGY.md">Methodology</a>
+    <a href="https://tl.net/forum/brood-war/646324-a-announcement-on-the-jedi-ringing">The JEDI ringing case</a>
+    <a href="https://github.com/marianogappa/screpdb">screpdb</a>
+  </div>
+</footer>
+
+<script src="wasm_exec.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
