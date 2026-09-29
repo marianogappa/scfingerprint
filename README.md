@@ -23,6 +23,22 @@ years. The core evidence was a hand-made analysis of about 300 replays
 ([announcement on TL.net](https://tl.net/forum/brood-war/646324-a-announcement-on-the-jedi-ringing)). That comparison is what scfingerprint
 automates.
 
+## In use: screpdb
+
+scfingerprint powers player identity in [screpdb](https://github.com/marianogappa/screpdb),
+a StarCraft: Brood War replay reporting tool
+([try it in your browser](https://marianogappa.github.io/screpdb/)). Point it at
+your replay folder and the barcodes in it resolve to the people behind them.
+
+<img width="1400" alt="screpdb's player list, where barcode names resolve to the progamers behind them: Disco, Prime, HBQ, Light, Leta, Baskin, herO, nOOB and Paralyze" src="docs/images/screpdb-players-list.jpg" />
+
+On a player's page, the identity map and the fingerprint agree on who owns the
+account, and it lists every other toon that account plays under:
+
+<img width="1400" alt="screpdb showing the account ErOs_231208 identified as the progamer Light, with a tooltip reading: Confirmed account of Light, plays like Light, using fingerprinting technology" src="docs/images/screpdb-player.jpg" />
+
+More in the blog post [Player fingerprinting in StarCraft in the age of AI bots](https://marianogappa.github.io/software/2026/09/22/player-fingerprinting-in-the-age-of-ai-bots/).
+
 ## How well does it work?
 
 | Question | Answer |
