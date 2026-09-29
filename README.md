@@ -14,6 +14,15 @@ scfingerprint reads those habits out of a replay and turns them into a
 - **Are these two accounts the same person?** Point it at two piles of replays.
 - **Is this new account a smurf?** Same question, asked of the ladder.
 
+**Try it in your browser:** [marianogappa.github.io/scfingerprint](https://marianogappa.github.io/scfingerprint/).
+Drop in replays; they're analysed on your machine and never uploaded.
+
+**Why it matters:** in 2026 a Chinese court ordered CSL player JEDI to repay his
+prize money after organisers proved that someone else had played his games for
+years. The core evidence was a hand-made analysis of about 300 replays
+([announcement on TL.net](https://tl.net/forum/brood-war/646324-a-announcement-on-the-jedi-ringing)). That comparison is what scfingerprint
+automates.
+
 ## How well does it work?
 
 | Question | Answer |
@@ -686,6 +695,7 @@ Full reference: [pkg.go.dev](https://pkg.go.dev/github.com/marianogappa/scfinger
 |---|---|
 | `*.go` (root) | the public API — the only thing external callers import |
 | `cmd/scfingerprint/` | the CLI |
+| `cmd/scfingerprint-web/`, `web/` | the browser page: the library compiled to WebAssembly (`web/build.sh`), deployed to GitHub Pages on every merge to main |
 | `internal/` | implementation: features, scoring, training, evaluation, hygiene, catalog |
 | `internal/cmd/` | tooling that rebuilds the committed artifacts; not part of the public surface |
 | `internal/dataset/players/` | the built-in catalog: one JSON file per known player |

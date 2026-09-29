@@ -1,0 +1,61 @@
+name: pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build the page
+        run: |
+          ./web/build.sh
+          mkdir -p dist
+          cp web/index.html web/app.js web/style.css web/scfingerprint.wasm web/wasm_exec.js dist/
+
+      # Pages serves this from the /scfingerprint/ subpath, so a root-absolute
+      # asset reference 404s. Catch it here rather than on the live site.
+      - name: Check for root-absolute asset references
+        run: |
+          if grep -nE '(src|href)="/' dist/index.html; then
+            echo "::error::root-absolute asset reference found; it will 404 under /scfingerprint/"
+            exit 1
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

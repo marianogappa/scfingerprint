@@ -13,6 +13,7 @@ import (
 	"github.com/marianogappa/scfingerprint/internal/fingerprint"
 	"github.com/marianogappa/scfingerprint/internal/hygiene"
 	"github.com/marianogappa/scfingerprint/internal/scoring"
+	"github.com/marianogappa/scfingerprint/internal/verdict"
 )
 
 const syntheticBanner = `
@@ -54,20 +55,6 @@ func parseAll(fs *flag.FlagSet, args []string) ([]string, error) {
 		args = rest[1:]
 	}
 }
-
-// Confidence tiers, keyed on the false-positive rate a result achieves. For a
-// 1:N search the rate is family-wise (Šidák-corrected for catalog size) and a
-// decisive z margin over the runner-up can substitute for a strong rate — a
-// real identification pulls away from the field. For a 1:1 comparison the
-// rate is per-comparison, so the bars are one notch stricter.
-const (
-	fprStrong    = 0.01 // 1:N, at or below: the evidence is strong
-	fprLead      = 0.10 // 1:N, at or below: worth following up
-	marginStrong = 1.5  // 1:N, z gap to the runner-up that makes a lead-grade rate strong
-
-	fprStrong1v1 = 0.001 // 1:1, at or below: the evidence is strong
-	fprLead1v1   = 0.01  // 1:1, at or below: worth following up
-)
 
 func cmdMatch(args []string) int {
 	fs := flag.NewFlagSet("match", flag.ContinueOnError)
@@ -191,35 +178,8 @@ func cmdMatch(args []string) int {
 	return exitNoMatch
 }
 
-// reportVerdict makes the call for one player's result list, or none when
-// nothing survived the --min-z filter. Strong needs 3+ games and either a
-// strong rate or a lead-grade rate with a decisive margin over the runner-up
-// (when no runner-up survived the filter, the filter threshold is the
-// margin's floor).
 func reportVerdict(matches []scfingerprint.MatchResult, minZ float64) string {
-	if len(matches) == 0 {
-		return verdictNone
-	}
-	top := matches[0]
-	margin := top.Z - minZ
-	if len(matches) > 1 {
-		margin = top.Z - matches[1].Z
-	}
-	switch {
-	case top.SearchFPR > fprLead:
-		return verdictWeak
-	case top.EvidenceN < 3:
-		return verdictLead
-	// A player whose style is crowded scores respectably against strangers,
-	// so a score that does not clear their own measured bar is a lead at
-	// best however good the family-wise FPR looks.
-	case !top.ClearsIdentityBar:
-		return verdictLead
-	case top.SearchFPR <= fprStrong || margin >= marginStrong:
-		return verdictStrong
-	default:
-		return verdictLead
-	}
+	return verdict.Match(matches, minZ)
 }
 
 func cmdSame(args []string) int {

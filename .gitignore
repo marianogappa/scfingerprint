@@ -20,3 +20,8 @@
 # The replay corpus is distributed as GitHub release assets, not via git.
 # Run `go run ./internal/cmd/fetch-corpus` to materialize it.
 /corpus/replays/
+
+# Built by web/build.sh.
+/web/scfingerprint.wasm
+/web/wasm_exec.js
+/web/testdata/
