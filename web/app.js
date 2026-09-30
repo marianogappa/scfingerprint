@@ -191,8 +191,7 @@ class ReplaySet {
       }
       const meta = r.status === "ok" ? `${r.map} · ${minutes(r.seconds)} · ${r.date}` : "";
       tbody.append(el("tr", { class: why ? "out" : "" },
-        el("td", { class: "file", title: r.file }, r.file),
-        el("td", { class: "meta" }, meta),
+        el("td", { class: "file", title: r.file }, el("div", { class: "name" }, r.file), meta ? el("div", { class: "meta" }, meta) : null),
         el("td", {}, who),
         el("td", { class: "why" }, why || "✓")));
     });

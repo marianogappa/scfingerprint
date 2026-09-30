@@ -17,6 +17,8 @@ scfingerprint reads those habits out of a replay and turns them into a
 **Try it in your browser:** [marianogappa.github.io/scfingerprint](https://marianogappa.github.io/scfingerprint/).
 Drop in replays; they're analysed on your machine and never uploaded.
 
+<img width="1100" alt="The web page comparing two sets of replays: they play differently, and the catalog check identifies one set as Shinee and the other as Soma" src="docs/images/web-demo.png" />
+
 **Why it matters:** in 2026 a Chinese court ordered CSL player JEDI to repay his
 prize money after organisers proved that someone else had played his games for
 years. The core evidence was a hand-made analysis of about 300 replays
