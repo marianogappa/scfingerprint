@@ -80,6 +80,9 @@ named operating points** — never a bare yes/no.
   - *Tournament ghosting / account verification* ("is this player X?") is
     **1:1 verification** — one hypothesis, much easier. Single-game evidence
     is often adequate for suspicion; a handful of games settles it.
+    The evidence count is the smaller side: one game against 65 is one game
+    of evidence, scored with the smaller side as the probe so it gets the
+    calibration bucket its size deserves.
 
 ## Model provenance: shipped vs validated
 

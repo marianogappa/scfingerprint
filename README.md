@@ -227,11 +227,11 @@ Two accounts that really are the same human:
 ```
 ✓ MATCH: the two sides are the same player
 
-  Confidence: strong (12 games of evidence)
+  Confidence: strong (6 games of evidence)
 
-  Why: the pair scored z=4.93 (cosine 0.906) on 12 games (6 + 6).
+  Why: the pair scored z=4.93 (cosine 0.906) on 6 + 6 games; only the smaller side's 6 games counts as evidence.
        A stranger reaches this score about 1 in 1,000 times in a direct 1:1 comparison.
-       12 games agreeing at that rate is what makes this strong rather than a lead. Still confirm by hand before acting on it.
+       6+ games on each side agreeing at that rate is what makes this strong rather than a lead. Still confirm by hand before acting on it.
 ```
 
 The same command, with two genuinely different pros:
@@ -239,15 +239,18 @@ The same command, with two genuinely different pros:
 ```
 ✗ NO MATCH: the evidence does not show the two sides are the same player
 
-  Confidence: weak (12 games of evidence)
+  Confidence: weak (6 games of evidence)
 
-  Why: the pair scored z=-0.38 (cosine -0.059) on 12 games (6 + 6).
+  Why: the pair scored z=-0.38 (cosine -0.059) on 6 + 6 games; only the smaller side's 6 games counts as evidence.
        That score clears no operating point; a stranger reaches it routinely.
        That is coin-flip territory, not evidence of anything.
 ```
 
 Note how far apart those are — 4.93 versus -0.38. When it is the same person the
 answer is usually not subtle.
+
+The evidence is the smaller side. One game against 65 of a pro's games is still
+one game: it can be a lead, never strong. Get 3+ games on each side.
 
 Exit code is 0 for a confident match (`--min-verdict` picks the bar, as with
 `match`), 1 otherwise, so you can use it in scripts.
@@ -349,7 +352,9 @@ scfingerprint same --a account-one/ --name-a JSA_Larva --b account-two/ --name-b
  "verdict": "strong",
  "z": 4.932859790149249,
  "cosine": 0.9056169584593489,
- "evidence_n": 12,
+ "evidence_n": 6,
+ "games_a": 6,
+ "games_b": 6,
  "operating_points": {
   "fpr_1e2": true,
   "fpr_1e3": true,
@@ -362,6 +367,8 @@ scfingerprint same --a account-one/ --name-a JSA_Larva --b account-two/ --name-b
 
 - `verdict` — the call: `strong`, `lead`, `weak` or `none`. Same tiers as the
   human output and the exit code.
+- `evidence_n` — games on the smaller side, the evidence that limits the call.
+  `games_a` / `games_b` are each side's count.
 - `operating_points` — which strictness bars this result cleared. `fpr_1e3: true`
   means "a stranger clears this bar only 1 time in 1,000".
 - `fpr` — the strictest bar it cleared, as a number. `1.0` means none.

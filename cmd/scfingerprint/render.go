@@ -364,13 +364,13 @@ func strangerLine(fpr float64, scope string, asClause bool) string {
 }
 
 // sameTierLine explains what pins a 1:1 verdict to its tier.
-func sameTierLine(verdict string, evidenceN int) string {
-	switch verdict {
+func sameTierLine(tier string, evidenceN int) string {
+	switch tier {
 	case verdictStrong:
-		return fmt.Sprintf("%d games agreeing at that rate is what makes this strong rather than a lead. Still confirm by hand before acting on it.", evidenceN)
+		return fmt.Sprintf("%d+ games on each side agreeing at that rate is what makes this strong rather than a lead. Still confirm by hand before acting on it.", evidenceN)
 	case verdictLead:
-		if evidenceN < 3 {
-			return fmt.Sprintf("Only %s keeps this a lead rather than strong; get 3+ games.", gamesPhrase(evidenceN))
+		if evidenceN < verdict.MinGamesStrong {
+			return fmt.Sprintf("Only %s on the smaller side keeps this a lead rather than strong; get 3+ games on each side.", gamesPhrase(evidenceN))
 		}
 		return "For a direct comparison the strong bar is 1 in 1,000; this is a lead worth following up."
 	case verdictWeak:
@@ -381,10 +381,7 @@ func sameTierLine(verdict string, evidenceN int) string {
 }
 
 func gamesPhrase(n int) string {
-	if n == 1 {
-		return "1 game of evidence"
-	}
-	return fmt.Sprintf("%d games of evidence", n)
+	return gamesCount(n) + " of evidence"
 }
 
 // writeBlock prints an indented, label-aligned block:
@@ -447,7 +444,7 @@ type sameReport struct {
 
 // renderSameReport writes the human-readable report for a pairwise
 // comparison.
-func renderSameReport(w io.Writer, pal palette, verb int, bar string, r sameReport, gamesA, gamesB int) {
+func renderSameReport(w io.Writer, pal palette, verb int, bar string, r sameReport) {
 	if verb <= -2 {
 		return
 	}
@@ -470,7 +467,7 @@ func renderSameReport(w io.Writer, pal palette, verb int, bar string, r sameRepo
 	_, _ = fmt.Fprintf(w, "  Confidence: %s%s%s%s (%s)\n\n",
 		pal.bold, pal.tier(r.Tier), r.Tier, pal.reset, gamesPhrase(r.EvidenceN))
 	lines := []string{
-		fmt.Sprintf("the pair scored z=%.2f (cosine %.3f) on %d games (%d + %d).", r.Z, r.Cosine, r.EvidenceN, gamesA, gamesB),
+		fmt.Sprintf("the pair scored z=%.2f (cosine %.3f) on %d + %d games; only the smaller side's %s counts as evidence.", r.Z, r.Cosine, r.GamesA, r.GamesB, gamesCount(r.EvidenceN)),
 		strangerLine(r.FPR, "in a direct 1:1 comparison", false),
 	}
 	if line := sameTierLine(r.Tier, r.EvidenceN); line != "" {
@@ -480,7 +477,7 @@ func renderSameReport(w io.Writer, pal palette, verb int, bar string, r sameRepo
 
 	if verb >= 1 {
 		_, _ = fmt.Fprintln(w)
-		_, _ = fmt.Fprintf(w, "  Z: %.2f  Cosine: %.3f  Evidence: %d games (%d + %d)\n", r.Z, r.Cosine, r.EvidenceN, gamesA, gamesB)
+		_, _ = fmt.Fprintf(w, "  Z: %.2f  Cosine: %.3f  Evidence: %s (%d + %d)\n", r.Z, r.Cosine, gamesCount(r.EvidenceN), r.GamesA, r.GamesB)
 		_, _ = fmt.Fprint(w, "  Operating points:")
 		for _, name := range []string{"fpr_1e2", "fpr_1e3", "fpr_1e4"} {
 			mark := "✗"

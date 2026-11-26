@@ -258,7 +258,7 @@ func sameJS(args []js.Value) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	out := sameOut{Verdict: verdict.Same(v.FPR, v.EvidenceN), Z: v.Z, FPR: v.FPR, Games: v.EvidenceN}
+	out := sameOut{Verdict: verdict.Same(v.FPR, v.EvidenceN), Z: v.Z, FPR: v.FPR, Games: v.GamesA + v.GamesB}
 	if out.A, err = identify(a); err != nil {
 		return nil, err
 	}
