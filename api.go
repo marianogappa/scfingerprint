@@ -78,8 +78,10 @@ func MatchMany(games []PlayerGame, db *Dataset, opts ...Option) ([]MatchResult, 
 }
 
 // Same answers "are these two observed players the same human?" without
-// requiring either to be in any dataset. Each side is one or more games;
-// the probe is the average of side a, scored against the centroid of side b.
+// requiring either to be in any dataset. Each side is one or more games.
+// The smaller side is the probe, scored against the centroid of the larger
+// one, and its game count is the evidence: calibration is per probe size, and
+// a pile of games on one side cannot make up for a single game on the other.
 func Same(a, b []PlayerGame, opts ...Option) (Verdict, error) {
 	if len(a) == 0 || len(b) == 0 {
 		return Verdict{}, fmt.Errorf("scfingerprint: both sides must have at least one game")
@@ -90,28 +92,34 @@ func Same(a, b []PlayerGame, opts ...Option) (Verdict, error) {
 		return Verdict{}, err
 	}
 
-	wa, err := extractAndTransform(a, scorer)
+	probe, reference := a, b
+	if len(b) < len(a) {
+		probe, reference = b, a
+	}
+	wp, err := extractAndTransform(probe, scorer)
 	if err != nil {
 		return Verdict{}, err
 	}
-	wb, err := extractAndTransform(b, scorer)
+	wr, err := extractAndTransform(reference, scorer)
 	if err != nil {
 		return Verdict{}, err
 	}
 
-	fpB, err := scorer.Fingerprint(wb...)
+	fpRef, err := scorer.Fingerprint(wr...)
 	if err != nil {
 		return Verdict{}, err
 	}
 
-	sc, err := scorer.Score(wa, fpB)
+	sc, err := scorer.Score(wp, fpRef)
 	if err != nil {
 		return Verdict{}, err
 	}
 	return Verdict{
 		Z:                sc.Z,
 		Cosine:           sc.Cosine,
-		EvidenceN:        len(a) + len(b),
+		EvidenceN:        sc.EvidenceN,
+		GamesA:           len(a),
+		GamesB:           len(b),
 		OperatingPoints:  sc.OperatingPoints,
 		FPR:              searchFPR(sc.OperatingPoints, 1),
 		ModelIsSynthetic: scorer.IsSynthetic(),

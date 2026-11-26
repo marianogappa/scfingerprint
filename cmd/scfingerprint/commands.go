@@ -253,7 +253,7 @@ func cmdSame(args []string) int {
 	}
 	report := sameReport{Tier: sameVerdict(v.FPR, v.EvidenceN), Verdict: v}
 
-	renderSameReport(os.Stderr, pal, verb, bar, report, len(gamesA), len(gamesB))
+	renderSameReport(os.Stderr, pal, verb, bar, report)
 	if verb >= 0 {
 		renderScale(os.Stderr, pal)
 		renderHints(os.Stderr, pal, "the raw scores and operating points", false)

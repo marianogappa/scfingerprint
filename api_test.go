@@ -166,8 +166,8 @@ func TestSame(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v.EvidenceN != 10 {
-		t.Fatalf("EvidenceN = %d, want 10", v.EvidenceN)
+	if v.EvidenceN != 5 || v.GamesA != 5 || v.GamesB != 5 {
+		t.Fatalf("EvidenceN/GamesA/GamesB = %d/%d/%d, want 5/5/5", v.EvidenceN, v.GamesA, v.GamesB)
 	}
 
 	// Different people.
@@ -181,6 +181,44 @@ func TestSame(t *testing.T) {
 	}
 	if v2.Z >= v.Z {
 		t.Fatalf("different people scored higher (%.3f) than same person (%.3f)", v2.Z, v.Z)
+	}
+}
+
+func TestSameEvidenceIsTheSmallerSide(t *testing.T) {
+	names, _ := features.FeatureNames(features.Version)
+	d := len(names)
+
+	one := []PlayerGame{{Vector: synthtest.GameVector(200, 0, d)}}
+	var many []PlayerGame
+	for g := 1; g < 31; g++ {
+		many = append(many, PlayerGame{Vector: synthtest.GameVector(200, g, d)})
+	}
+
+	oneVsMany, err := Same(one, many)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if oneVsMany.EvidenceN != 1 || oneVsMany.GamesA != 1 || oneVsMany.GamesB != 30 {
+		t.Fatalf("1 vs many: EvidenceN/GamesA/GamesB = %d/%d/%d, want 1/1/30", oneVsMany.EvidenceN, oneVsMany.GamesA, oneVsMany.GamesB)
+	}
+
+	manyVsOne, err := Same(many, one)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if manyVsOne.EvidenceN != 1 || manyVsOne.GamesA != 30 || manyVsOne.GamesB != 1 {
+		t.Fatalf("many vs 1: EvidenceN/GamesA/GamesB = %d/%d/%d, want 1/30/1", manyVsOne.EvidenceN, manyVsOne.GamesA, manyVsOne.GamesB)
+	}
+	if manyVsOne.Z != oneVsMany.Z || manyVsOne.Cosine != oneVsMany.Cosine {
+		t.Fatalf("side order changed the score: z %.4f vs %.4f", manyVsOne.Z, oneVsMany.Z)
+	}
+
+	manyVsMany, err := Same(many[:20], many[20:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if manyVsMany.EvidenceN != 10 || manyVsMany.GamesA != 20 || manyVsMany.GamesB != 10 {
+		t.Fatalf("many vs many: EvidenceN/GamesA/GamesB = %d/%d/%d, want 10/20/10", manyVsMany.EvidenceN, manyVsMany.GamesA, manyVsMany.GamesB)
 	}
 }
 

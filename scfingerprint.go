@@ -104,7 +104,9 @@ type MatchResult struct {
 type Verdict struct {
 	Z                float64         `json:"z"`                  // calibrated z-score
 	Cosine           float64         `json:"cosine"`             // raw cosine
-	EvidenceN        int             `json:"evidence_n"`         // total games across both sides
+	EvidenceN        int             `json:"evidence_n"`         // games on the smaller side, which limit the call
+	GamesA           int             `json:"games_a"`            // games on side a
+	GamesB           int             `json:"games_b"`            // games on side b
 	OperatingPoints  map[string]bool `json:"operating_points"`   // named thresholds cleared
 	FPR              float64         `json:"fpr"`                // strictest false-positive rate this verdict clears; 1.0 = none
 	ModelIsSynthetic bool            `json:"model_is_synthetic"` // true when the backing model was trained on synthetic data

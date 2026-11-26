@@ -60,7 +60,8 @@ func Match(matches []scfingerprint.MatchResult, minZ float64) string {
 }
 
 // Same makes the call for a 1:1 comparison, on the stricter per-comparison
-// bars: strong needs both a 1 in 1,000 grade rate and 3+ games.
+// bars: strong needs both a 1 in 1,000 grade rate and 3+ games on the smaller
+// side, since that side's game count is what the score is calibrated on.
 func Same(fpr float64, evidenceN int) string {
 	switch {
 	case fpr > FPRLead1v1:
